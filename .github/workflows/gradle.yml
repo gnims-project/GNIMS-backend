@@ -29,23 +29,24 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: make application.properties
-        run:
+      - name: make main env application.properties
+        run: |
+          mkdir -p ./src/main/resources
           touch ./src/main/resources/application.properties
         shell: bash
 
-      - name: deliver application.properties
+      - name: deliver main env application.properties
         run: echo "${{ secrets.PROPERTIES }}" > ./src/main/resources/application.properties
         shell: bash
 
         # 테스트 환경 properties
-      - name: make application.properties
+      - name: make test env application.properties
         run: |
           mkdir -p ./src/test/resources
           touch ./src/test/resources/application.properties
         shell: bash
 
-      - name: deliver application.properties
+      - name: deliver test env application.properties
         run: echo "${{ secrets.TEST_PROPERTIES }}" > ./src/test/resources/application.properties
         shell: bash
 
