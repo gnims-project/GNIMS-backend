@@ -38,6 +38,7 @@ public class UserService {
 
     @Transactional
     public MessageResponseDto login(LoginRequestDto request, HttpServletResponse response) {
+
         String email = request.getEmail();
         String password = request.getPassword();
 
