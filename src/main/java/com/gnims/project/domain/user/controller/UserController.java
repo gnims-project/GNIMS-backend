@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-
-import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +30,12 @@ public class UserController {
     public MessageResponseDto login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
 
         return userService.login(request, response);
+    }
+
+    @GetMapping("/auth/kakao-login")
+    public void kakaoLoginPage(HttpServletResponse response) throws IOException {
+
+        response.sendRedirect("https://kauth.kakao.com/oauth/authorize?client_id=6e659b5f78ef7ca493658b8cefa98aa2&redirect_uri=https://eb.jxxhxxx.shop/api/user/kakao/callback&response_type=code");
     }
 
     @GetMapping("/api/user/kakao/callback")
