@@ -24,7 +24,7 @@ public class FriendshipService {
     private final UserRepository userRepository;
 
     public List<FollowingResponse> readFollowing(Long myId) {
-        List<Friendship> follows = friendshipRepository.findAllByCreateByAndStatusIs(myId, ACTIVE);
+        List<Friendship> follows = friendshipRepository.findAllByCreateByAndStatusNot(myId, INACTIVE);
         return follows.stream().map(follow -> new FollowingResponse(follow.getFollower().getId(), follow.receiveUsername()))
                                .collect(Collectors.toList());
     }
