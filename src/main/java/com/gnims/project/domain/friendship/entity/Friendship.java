@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-import static com.gnims.project.domain.friendship.entity.FriendshipStatus.*;
+import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
 
 @Getter
 @Entity
@@ -23,11 +23,11 @@ public class Friendship extends BaseEntity {
     private User follower;
 
     @Enumerated(value = EnumType.STRING)
-    private FriendshipStatus status;
+    private FollowStatus status;
 
     public Friendship(User follower) {
         this.follower = follower;
-        this.status = ACTIVE;
+        this.status = INIT;
     }
 
     public String receiveUsername() {
@@ -35,14 +35,18 @@ public class Friendship extends BaseEntity {
     }
 
     public boolean isActive() {
-        if (this.status.equals(ACTIVE)) {
-            return true;
+        if (this.status.equals(INACTIVE)) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
-    public void changeStatus(FriendshipStatus status) {
+    public void changeStatus(FollowStatus status) {
         this.status = status;
     }
+    public Long receiveFollowId() {
+        return this.follower.getId();
+    }
+
 }

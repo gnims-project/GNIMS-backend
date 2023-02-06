@@ -1,5 +1,6 @@
 package com.gnims.project.domain.friendship.service;
 
+import com.gnims.project.domain.friendship.dto.FollowResponse;
 import com.gnims.project.domain.friendship.dto.FollowingResponse;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.gnims.project.domain.friendship.entity.FriendshipStatus.*;
+import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,28 +30,27 @@ public class FriendshipService {
     }
 
     @Transactional
-    public String clickFollowButton(Long myId, Long followerId) {
+    public FollowResponse clickFollowButton(Long myId, Long userId) {
         // 팔로잉 했는지 확인
-        Optional<Friendship> optionalFollow = friendshipRepository.findByFollower_IdAndCreateBy(followerId, myId);
+        Optional<Friendship> optionalFriendship = friendshipRepository.findByFollower_IdAndCreateBy(userId, myId);
 
         // 한 번도 팔로잉을 한적이 없다면
-        if (optionalFollow.isEmpty()) {
-            User user = userRepository.findById(followerId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        if (optionalFriendship.isEmpty()) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-            Friendship follow = new Friendship(user);
-            Friendship findFollow = friendshipRepository.save(follow);
-            return findFollow.receiveUsername() + "님을 팔로잉합니다.";
+            Friendship friendship = friendshipRepository.save(new Friendship(user));
+            return new FollowResponse(friendship.receiveFollowId(), friendship.getStatus());
         }
 
         // 한번이라도 팔로잉 관계를 맺은 적이 있다면
-        Friendship follow = optionalFollow.get();
+        Friendship friendship = optionalFriendship.get();
 
-        if (follow.isActive()) {
-            follow.changeStatus(INACTIVE);
-            return "팔로잉 취소";
+        if (friendship.isActive()) {
+            friendship.changeStatus(INACTIVE);
+            return new FollowResponse(friendship.receiveFollowId(), friendship.getStatus());
         }
 
-        follow.changeStatus(ACTIVE);
-        return "다시 팔로잉";
+        friendship.changeStatus(ACTIVE);
+        return new FollowResponse(friendship.receiveFollowId(), friendship.getStatus());
     }
 }
