@@ -28,4 +28,13 @@ public class FriendshipController {
 
         return new ResponseEntity<>(new FriendshipResult<>(OK.value(), "팔로잉 조회 완료", followings), OK);
     }
+    // 팔로잉 하기/취소
+    @PostMapping("/friendship/followings/{followings-id}")
+    public String presFollowButton(@PathVariable("followings-id") Long userId,
+                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Long myId = userDetails.getUser().getId();
+        return friendshipService.clickFollowButton(myId, userId);
+
+    }
 }
