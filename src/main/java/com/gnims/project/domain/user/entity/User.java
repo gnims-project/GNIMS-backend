@@ -25,7 +25,10 @@ public class User {
     private String password;
 
     @Column
-    private Long kakaoId;
+    private String socialCode;
+
+    @Column
+    private String socialId;
 
     public User(SignupRequestDto request) {
         this.username = request.getNickname();
@@ -33,15 +36,17 @@ public class User {
         this.password = request.getPassword();
     }
 
-    public User(String username, Long kakaoId, String email, String password) {
+    public User(String username, String socialCode, String socialId, String email, String password) {
         this.username = username;
-        this.kakaoId = kakaoId;
+        this.socialCode = socialCode;
+        this.socialId = socialId;
         this.email = email;
         this.password = password;
     }
 
-    public User kakaoIdUpdate(Long kakaoId) {
-        this.kakaoId = kakaoId;
+    public User socialIdUpdate(String socialCode, String socialId) {
+        this.socialCode = socialCode;
+        this.socialId = socialId;
         return this;
     }
 }
