@@ -34,11 +34,11 @@ public class FriendshipController {
 
     // 팔로잉 하기/취소
     @PostMapping("/friendship/followings/{followings-id}")
-    public ResponseEntity<FriendshipResult> presFollowButton(@PathVariable("followings-id") Long userId,
+    public ResponseEntity<FriendshipResult> presFollowButton(@PathVariable("followings-id") Long followingId,
                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        Long myId = userDetails.getUser().getId();
-        FollowResponse response = friendshipService.clickFollowButton(myId, userId);
+        Long myselfId = userDetails.getUser().getId();
+        FollowResponse response = friendshipService.clickFollowButton(myselfId, followingId);
 
         if (response.getStatus().equals(INIT)) {
             return new ResponseEntity<>(new FriendshipResult<>(CREATED.value(), response.receiveFollowStatus(), response), CREATED);

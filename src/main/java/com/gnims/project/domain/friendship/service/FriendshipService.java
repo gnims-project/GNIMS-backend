@@ -23,22 +23,22 @@ public class FriendshipService {
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
 
-    public List<FollowingResponse> readFollowing(Long myId) {
-        List<Friendship> follows = friendshipRepository.findAllByCreateByAndStatusNot(myId, INACTIVE);
-        return follows.stream().map(follow -> new FollowingResponse(follow.getFollower().getId(), follow.receiveUsername()))
-                               .collect(Collectors.toList());
+    public List<FollowingResponse> readFollowing(Long myselfId) {
+        List<Friendship> follows = friendshipRepository.findAllByMyself_IdAndStatusNot(myselfId, INACTIVE);
+        return follows.stream().map(follow -> new FollowingResponse(follow.getFollowing().getId(), follow.receiveFollowingUsername()))
+                               .collect(toList());
     }
 
     @Transactional
-    public FollowResponse clickFollowButton(Long myId, Long userId) {
+    public FollowResponse clickFollowButton(Long myselfId, Long followingId) {
         // 팔로잉 했는지 확인
-        Optional<Friendship> optionalFriendship = friendshipRepository.findByFollower_IdAndCreateBy(userId, myId);
+        Optional<Friendship> optionalFriendship = friendshipRepository.findAllByMyself_IdAndFollowing_Id(myselfId, followingId);
 
         // 한 번도 팔로잉을 한적이 없다면
         if (optionalFriendship.isEmpty()) {
-            User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-
-            Friendship friendship = friendshipRepository.save(new Friendship(user));
+            User user = userRepository.findById(followingId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+            User myself = userRepository.findById(myselfId).get();
+            Friendship friendship = friendshipRepository.save(new Friendship(myself, user));
             return new FollowResponse(friendship.receiveFollowId(), friendship.getStatus());
         }
 
