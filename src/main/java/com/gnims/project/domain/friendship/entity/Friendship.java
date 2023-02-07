@@ -41,6 +41,14 @@ public class Friendship extends TimeStamped {
         return this.following.getUsername();
     }
 
+    public String receiveMyselfUsername() {
+        return this.myself.getUsername();
+    }
+
+    public Long receiveMyselfId() {
+        return this.myself.getId();
+    }
+
     public boolean isActive() {
         if (this.status.equals(INACTIVE)) {
             return false;

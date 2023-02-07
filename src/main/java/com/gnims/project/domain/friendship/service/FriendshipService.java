@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
 import static java.util.stream.Collectors.*;
 
@@ -53,5 +51,13 @@ public class FriendshipService {
 
         friendship.changeStatus(ACTIVE);
         return new FollowResponse(friendship.receiveFollowId(), friendship.getStatus());
+    }
+
+    // 프로토 타입 - 리스트 조회 최적화 필요.
+    public List<FollowingResponse> readFollower(Long myId) {
+        List<Friendship> followers = friendshipRepository.findAllByFollowing_Id(myId);
+
+        return followers.stream().map(f -> new FollowingResponse(f.receiveMyselfId(), f.receiveMyselfUsername()))
+                .collect(toList());
     }
 }
