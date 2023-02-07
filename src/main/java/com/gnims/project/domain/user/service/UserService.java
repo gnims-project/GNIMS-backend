@@ -1,6 +1,7 @@
 package com.gnims.project.domain.user.service;
 
 import com.gnims.project.domain.user.dto.LoginRequestDto;
+import com.gnims.project.domain.user.dto.LoginResponseDto;
 import com.gnims.project.domain.user.dto.MessageResponseDto;
 import com.gnims.project.domain.user.dto.SignupRequestDto;
 import com.gnims.project.domain.user.entity.User;
@@ -36,8 +37,7 @@ public class UserService {
         return new MessageResponseDto("회원가입 성공!");
     }
 
-    @Transactional
-    public MessageResponseDto login(LoginRequestDto request, HttpServletResponse response) {
+    public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
 
         String email = request.getEmail();
         String password = request.getPassword();
@@ -51,6 +51,7 @@ public class UserService {
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername()));
-        return new MessageResponseDto(user.getUsername() + "님 로그인 완료");
+
+        return new LoginResponseDto(user.getEmail(), user.getUsername());
     }
 }
