@@ -37,7 +37,7 @@ public class Friendship extends TimeStamped {
         this.status = INIT;
     }
 
-    public String receiveUsername() {
+    public String receiveFollowingUsername() {
         return this.following.getUsername();
     }
 
