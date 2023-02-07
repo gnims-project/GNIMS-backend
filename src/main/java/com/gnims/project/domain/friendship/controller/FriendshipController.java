@@ -4,14 +4,18 @@ import com.gnims.project.domain.friendship.dto.FollowResponse;
 import com.gnims.project.domain.friendship.dto.FollowingResponse;
 import com.gnims.project.domain.friendship.dto.FriendshipResult;
 import com.gnims.project.domain.friendship.service.FriendshipService;
-import com.gnims.project.security.user.UserDetailsImpl;
+import com.gnims.project.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
-import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
+import static com.gnims.project.domain.friendship.entity.FollowStatus.INIT;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 

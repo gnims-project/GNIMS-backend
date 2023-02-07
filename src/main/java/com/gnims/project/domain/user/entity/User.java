@@ -25,7 +25,8 @@ public class User {
     private String password;
 
     @Column
-    private String socialCode;
+    @Enumerated(value = EnumType.STRING)
+    private SocialCode socialCode;
 
     @Column
     private String socialId;
@@ -36,7 +37,7 @@ public class User {
         this.password = request.getPassword();
     }
 
-    public User(String username, String socialCode, String socialId, String email, String password) {
+    public User(String username, SocialCode socialCode, String socialId, String email, String password) {
         this.username = username;
         this.socialCode = socialCode;
         this.socialId = socialId;
@@ -44,7 +45,7 @@ public class User {
         this.password = password;
     }
 
-    public User socialIdUpdate(String socialCode, String socialId) {
+    public User socialIdUpdate(SocialCode socialCode, String socialId) {
         this.socialCode = socialCode;
         this.socialId = socialId;
         return this;
