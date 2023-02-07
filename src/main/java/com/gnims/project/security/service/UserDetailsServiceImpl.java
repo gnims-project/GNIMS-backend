@@ -1,4 +1,4 @@
-package com.gnims.project.security.user;
+package com.gnims.project.security.service;
 
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;

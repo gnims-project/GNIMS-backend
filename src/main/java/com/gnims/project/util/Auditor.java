@@ -1,9 +1,10 @@
 package com.gnims.project.util;
 
-import com.gnims.project.security.user.UserDetailsImpl;
+import com.gnims.project.security.service.UserDetailsImpl;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
 import java.util.Optional;
 
 public class Auditor implements AuditorAware<Long> {

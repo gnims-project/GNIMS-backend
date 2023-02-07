@@ -1,4 +1,4 @@
-package com.gnims.project.domain.user.kakao;
+package com.gnims.project.social.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

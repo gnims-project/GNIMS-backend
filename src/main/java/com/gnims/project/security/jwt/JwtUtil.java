@@ -1,6 +1,6 @@
 package com.gnims.project.security.jwt;
 
-import com.gnims.project.security.user.UserDetailsServiceImpl;
+import com.gnims.project.security.service.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;

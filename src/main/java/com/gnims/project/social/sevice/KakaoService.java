@@ -1,12 +1,14 @@
-package com.gnims.project.domain.user.kakao;
+package com.gnims.project.social.sevice;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gnims.project.domain.user.dto.LoginResponseDto;
+import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
+import com.gnims.project.social.dto.SocialProfileDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -143,7 +145,7 @@ public class KakaoService {
             return userRepository
                     .findByEmail(kakaoEmail).get()
                     // 기존 회원정보에 카카오 Id 추가
-                    .socialIdUpdate("KAKAO", kakaoId);
+                    .socialIdUpdate(SocialCode.KAKAO, kakaoId);
         }
 
         // 신규 회원가입
@@ -154,7 +156,7 @@ public class KakaoService {
         // email: kakao email
         String email = kakaoUserInfo.getEmail();
 
-        User kakaoUser = new User(kakaoUserInfo.getNickname(), "KAKAO", kakaoId, email, encodedPassword);
+        User kakaoUser = new User(kakaoUserInfo.getNickname(), SocialCode.KAKAO, kakaoId, email, encodedPassword);
 
         userRepository.save(kakaoUser);
         return kakaoUser;
