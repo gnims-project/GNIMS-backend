@@ -23,10 +23,10 @@ public class FriendshipService {
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
 
-    public List<FollowingResponse> readFollowing(Long myId) {
-        List<Friendship> follows = friendshipRepository.findAllByCreateByAndStatusNot(myId, INACTIVE);
-        return follows.stream().map(follow -> new FollowingResponse(follow.getFollowing().getId(), follow.receiveUsername()))
-                               .collect(Collectors.toList());
+    public List<FollowingResponse> readFollowing(Long myselfId) {
+        List<Friendship> follows = friendshipRepository.findAllByMyself_IdAndStatusNot(myselfId, INACTIVE);
+        return follows.stream().map(follow -> new FollowingResponse(follow.getFollowing().getId(), follow.receiveFollowingUsername()))
+                               .collect(toList());
     }
 
     @Transactional
