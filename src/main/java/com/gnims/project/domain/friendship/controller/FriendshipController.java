@@ -1,17 +1,13 @@
 package com.gnims.project.domain.friendship.controller;
 
-import com.gnims.project.domain.friendship.dto.FollowResponse;
-import com.gnims.project.domain.friendship.dto.FollowingResponse;
-import com.gnims.project.domain.friendship.dto.FriendshipResult;
+import com.gnims.project.domain.friendship.dto.*;
 import com.gnims.project.domain.friendship.service.FriendshipService;
 import com.gnims.project.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,7 +31,16 @@ public class FriendshipController {
 
         return new ResponseEntity<>(new FriendshipResult<>(OK.value(), "팔로잉 조회 완료", followings), OK);
     }
+    // 팔로잉 조회 - 페이징 처리 - 프로토타입
+    @GetMapping("/v2/friendship/followings")
+    public ResponseEntity<FriendshipPageableResult> readFollowingV2(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                    @RequestBody PageRequestDto pageRequestDto) {
+        Long myselfId = userDetails.getUser().getId();
+        PageRequest pageRequest = PageRequest.of(pageRequestDto.getPageNumber(), 5);
+        PagingDataResponse response = friendshipService.readFollowingV2(myselfId, pageRequest);
 
+        return new ResponseEntity<>(new FriendshipPageableResult<>(OK.value(), "팔로잉 조회 완료", response), OK);
+    }
     // 팔로잉 하기/취소
     @PostMapping("/friendship/followings/{followings-id}")
     public ResponseEntity<FriendshipResult> presFollowButton(@PathVariable("followings-id") Long followingId,
