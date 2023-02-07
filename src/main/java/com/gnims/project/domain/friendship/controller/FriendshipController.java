@@ -47,4 +47,14 @@ public class FriendshipController {
         return new ResponseEntity<>(new FriendshipResult<>(OK.value(), response.receiveFollowStatus(), response), OK);
 
     }
+
+    //팔로워 조회(나를 등록한 친구)
+    @GetMapping("/friendship/followers")
+    public ResponseEntity<FriendshipResult> readFollower(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Long myselfId = userDetails.getUser().getId();
+        List<FollowingResponse> followers = friendshipService.readFollower(myselfId);
+
+        return new ResponseEntity<>(new FriendshipResult(OK.value(), "팔로우 조회 완료", followers),OK);
+    }
 }

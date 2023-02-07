@@ -11,4 +11,5 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
 
     List<Friendship> findAllByMyself_IdAndStatusNot(Long myselfId, FollowStatus status);
     Optional<Friendship> findAllByMyself_IdAndFollowing_Id(Long myselfId, Long followingId);
+    List<Friendship> findAllByFollowing_Id(Long myselfId);
 }
