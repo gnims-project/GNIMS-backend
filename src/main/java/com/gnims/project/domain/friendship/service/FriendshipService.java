@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
+import static java.util.stream.Collectors.*;
 
 @Service
 @RequiredArgsConstructor
