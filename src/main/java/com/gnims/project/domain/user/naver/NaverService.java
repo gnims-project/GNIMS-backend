@@ -3,6 +3,7 @@ package com.gnims.project.domain.user.naver;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gnims.project.domain.user.dto.LoginResponseDto;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.kakao.SocialProfileDto;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Service
@@ -47,7 +49,7 @@ public class NaverService {
     @Value("${naver.userInfoUri}")
     private String naverProfileUri;
 
-    public String naverLogin(String code, String state) throws JsonProcessingException {
+    public LoginResponseDto naverLogin(String code, String state, HttpServletResponse response) throws JsonProcessingException {
 
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code, state);
@@ -58,10 +60,10 @@ public class NaverService {
         // 3. 필요시에 회원가입
         User naverUser = registerNaverUserIfNeeded(naverUserInfo);
 
-        // 4. JWT 토큰 반환
-        String createToken =  jwtUtil.createToken(naverUser.getUsername());
-        // 토큰 던져주기
-        return createToken;
+        // 4. JWT 토큰 담기
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(naverUser.getUsername()));
+
+        return new LoginResponseDto(naverUser.getUsername(), naverUser.getEmail());
     }
 
     // 1. "인가 코드"로 "액세스 토큰" 요청
@@ -153,7 +155,7 @@ public class NaverService {
         String password = UUID.randomUUID().toString();
         String encodedPassword = passwordEncoder.encode(password);
 
-        // email: kakao email
+        // email: naver email
         String email = naverUserInfo.getEmail();
 
         User naverUser = new User(naverUserInfo.getNickname(), "NAVER", naverId, email, encodedPassword);

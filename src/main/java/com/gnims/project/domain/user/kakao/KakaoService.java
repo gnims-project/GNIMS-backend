@@ -3,6 +3,7 @@ package com.gnims.project.domain.user.kakao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gnims.project.domain.user.dto.LoginResponseDto;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
@@ -18,6 +19,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Slf4j
@@ -40,7 +42,7 @@ public class KakaoService {
     @Value("${kakao.userInfoUri}")
     private String kakaoProfileUri;
 
-    public String kakaoLogin(String code) throws JsonProcessingException {
+    public LoginResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
@@ -51,10 +53,10 @@ public class KakaoService {
         // 3. 필요시에 회원가입
         User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 
-        // 4. JWT 토큰 반환
-        String createToken =  jwtUtil.createToken(kakaoUser.getUsername());
-        // 토큰 던져주기
-        return createToken;
+        // 4. JWT 토큰 담기
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(kakaoUser.getUsername()));
+
+        return new LoginResponseDto(kakaoUser.getUsername(), kakaoUser.getEmail());
     }
 
     // 1. "인가 코드"로 "액세스 토큰" 요청
