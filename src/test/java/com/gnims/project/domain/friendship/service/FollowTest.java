@@ -49,23 +49,23 @@ class FollowTest {
     void beforeEach() throws Exception {
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"딸기\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456\"}"));
+                .content("{\"nickname\" : \"딸기\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}"));
 
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"당근\", \"email\": \"danguen@gmail.com\", \"password\": \"123456\"}"));
+                .content("{\"nickname\" : \"당근\", \"email\": \"danguen@gmail.com\", \"password\": \"123456aA9\"}"));
 
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"수박\", \"email\": \"suback@gmail.com\", \"password\": \"123456\"}"));
+                .content("{\"nickname\" : \"수박\", \"email\": \"suback@gmail.com\", \"password\": \"123456aA9\"}"));
 
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"참외\", \"email\": \"chamwhe@gmail.com\", \"password\": \"123456\"}"));
+                .content("{\"nickname\" : \"참외\", \"email\": \"chamwhe@gmail.com\", \"password\": \"123456aA9\"}"));
 
         MvcResult result = mvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456\"}")).andReturn();
+                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}")).andReturn();
 
         authorization = result.getResponse().getHeader("Authorization");
     }
