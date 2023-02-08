@@ -7,7 +7,6 @@ import com.gnims.project.domain.user.dto.SignupRequestDto;
 import com.gnims.project.domain.user.service.UserService;
 import com.gnims.project.util.validation.ValidationSequence;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,9 +20,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/auth/signup")
-    public MessageResponseDto signup(@Validated(ValidationSequence.class) @RequestBody SignupRequestDto request, Errors errors) {
+    public MessageResponseDto signup(@Validated(ValidationSequence.class) @RequestBody SignupRequestDto request) {
 
-        return userService.signup(request, errors);
+        return userService.signup(request);
     }
 
     @PostMapping("/auth/login")
