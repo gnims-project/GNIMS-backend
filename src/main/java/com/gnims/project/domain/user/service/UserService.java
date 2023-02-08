@@ -46,13 +46,13 @@ public class UserService {
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
 
         String email = request.getEmail();
-        String password = request.getPassword();
 
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new BadCredentialsException("등록된 사용자가 없습니다.")
         );
 
-        if(!user.getPassword().equals(password)) {
+        //암호화 된 비밀번호를 비교
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
         }
 
