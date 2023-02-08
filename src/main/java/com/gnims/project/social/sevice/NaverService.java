@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
@@ -35,62 +33,34 @@ public class NaverService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    @Value("${naver.tokenUri}")
-    private String naverTokenUri;
+    /*
+    * 사용 안하지만 혹시 몰라서 남겨둠
+    * */
 
-    @Value("${naver.clientId}")
-    private String naverClientId;
-
-    @Value("${naver.redirectUri}")
-    private String naverCallbackUri;
-
-    @Value("${naver.clientSecret}")
-    private String naverClientSecret;
+//    @Value("${naver.tokenUri}")
+//    private String naverTokenUri;
+//    @Value("${naver.clientId}")
+//    private String naverClientId;
+//    @Value("${naver.redirectUri}")
+//    private String naverCallbackUri;
+//    @Value("${naver.clientSecret}")
+//    private String naverClientSecret;
 
     @Value("${naver.userInfoUri}")
     private String naverProfileUri;
 
-    public LoginResponseDto naverLogin(String code, String state, HttpServletResponse response) throws JsonProcessingException {
+    public LoginResponseDto naverLogin(String token, HttpServletResponse response) throws JsonProcessingException {
 
-        // 1. "인가 코드"로 "액세스 토큰" 요청
-        String accessToken = getToken(code, state);
+        // 1. 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
+        SocialProfileDto naverUserInfo = getNaverUserInfo(token);
 
-        // 2. 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
-        SocialProfileDto naverUserInfo = getNaverUserInfo(accessToken);
-
-        // 3. 필요시에 회원가입
+        // 2. 필요시에 회원가입
         User naverUser = registerNaverUserIfNeeded(naverUserInfo);
 
-        // 4. JWT 토큰 담기
+        // 3. JWT 토큰 담기
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(naverUser.getUsername()));
 
         return new LoginResponseDto(naverUser.getUsername(), naverUser.getEmail());
-    }
-
-    // 1. "인가 코드"로 "액세스 토큰" 요청
-    private String getToken(String code, String state) throws JsonProcessingException {
-
-        UriComponents builder = UriComponentsBuilder.fromHttpUrl(naverTokenUri)
-                .queryParam("grant_type", "authorization_code")
-                .queryParam("redirect_uri", naverCallbackUri)
-                .queryParam("client_id", naverClientId)
-                .queryParam("code", code)
-                .queryParam("state", state)
-                .queryParam("client_secret", naverClientSecret)
-                .build();
-
-        RestTemplate rt = new RestTemplate();
-        ResponseEntity<String> response = rt.postForEntity(
-                builder.toString(),
-                null,
-                String.class
-        );
-
-        // HTTP 응답 (JSON) -> 액세스 토큰 파싱
-        String responseBody = response.getBody();
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(responseBody);
-        return jsonNode.get("access_token").asText();
     }
 
     // 2. 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
@@ -98,12 +68,15 @@ public class NaverService {
 
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
+        // Header 에 naver 에 넘길 access 토큰 담기
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> naverUserInfoRequest = new HttpEntity<>(headers);
         RestTemplate rt = new RestTemplate();
+
+        //naver 서버에 요청해서 유저 정보를 받아옴
         ResponseEntity<String> response = rt.postForEntity(
                 naverProfileUri,
                 naverUserInfoRequest,
@@ -113,14 +86,16 @@ public class NaverService {
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
-        System.out.println("jsonNode = " + jsonNode.toString());
+
+        //네이버 식별자 id
         String id = jsonNode.get("response").get("id").asText();
-        String nickname = jsonNode.get("response")
-                .get("nickname").asText();
-        String email = jsonNode.get("response")
-                .get("email").asText();
+        //네이버 유저 이름
+        String nickname = jsonNode.get("response").get("name").asText();
+        //네이버 유저 이메일
+        String email = jsonNode.get("response").get("email").asText();
 
         log.info("네이버 사용자 정보: " + id + ", " + nickname + ", " + email);
+
         return new SocialProfileDto(id, nickname, email);
     }
 
