@@ -9,6 +9,7 @@ import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public MessageResponseDto signup(SignupRequestDto request) {
@@ -33,7 +35,10 @@ public class UserService {
             throw new IllegalArgumentException("중복된 닉네임 입니다");
         }
 
-        userRepository.save(new User(request));
+        //비밀번호 암호화
+        String password = passwordEncoder.encode(request.getPassword());
+
+        userRepository.save(new User(request.getNickname(), request.getEmail(), password));
 
         return new MessageResponseDto("회원가입 성공!");
     }
