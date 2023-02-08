@@ -2,16 +2,22 @@ package com.gnims.project.domain.friendship.service;
 
 import com.gnims.project.domain.friendship.dto.FollowResponse;
 import com.gnims.project.domain.friendship.dto.FollowingResponse;
+import com.gnims.project.domain.friendship.dto.PagingDataResponse;
+import com.gnims.project.domain.friendship.dto.PageDto;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
 import static java.util.stream.Collectors.*;
 
@@ -60,4 +66,15 @@ public class FriendshipService {
         return followers.stream().map(f -> new FollowingResponse(f.receiveMyselfId(), f.receiveMyselfUsername()))
                 .collect(toList());
     }
+
+    public PagingDataResponse readFollowingV2(Long myselfId, PageRequest pageRequest) {
+        Page<Friendship> friendships = friendshipRepository.findAllByMyself_IdAndStatusNot(myselfId, INACTIVE, pageRequest);
+        PageDto page = new PageDto(friendships);
+
+        List<FollowingResponse> data = friendships.stream()
+                .map(f -> new FollowingResponse(f.receiveFollowId(), f.receiveFollowingUsername()))
+                .collect(Collectors.toList());
+        return new PagingDataResponse(page, data);
+    }
+
 }
