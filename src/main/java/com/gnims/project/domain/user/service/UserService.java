@@ -11,8 +11,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +25,11 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public MessageResponseDto signup(SignupRequestDto request) {
+    public MessageResponseDto signup(SignupRequestDto request, Errors errors) {
+
+        if (errors.hasErrors()) {
+            return getError(errors);
+        }
 
         //이메일 중복 체크
         if(userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -36,6 +44,20 @@ public class UserService {
         userRepository.save(new User(request));
 
         return new MessageResponseDto("회원가입 성공!");
+    }
+
+    public MessageResponseDto getError(Errors errors) {
+
+        /* 유효성 통과 못한 필드와 메시지를 핸들링 */
+        Map<String, String> validatorResult = new HashMap<>();
+
+        for (FieldError error : errors.getFieldErrors()) {
+            String validKeyName = String.format("%s", error.getField());
+            validatorResult.put(validKeyName, error.getDefaultMessage());
+        }
+
+        /* 회원가입 실패 메시지 */
+        return new MessageResponseDto(validatorResult.toString());
     }
 
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {

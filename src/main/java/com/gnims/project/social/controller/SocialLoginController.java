@@ -7,7 +7,6 @@ import com.gnims.project.social.sevice.KakaoService;
 import com.gnims.project.social.sevice.NaverService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -19,7 +18,7 @@ public class SocialLoginController {
     private final NaverService naverService;
 
     @PostMapping ("/kakao")
-    public LoginResponseDto kakaoLogin(@RequestBody SocialCodeDto codeDto, HttpServletResponse response, ModelAndView mv) throws JsonProcessingException {
+    public LoginResponseDto kakaoLogin(@RequestBody SocialCodeDto codeDto, HttpServletResponse response) throws JsonProcessingException {
 
         // code: 카카오 서버로부터 받은 인가 코드
         return kakaoService.kakaoLogin(codeDto.getCode(), response);
