@@ -31,6 +31,8 @@ public class ScheduleService {
         //초대된 사용자 목록
         List<User> users = userRepository.findAllById(form.getParticipantsId());
 
+        //User 들이 팔로우 인지 확인할 필요성 있음 (개선 버전에서 추가)
+
         //스케쥴 엔티티 생성 및 저장
         List<Schedule> schedules = users.stream().map(user -> new Schedule(user, saveEvent))
                 .collect(Collectors.toList());
