@@ -12,6 +12,7 @@ public class ScheduleForm {
     private LocalTime time;
     private String subject;
     private String content;
+    private String cardColor;
 
     private List<Long> participantsId;
 }

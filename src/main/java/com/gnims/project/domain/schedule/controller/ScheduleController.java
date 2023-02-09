@@ -15,10 +15,10 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    @PostMapping("/schedule")
+    @PostMapping("/schedules")
     public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody ScheduleForm scheduleForm) {
-
-        return new ResponseEntity<>(scheduleService.makeSchedule(scheduleForm), HttpStatus.OK);
+        SimpleScheduleResult result = scheduleService.makeSchedule(scheduleForm);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
 
