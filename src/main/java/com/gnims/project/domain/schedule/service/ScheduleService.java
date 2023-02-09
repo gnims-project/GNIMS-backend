@@ -78,4 +78,19 @@ public class ScheduleService {
                 event.getSubject(),
                 readOneUserResponses);
     }
+
+    public List<ReadAllResponse> readPendingSchedule(Long userId) {
+        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, false);
+
+        return schedules.stream().map(s -> new ReadAllResponse(
+                s.getEvent().getId(),
+                s.getEvent().getAppointment().getDate(),
+                s.getEvent().getAppointment().getTime(),
+                s.getEvent().getCardColor(),
+                s.getEvent().getSubject(),
+                s.findInvitees()
+        )).collect(Collectors.toList());
+    }
+
+
 }
