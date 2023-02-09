@@ -10,6 +10,7 @@ import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.util.embedded.Appointment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,5 +93,11 @@ public class ScheduleService {
         )).collect(Collectors.toList());
     }
 
+    @Transactional
+    public void acceptSchedule(Long userId, Long eventId) {
+        Schedule schedule = scheduleRepository.findByUser_IdAndEvent_Id(userId, eventId).get();
 
+        schedule.acceptSchedule();
+        scheduleRepository.save(schedule);
+    }
 }
