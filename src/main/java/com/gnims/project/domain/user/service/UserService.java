@@ -1,5 +1,9 @@
 package com.gnims.project.domain.user.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -21,6 +25,12 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private String pt = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,20}$";
+
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String S3Bucket;
+
+    private final AmazonS3Client amazonS3Client;
 
     @Transactional
     public MessageResponseDto signup(SignupRequestDto request) {
