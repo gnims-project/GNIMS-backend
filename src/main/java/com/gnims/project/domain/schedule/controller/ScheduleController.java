@@ -15,6 +15,7 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
+
     //스케줄 등록
     @PostMapping("/events")
     public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody ScheduleForm scheduleForm) {

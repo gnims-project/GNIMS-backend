@@ -1,8 +1,8 @@
 package com.gnims.project.social.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gnims.project.domain.user.dto.LoginResponseDto;
 import com.gnims.project.social.dto.SocialCodeDto;
+import com.gnims.project.social.dto.SocialLoginDto;
 import com.gnims.project.social.sevice.KakaoService;
 import com.gnims.project.social.sevice.NaverService;
 import lombok.RequiredArgsConstructor;
@@ -21,14 +21,14 @@ public class SocialLoginController {
     private final NaverService naverService;
 
     @PostMapping ("/kakao/login")
-    public LoginResponseDto kakaoLogin(@RequestBody SocialCodeDto codeDto, HttpServletResponse response) throws JsonProcessingException {
+    public SocialLoginDto kakaoLogin(@RequestBody SocialCodeDto codeDto, HttpServletResponse response) throws JsonProcessingException {
 
         // code: 카카오 서버로부터 받은 인가 코드
         return kakaoService.kakaoLogin(codeDto.getCode(), response);
     }
 
     @GetMapping  ("/naver/login")
-    public LoginResponseDto naverLogin(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+    public SocialLoginDto naverLogin(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
 
         // 프론트에서 naver token 을 받아옴
         return naverService.naverLogin(request.getHeader("token"), response);

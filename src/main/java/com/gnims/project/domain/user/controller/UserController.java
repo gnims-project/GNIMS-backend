@@ -1,9 +1,6 @@
 package com.gnims.project.domain.user.controller;
 
-import com.gnims.project.domain.user.dto.LoginRequestDto;
-import com.gnims.project.domain.user.dto.LoginResponseDto;
-import com.gnims.project.domain.user.dto.MessageResponseDto;
-import com.gnims.project.domain.user.dto.SignupRequestDto;
+import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
 import com.gnims.project.util.validation.ValidationSequence;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +20,18 @@ public class UserController {
     public MessageResponseDto signup(@Validated(ValidationSequence.class) @RequestBody SignupRequestDto request) {
 
         return userService.signup(request);
+    }
+
+    @PostMapping("/auth/nickname")
+    public MessageResponseDto checkNickname(@Validated(ValidationSequence.class) @RequestBody NicknameDto request) {
+
+        return userService.checkNickname(request);
+    }
+
+    @PostMapping("/auth/email")
+    public MessageResponseDto checkEmail(@Validated(ValidationSequence.class) @RequestBody EmailDto request) {
+
+        return userService.checkEmail(request);
     }
 
     @PostMapping("/auth/login")

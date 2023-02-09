@@ -18,35 +18,46 @@ public class User {
     private String username;
 
     @Column(nullable = false)
+    private String nickname;
+
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
-    @Column
-    @Enumerated(value = EnumType.STRING)
-    private SocialCode socialCode;
+//    @Column(nullable = false)
+//    @Enumerated(value = EnumType.STRING)
+//    private SocialCode socialCode;
+//
+//    @Column
+//    private String socialId;
 
-    @Column
-    private String socialId;
-
-    public User(String nickname, String email, String password) {
-        this.username = nickname;
-        this.email = email;
-        this.password = password;
-    }
-
-    public User(String username, SocialCode socialCode, String socialId, String email, String password) {
+    public User(String username, String nickname, String email, String password) {
         this.username = username;
-        this.socialCode = socialCode;
-        this.socialId = socialId;
+        this.nickname = nickname;
         this.email = email;
         this.password = password;
     }
 
-    public User socialIdUpdate(SocialCode socialCode, String socialId) {
-        this.socialCode = socialCode;
-        this.socialId = socialId;
-        return this;
-    }
+//    public User(String username, String nickname, SocialCode socialCode, /*String socialId, */String email, String password) {
+//        this.username = username;
+//        this.nickname = nickname;
+////        this.socialId = socialId;
+//        this.email = email;
+//        this.password = password;
+//        this.socialCode = socialCode;
+//    }
+
+
+
+    /*
+    * 기존 유저와 소셜 유저 강제 통합 x
+    * */
+
+//    public User socialIdUpdate(SocialCode socialCode, String socialId) {
+//        this.socialCode = socialCode;
+//        this.socialId = socialId;
+//        return this;
+//    }
 }
