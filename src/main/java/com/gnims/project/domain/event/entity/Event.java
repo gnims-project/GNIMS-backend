@@ -20,13 +20,15 @@ public class Event extends BaseEntity {
     @Embedded
     private Appointment appointment;
 
+    private String cardColor;
+
     private String subject;
     private String content;
-
 
     public Event(Appointment appointment, ScheduleForm form) {
         this.appointment = appointment;
         this.subject = form.getSubject();
         this.content = form.getContent();
+        this.cardColor = form.getCardColor();
     }
 }

@@ -38,6 +38,6 @@ public class ScheduleService {
                 .collect(Collectors.toList());
         scheduleRepository.saveAll(schedules);
 
-        return new SimpleScheduleResult(200, "일정 조회 완료");
+        return new SimpleScheduleResult(200, "일정 등록 완료");
     }
 }
