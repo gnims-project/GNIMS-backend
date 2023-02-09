@@ -49,23 +49,23 @@ class FollowTest {
     void beforeEach() throws Exception {
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"딸기\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}"));
+                .content("{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"당근\", \"email\": \"danguen@gmail.com\", \"password\": \"123456aA9\"}"));
+                .content("{\"nickname\" : \"당근\",\"username\": \"김땡땡\", \"email\": \"danguen@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"수박\", \"email\": \"suback@gmail.com\", \"password\": \"123456aA9\"}"));
+                .content("{\"nickname\" : \"수박\",\"username\": \"박땡땡\", \"email\": \"suback@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"참외\", \"email\": \"chamwhe@gmail.com\", \"password\": \"123456aA9\"}"));
+                .content("{\"nickname\" : \"참외\",\"username\": \"최땡땡\", \"email\": \"chamwhe@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         MvcResult result = mvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}")).andReturn();
+                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\",\"socialCode\": \"AUTH\" }")).andReturn();
 
         authorization = result.getResponse().getHeader("Authorization");
     }
@@ -83,7 +83,7 @@ class FollowTest {
         //given
         String expression = "$.data[?(@.status == '%s')]";
 
-        User user = userRepository.findByUsername("수박").get();
+        User user = userRepository.findByNickname("수박").get();
         Long userId = user.getId();
 
         //when
@@ -103,7 +103,7 @@ class FollowTest {
         //given
         String expression = "$.data[?(@.status == '%s')]";
 
-        User user = userRepository.findByUsername("수박").get();
+        User user = userRepository.findByNickname("수박").get();
         Long userId = user.getId();
 
         // 최초 팔로우
@@ -126,7 +126,7 @@ class FollowTest {
         transactionManager.commit(status);
         String expression = "$.data[?(@.status == '%s')]";
 
-        User user = userRepository.findByUsername("수박").get();
+        User user = userRepository.findByNickname("수박").get();
         Long userId = user.getId();
 
         // 최초 팔로우

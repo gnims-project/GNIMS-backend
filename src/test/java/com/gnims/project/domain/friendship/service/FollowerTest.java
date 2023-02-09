@@ -49,29 +49,29 @@ public class FollowerTest {
     void beforeEach() throws Exception {
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"딸기\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456Aa9\"}"));
+                .content("{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"당근\", \"email\": \"danguen@gmail.com\", \"password\": \"123456Aa9\"}"));
+                .content("{\"nickname\" : \"당근\",\"username\": \"김땡땡\", \"email\": \"danguen@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"수박\", \"email\": \"suback@gmail.com\", \"password\": \"123456Aa9\"}"));
+                .content("{\"nickname\" : \"수박\",\"username\": \"박땡땡\", \"email\": \"suback@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         mvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nickname\" : \"참외\", \"email\": \"chamwhe@gmail.com\", \"password\": \"123456Aa9\"}"));
+                .content("{\"nickname\" : \"참외\",\"username\": \"최땡땡\", \"email\": \"chamwhe@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         MvcResult result = mvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456Aa9\"}")).andReturn();
+                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\",\"socialCode\": \"AUTH\" }")).andReturn();
 
         ddalgiToken = result.getResponse().getHeader("Authorization");
 
         MvcResult result2 = mvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"email\": \"suback@gmail.com\", \"password\": \"123456Aa9\"}")).andReturn();
+                .content("{\"email\": \"suback@gmail.com\", \"password\": \"123456aA9\",\"socialCode\": \"AUTH\"}")).andReturn();
 
         subackToken = result2.getResponse().getHeader("Authorization");
     }
@@ -82,15 +82,15 @@ public class FollowerTest {
         userRepository.deleteAll();
     }
 
-    @DisplayName("상대방이 나를 팔로우할 시 - 상태코드 200, 내 팔로워 목록에 {상대방 닉네임} 반환")
+    @DisplayName("상대방이 나를 팔로우할 시 - 상태코드 200, 내 팔로워 목록에 {상대방 이름} 반환")
     @Test
     void test1() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
         transactionManager.commit(status);
         //given
-        String expression = "$.data[?(@.nickname == '%s')]";
+        String expression = "$.data[?(@.username == '%s')]";
 
-        User ddalgi = userRepository.findByUsername("딸기").get();
+        User ddalgi = userRepository.findByNickname("딸기").get();
         Long ddalgiId = ddalgi.getId();
         mvc.perform(MockMvcRequestBuilders.post("/friendship/followings/" + ddalgiId)
                 .header("Authorization", subackToken));
@@ -101,18 +101,18 @@ public class FollowerTest {
 
                 //then
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression,"수박").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression,"박땡땡").exists());
     }
 
-    @DisplayName("여러명이 나를 팔로우해도 - 상태코드 200, 내 팔로워 목록에 {상대방 닉네임} 반환")
+    @DisplayName("여러명이 나를 팔로우해도 - 상태코드 200, 내 팔로워 목록에 {상대방 이름} 반환")
     @Test
     void test2() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
         transactionManager.commit(status);
         //given
-        String expression = "$.data[?(@.nickname == '%s')]";
+        String expression = "$.data[?(@.username == '%s')]";
 
-        User ddalgi = userRepository.findByUsername("딸기").get();
+        User ddalgi = userRepository.findByNickname("딸기").get();
         Long ddalgiId = ddalgi.getId();
         mvc.perform(MockMvcRequestBuilders.post("/friendship/followings/" + ddalgiId)
                 .header("Authorization", subackToken));
@@ -120,11 +120,11 @@ public class FollowerTest {
         //당근 유저 -> 딸기 팔로우
        MvcResult result = mvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"email\": \"danguen@gmail.com\", \"password\": \"123456Aa9\"}")).andReturn();
+                .content("{\"email\": \"danguen@gmail.com\", \"password\": \"123456aA9\",\"socialCode\": \"AUTH\"}")).andReturn();
 
         String danguenToken = result.getResponse().getHeader("Authorization");
 
-        User danguen = userRepository.findByUsername("당근").get();
+        User danguen = userRepository.findByNickname("당근").get();
         Long danguenId = danguen.getId();
         mvc.perform(MockMvcRequestBuilders.post("/friendship/followings/" + danguenId)
                 .header("Authorization", danguenToken));
@@ -134,6 +134,6 @@ public class FollowerTest {
                         .header("Authorization", ddalgiToken))
                 //then
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression,"수박", "당근").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression,"박땡땡", "김땡땡").exists());
     }
 }
