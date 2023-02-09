@@ -1,6 +1,7 @@
 package com.gnims.project.domain.schedule.entity;
 
 import com.gnims.project.domain.event.entity.Event;
+import com.gnims.project.domain.schedule.dto.ReadAllUserDto;
 import com.gnims.project.domain.user.entity.User;
 
 import com.gnims.project.util.TimeStamped;
@@ -8,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -35,5 +38,14 @@ public class Schedule extends TimeStamped {
         this.event = event;
         this.isAttend = false;
         this.isAccepted = false;
+    }
+
+    private String receiveUsername() {
+        return this.getUser().getUsername();
+    }
+
+    public List<ReadAllUserDto> findInvitees() {
+        return event.getSchedule().stream().map(s -> new ReadAllUserDto(s.receiveUsername()))
+                .collect(Collectors.toList());
     }
 }
