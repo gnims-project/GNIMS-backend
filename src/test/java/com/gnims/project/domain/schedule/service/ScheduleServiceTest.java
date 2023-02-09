@@ -89,7 +89,7 @@ class ScheduleServiceTest {
         Long id3 = userRepository.findByUsername("수박").get().getId();
 
         //when
-        mvc.perform(post("/schedule").header("Authorization", token)
+        mvc.perform(post("/schedules").header("Authorization", token)
                 .contentType(APPLICATION_JSON)
                 .content("{\"date\": \"2023-03-15\", " +
                         "\"time\":\"16:00:00\"," +
@@ -98,7 +98,7 @@ class ScheduleServiceTest {
                         "\"participantsId\": " +
                         "[" + id1 + "," + id2 + "," + id3 + "]}"))
                 //then
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, "일정 조회 완료").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression, "일정 등록 완료").exists());
 
 
         List<Schedule> schedules = scheduleRepository.findAll();
