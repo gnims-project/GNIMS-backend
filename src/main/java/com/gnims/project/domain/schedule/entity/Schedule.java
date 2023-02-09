@@ -43,9 +43,12 @@ public class Schedule extends TimeStamped {
     private String receiveUsername() {
         return this.getUser().getUsername();
     }
+    private String receiveProfile() {
+        return "대충 프로필 URI";
+    }
 
     public List<ReadAllUserDto> findInvitees() {
-        return event.getSchedule().stream().map(s -> new ReadAllUserDto(s.receiveUsername()))
+        return event.getSchedule().stream().map(s -> new ReadAllUserDto(s.receiveUsername(), s.receiveProfile()))
                 .collect(Collectors.toList());
     }
 }

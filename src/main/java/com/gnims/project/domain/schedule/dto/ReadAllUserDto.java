@@ -5,8 +5,10 @@ import lombok.Getter;
 @Getter
 public class ReadAllUserDto {
     private String username;
+    private String profile;
 
-    public ReadAllUserDto(String username) {
+    public ReadAllUserDto(String username, String profile) {
         this.username = username;
+        this.profile = profile;
     }
 }

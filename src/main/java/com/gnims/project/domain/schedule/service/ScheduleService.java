@@ -60,7 +60,7 @@ public class ScheduleService {
         Event event = schedules.get(0).getEvent();
 
         List<ReadOneUserDto> readOneUserResponses = schedules.stream()
-                .map(s -> new ReadOneUserDto(s.getUser().getUsername(), "대충 이미지 URI"))
+                .map(s -> new ReadOneUserDto(s.getUser().getUsername()))
                 .collect(Collectors.toList());
 
         return new ReadOneResponse(
