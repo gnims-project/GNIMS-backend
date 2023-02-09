@@ -2,14 +2,16 @@ package com.gnims.project.domain.user.controller;
 
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
+import com.gnims.project.security.service.UserDetailsImpl;
 import com.gnims.project.util.validation.ValidationSequence;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +34,12 @@ public class UserController {
     public MessageResponseDto checkEmail(@Validated(ValidationSequence.class) @RequestBody EmailDto request) {
 
         return userService.checkEmail(request);
+    }
+
+    @PatchMapping("/auth/profile")
+    public MessageResponseDto updateProfile(@RequestPart(value = "file") MultipartFile image, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+
+        return userService.updateProfile(image, userDetails.getUser());
     }
 
     @PostMapping("/auth/login")
