@@ -40,4 +40,17 @@ public class ScheduleService {
 
         return new SimpleScheduleResult(200, "일정 등록 완료");
     }
+
+    public List<ReadAllResponse> readAllSchedule(Long userId) {
+        List<Schedule> schedules = scheduleRepository.findAllByUser_Id(userId);
+
+        return schedules.stream().map(s -> new ReadAllResponse(
+                        s.getEvent().getId(),
+                        s.getEvent().getAppointment().getDate(),
+                        s.getEvent().getAppointment().getTime(),
+                        s.getEvent().getCardColor(),
+                        s.getEvent().getSubject(),
+                        s.findInvitees()
+                )).collect(Collectors.toList());
+    }
 }
