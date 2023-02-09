@@ -1,6 +1,5 @@
 package com.gnims.project.domain.user.entity;
 
-import com.gnims.project.domain.user.dto.SignupRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -31,10 +30,10 @@ public class User {
     @Column
     private String socialId;
 
-    public User(SignupRequestDto request) {
-        this.username = request.getNickname();
-        this.email = request.getEmail();
-        this.password = request.getPassword();
+    public User(String nickname, String email, String password) {
+        this.username = nickname;
+        this.email = email;
+        this.password = password;
     }
 
     public User(String username, SocialCode socialCode, String socialId, String email, String password) {

@@ -6,8 +6,12 @@ import com.gnims.project.social.dto.SocialCodeDto;
 import com.gnims.project.social.sevice.KakaoService;
 import com.gnims.project.social.sevice.NaverService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
@@ -23,10 +27,10 @@ public class SocialLoginController {
         return kakaoService.kakaoLogin(codeDto.getCode(), response);
     }
 
-    @GetMapping("/naver/login")
-    public LoginResponseDto naverLogin(@RequestParam String code, @RequestParam String state, HttpServletResponse response) throws JsonProcessingException {
+    @GetMapping  ("/naver/login")
+    public LoginResponseDto naverLogin(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
 
-        // code: 네이버 서버로부터 받은 인가 코드
-        return naverService.naverLogin(code, state, response);
+        // 프론트에서 naver token 을 받아옴
+        return naverService.naverLogin(request.getHeader("token"), response);
     }
 }
