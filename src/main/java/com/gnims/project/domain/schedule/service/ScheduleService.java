@@ -53,4 +53,22 @@ public class ScheduleService {
                         s.findInvitees()
                 )).collect(Collectors.toList());
     }
+
+    public ReadOneResponse readOneSchedule(Long eventId) {
+        List<Schedule> schedules = scheduleRepository.findAllByEvent_Id(eventId);
+
+        Event event = schedules.get(0).getEvent();
+
+        List<ReadOneUserDto> readOneUserResponses = schedules.stream()
+                .map(s -> new ReadOneUserDto(s.getUser().getUsername(), "대충 이미지 URI"))
+                .collect(Collectors.toList());
+
+        return new ReadOneResponse(
+                event.getId(),
+                event.getAppointment().getDate(),
+                event.getAppointment().getTime(),
+                event.getCardColor(),
+                event.getSubject(),
+                readOneUserResponses);
+    }
 }

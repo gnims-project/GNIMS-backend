@@ -28,4 +28,10 @@ public class ScheduleController {
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
     }
 
+    //스케줄 단건 조회
+    @GetMapping("/users/events/{event-id}")
+    public ResponseEntity<ReadScheduleResult> readOneSchedule(@PathVariable("event-id") Long eventId) {
+        ReadOneResponse readOneResponse = scheduleService.readOneSchedule(eventId);
+        return new ResponseEntity<>(new ReadScheduleResult(200, "상세 조회 완료", readOneResponse), HttpStatus.OK);
+    }
 }
