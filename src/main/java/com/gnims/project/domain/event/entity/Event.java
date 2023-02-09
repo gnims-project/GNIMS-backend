@@ -1,12 +1,15 @@
 package com.gnims.project.domain.event.entity;
 
 import com.gnims.project.domain.schedule.dto.ScheduleForm;
+import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.util.embedded.Appointment;
 import com.gnims.project.util.BaseEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -24,6 +27,9 @@ public class Event extends BaseEntity {
 
     private String subject;
     private String content;
+
+    @OneToMany(mappedBy = "event")
+    private List<Schedule> schedule = new ArrayList<>();
 
     public Event(Appointment appointment, ScheduleForm form) {
         this.appointment = appointment;

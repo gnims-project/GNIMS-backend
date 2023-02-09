@@ -40,4 +40,35 @@ public class ScheduleService {
 
         return new SimpleScheduleResult(200, "일정 등록 완료");
     }
+
+    public List<ReadAllResponse> readAllSchedule(Long userId) {
+        List<Schedule> schedules = scheduleRepository.findAllByUser_Id(userId);
+
+        return schedules.stream().map(s -> new ReadAllResponse(
+                        s.getEvent().getId(),
+                        s.getEvent().getAppointment().getDate(),
+                        s.getEvent().getAppointment().getTime(),
+                        s.getEvent().getCardColor(),
+                        s.getEvent().getSubject(),
+                        s.findInvitees()
+                )).collect(Collectors.toList());
+    }
+
+    public ReadOneResponse readOneSchedule(Long eventId) {
+        List<Schedule> schedules = scheduleRepository.findAllByEvent_Id(eventId);
+
+        Event event = schedules.get(0).getEvent();
+
+        List<ReadOneUserDto> readOneUserResponses = schedules.stream()
+                .map(s -> new ReadOneUserDto(s.getUser().getUsername(), "대충 이미지 URI"))
+                .collect(Collectors.toList());
+
+        return new ReadOneResponse(
+                event.getId(),
+                event.getAppointment().getDate(),
+                event.getAppointment().getTime(),
+                event.getCardColor(),
+                event.getSubject(),
+                readOneUserResponses);
+    }
 }
