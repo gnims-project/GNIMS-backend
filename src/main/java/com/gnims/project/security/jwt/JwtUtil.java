@@ -52,12 +52,12 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    public String createToken(String username) {
+    public String createToken(String nickname) {
         Date date = new Date();
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .setSubject(username)
+                        .setSubject(nickname)
                         .setExpiration(new Date(date.getTime() + TOKEN_TIME))
                         .setIssuedAt(date)
                         .signWith(key, signatureAlgorithm)
@@ -86,8 +86,8 @@ public class JwtUtil {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
     // 인증 객체 생성
-    public Authentication createAuthentication(String username) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    public Authentication createAuthentication(String nickname) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(nickname);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

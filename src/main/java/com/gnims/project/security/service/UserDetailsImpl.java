@@ -9,11 +9,11 @@ import java.util.Collection;
 public class UserDetailsImpl implements UserDetails {
 
     private final User user;
-    private final String username;
+    private final String nickname;
 
-    public UserDetailsImpl(User user, String username) {
+    public UserDetailsImpl(User user, String nickname) {
         this.user = user;
-        this.username = username;
+        this.nickname = nickname;
     }
 
     public User getUser() {
@@ -27,7 +27,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return this.nickname;
     }
 
     @Override
