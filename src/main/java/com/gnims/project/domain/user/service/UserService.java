@@ -75,10 +75,9 @@ public class UserService {
         return new MessageResponseDto("사용 가능한 이메일 입니다");
     }
 
-    //code : Auth, Kakao, Naver
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
 
-        String email = "Gnims." + request.getSocialCode().getValue() + "." + request.getEmail();
+        String email = "Gnims.Auth." + request.getEmail();
 
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new BadCredentialsException("등록된 사용자가 없습니다.")
