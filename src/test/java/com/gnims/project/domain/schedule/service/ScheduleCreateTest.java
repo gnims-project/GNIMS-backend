@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @AutoConfigureMockMvc
 @SpringBootTest
-class ScheduleServiceTest {
+class ScheduleCreateTest {
 
     @Autowired
     MockMvc mvc;
@@ -77,7 +77,9 @@ class ScheduleServiceTest {
         userRepository.deleteAll();
     }
 
-    @DisplayName("이벤트를 만들고 일정을 잡으면 - message 필드 - '일정 조회 완료', 생성된 Schedule 엔티티는 초대된 사용자의 id 값을 포함하고 있다.")
+    @DisplayName("이벤트를 만들고 일정을 잡으면 - " +
+            "message 필드 -> 일정 조회 완료'" +
+            "생성된 Schedule 엔티티는 사용자의 id 값 포함")
     @Test
     void test1() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
