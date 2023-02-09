@@ -36,4 +36,19 @@ public class ScheduleController {
         ReadOneResponse readOneResponse = scheduleService.readOneSchedule(eventId);
         return new ResponseEntity<>(new ReadScheduleResult(200, "상세 조회 완료", readOneResponse), HttpStatus.OK);
     }
+
+    // 수락을 대기중인 스케줄
+    @GetMapping("/users/{user-id}/events/pending")
+    public ResponseEntity<ReadScheduleResult> readPendingSchedule(@PathVariable("user-id") Long userId) {
+        List<ReadAllResponse> responses = scheduleService.readPendingSchedule(userId);
+        return new ResponseEntity<>(new ReadScheduleResult<>(200, "수락 대기중인 스케줄 조회 완료", responses), HttpStatus.OK);
+    }
+
+    //스케줄 수락하기
+    @PostMapping("/users/{user-id}/events/{event-id}/acceptance")
+    public ResponseEntity<SimpleScheduleResult> readPendingSchedule(@PathVariable("user-id") Long userId,
+                                                                    @PathVariable("event-id") Long eventId) {
+        scheduleService.acceptSchedule(userId, eventId);
+        return new ResponseEntity<>(new SimpleScheduleResult(200, "스케줄을 수락합니다."), HttpStatus.OK);
+    }
 }

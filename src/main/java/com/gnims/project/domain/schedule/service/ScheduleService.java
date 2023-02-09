@@ -10,6 +10,7 @@ import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.util.embedded.Appointment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,13 +37,19 @@ public class ScheduleService {
         //스케쥴 엔티티 생성 및 저장
         List<Schedule> schedules = users.stream().map(user -> new Schedule(user, saveEvent))
                 .collect(Collectors.toList());
-        scheduleRepository.saveAll(schedules);
 
+        //스케줄 생성자는 isAccepted = true
+        Long eventMakerId = event.getCreateBy();
+        Schedule eventMakerSchedule = schedules.stream().filter(s -> s.receiveUserId().equals(eventMakerId))
+                .findFirst().get();
+        eventMakerSchedule.acceptSchedule();
+
+        scheduleRepository.saveAll(schedules);
         return new SimpleScheduleResult(200, "일정 등록 완료");
     }
 
     public List<ReadAllResponse> readAllSchedule(Long userId) {
-        List<Schedule> schedules = scheduleRepository.findAllByUser_Id(userId);
+        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, true);
 
         return schedules.stream().map(s -> new ReadAllResponse(
                         s.getEvent().getId(),
@@ -55,11 +62,12 @@ public class ScheduleService {
     }
 
     public ReadOneResponse readOneSchedule(Long eventId) {
-        List<Schedule> schedules = scheduleRepository.findAllByEvent_Id(eventId);
+        List<Schedule> schedules = scheduleRepository.findAllByEvent_IdAndIsAcceptedIs(eventId, true);
 
         Event event = schedules.get(0).getEvent();
 
         List<ReadOneUserDto> readOneUserResponses = schedules.stream()
+                .filter(s -> s.getIsAccepted().equals(true))
                 .map(s -> new ReadOneUserDto(s.getUser().getUsername()))
                 .collect(Collectors.toList());
 
@@ -70,5 +78,26 @@ public class ScheduleService {
                 event.getCardColor(),
                 event.getSubject(),
                 readOneUserResponses);
+    }
+
+    public List<ReadAllResponse> readPendingSchedule(Long userId) {
+        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, false);
+
+        return schedules.stream().map(s -> new ReadAllResponse(
+                s.getEvent().getId(),
+                s.getEvent().getAppointment().getDate(),
+                s.getEvent().getAppointment().getTime(),
+                s.getEvent().getCardColor(),
+                s.getEvent().getSubject(),
+                s.findInvitees()
+        )).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void acceptSchedule(Long userId, Long eventId) {
+        Schedule schedule = scheduleRepository.findByUser_IdAndEvent_Id(userId, eventId).get();
+
+        schedule.acceptSchedule();
+        scheduleRepository.save(schedule);
     }
 }
