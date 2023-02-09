@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -51,20 +52,20 @@ class ScheduleServiceTest {
     @BeforeEach
     void beforeEach() throws Exception {
         mvc.perform(post("/auth/signup")
-                .contentType(APPLICATION_JSON)
-                .content("{\"nickname\" : \"딸기\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456Aa9\"}"));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         mvc.perform(post("/auth/signup")
-                .contentType(APPLICATION_JSON)
-                .content("{\"nickname\" : \"당근\", \"email\": \"danguen@gmail.com\", \"password\": \"123456Aa9\"}"));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nickname\" : \"당근\",\"username\": \"김땡땡\", \"email\": \"danguen@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         mvc.perform(post("/auth/signup")
-                .contentType(APPLICATION_JSON)
-                .content("{\"nickname\" : \"수박\", \"email\": \"suback@gmail.com\", \"password\": \"123456Aa9\"}"));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nickname\" : \"수박\",\"username\": \"박땡땡\", \"email\": \"suback@gmail.com\", \"password\": \"123456aA9\", \"socialCode\" : \"AUTH\"}"));
 
         MvcResult result = mvc.perform(post("/auth/login")
-                .contentType(APPLICATION_JSON)
-                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456Aa9\"}")).andReturn();
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\",\"socialCode\": \"AUTH\" }")).andReturn();
 
         token = result.getResponse().getHeader("Authorization");
     }
@@ -84,12 +85,12 @@ class ScheduleServiceTest {
 
         //given
         String expression = "$.[?(@.message == '%s')]";
-        Long id1 = userRepository.findByUsername("딸기").get().getId();
-        Long id2 = userRepository.findByUsername("당근").get().getId();
-        Long id3 = userRepository.findByUsername("수박").get().getId();
+        Long id1 = userRepository.findByNickname("딸기").get().getId();
+        Long id2 = userRepository.findByNickname("당근").get().getId();
+        Long id3 = userRepository.findByNickname("수박").get().getId();
 
         //when
-        mvc.perform(post("/schedules").header("Authorization", token)
+        mvc.perform(post("/events").header("Authorization", token)
                 .contentType(APPLICATION_JSON)
                 .content("{\"date\": \"2023-03-15\", " +
                         "\"time\":\"16:00:00\"," +
