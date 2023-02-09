@@ -48,7 +48,17 @@ public class Schedule extends TimeStamped {
     }
 
     public List<ReadAllUserDto> findInvitees() {
-        return event.getSchedule().stream().map(s -> new ReadAllUserDto(s.receiveUsername(), s.receiveProfile()))
+        return event.getSchedule().stream()
+                .filter(schedule -> schedule.getIsAccepted().equals(true))
+                .map(s -> new ReadAllUserDto(s.receiveUsername(), s.receiveProfile()))
                 .collect(Collectors.toList());
+    }
+
+    public void acceptSchedule() {
+        this.isAccepted = true;
+    }
+
+    public Long receiveUserId() {
+        return this.getUser().getId();
     }
 }
