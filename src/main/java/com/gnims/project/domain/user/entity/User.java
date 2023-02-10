@@ -23,6 +23,9 @@ public class User {
     @Column(nullable = false)
     private String email;
 
+    @Column
+    private String profileImage;
+
     @Column(nullable = false)
     private String password;
 
@@ -40,7 +43,11 @@ public class User {
         this.password = password;
     }
 
-//    public User(String username, String nickname, SocialCode socialCode, /*String socialId, */String email, String password) {
+    public void updateProfile(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    //    public User(String username, String nickname, SocialCode socialCode, /*String socialId, */String email, String password) {
 //        this.username = username;
 //        this.nickname = nickname;
 ////        this.socialId = socialId;
