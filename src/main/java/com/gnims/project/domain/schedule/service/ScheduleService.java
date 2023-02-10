@@ -103,6 +103,9 @@ public class ScheduleService {
     @Transactional
     public void acceptSchedule(Long userId, Long eventId) {
         Schedule schedule = scheduleRepository.findByUser_IdAndEvent_Id(userId, eventId).get();
+        Event event = schedule.getEvent();
+
+        checkIsDeleted(event);
 
         schedule.acceptSchedule();
         scheduleRepository.save(schedule);
