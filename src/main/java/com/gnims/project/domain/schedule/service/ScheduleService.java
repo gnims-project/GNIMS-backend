@@ -77,6 +77,7 @@ public class ScheduleService {
                 event.getAppointment().getTime(),
                 event.getCardColor(),
                 event.getSubject(),
+                event.getContent(),
                 readOneUserResponses);
     }
 
