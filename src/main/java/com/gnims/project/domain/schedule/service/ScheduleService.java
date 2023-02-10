@@ -101,4 +101,21 @@ public class ScheduleService {
         schedule.acceptSchedule();
         scheduleRepository.save(schedule);
     }
+
+    @Transactional
+    public void softDeleteSchedule(Long userId, Long eventId) {
+        Event event = eventRepository.findByCreateByAndId(userId, eventId).orElseThrow(
+                () -> new IllegalArgumentException("이벤트는 생성한 사람만 삭제할 수 있습니다."));
+
+        checkIsDeleted(event);
+
+        event.removeEvent();
+        eventRepository.save(event);
+    }
+
+    private static void checkIsDeleted(Event event) {
+        if (event.getIsDeleted().equals(true)) {
+            throw new IllegalArgumentException("이미 삭제된 일정입니다.");
+        }
+    }
 }
