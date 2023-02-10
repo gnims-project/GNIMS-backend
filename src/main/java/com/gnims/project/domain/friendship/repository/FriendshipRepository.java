@@ -15,4 +15,7 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
     Optional<Friendship> findAllByMyself_IdAndFollowing_Id(Long myselfId, Long followingId);
     List<Friendship> findAllByFollowing_Id(Long myselfId);
     Page<Friendship> findAllByMyself_IdAndStatusNot(Long myselfId, FollowStatus status, Pageable pageable);
+
+    Integer countAllByMyself_IdAndStatusNot(Long myselfId, FollowStatus status);
+    Integer countAllByFollowing_IdAndStatusNot(Long followingId, FollowStatus status);
 }

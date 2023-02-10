@@ -60,10 +60,27 @@ public class FriendshipController {
     //팔로워 조회(나를 등록한 친구)
     @GetMapping("/friendship/followers")
     public ResponseEntity<FriendshipResult> readFollower(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-
         Long myselfId = userDetails.getUser().getId();
         List<FollowingResponse> followers = friendshipService.readFollower(myselfId);
 
         return new ResponseEntity<>(new FriendshipResult(OK.value(), "팔로우 조회 완료", followers),OK);
+    }
+
+    //팔로잉 수
+    @GetMapping("/friendship/followings/counting")
+    public ResponseEntity<FriendshipResult> countFollowing(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long myselfId = userDetails.getUser().getId();
+        Integer count = friendshipService.countFollowing(myselfId);
+
+        return new ResponseEntity<>(new FriendshipResult(OK.value(), "팔로잉 조회 완료", count),OK);
+    }
+
+    //팔로워 수
+    @GetMapping("/friendship/followers/counting")
+    public ResponseEntity<FriendshipResult> countFollower(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long myselfId = userDetails.getUser().getId();
+        Integer count = friendshipService.countFollower(myselfId);
+
+        return new ResponseEntity<>(new FriendshipResult(OK.value(), "팔로워 조회 완료", count),OK);
     }
 }
