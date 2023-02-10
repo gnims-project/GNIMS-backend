@@ -1,5 +1,6 @@
-package com.gnims.project.domain.user.dto;
+package com.gnims.project.social.dto;
 
+import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.util.validation.ValidationGroups;
 import lombok.Getter;
 
@@ -7,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Getter
-public class SignupRequestDto {
+public class SocialSignupDto {
     @NotBlank(message = "닉네임은 필수 입력 값입니다.",
             groups = ValidationGroups.NotNullGroup.class)
     @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,8}$",
@@ -29,10 +30,5 @@ public class SignupRequestDto {
             message = "올바른 형식의 이메일 주소여야 합니다")
     private String email;
 
-    @NotBlank(message = "비밀번호는 필수 입력 값입니다.",
-            groups = ValidationGroups.NotNullGroup.class)
-    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{9,20}$",
-            groups = ValidationGroups.PatternCheckGroup.class,
-            message = "비밀번호는 영문/숫자를 포함하여 9~20자로 입력해야합니다.")
-    private String password;
+    private SocialCode socialCode;
 }

@@ -3,6 +3,7 @@ package com.gnims.project.domain.user.controller;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
 import com.gnims.project.security.service.UserDetailsImpl;
+import com.gnims.project.social.dto.SocialSignupDto;
 import com.gnims.project.util.validation.ValidationSequence;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +23,12 @@ public class UserController {
     public MessageResponseDto signup(@Validated(ValidationSequence.class) @RequestBody SignupRequestDto request) {
 
         return userService.signup(request);
+    }
+
+    @PostMapping("/social/signup")
+    public MessageResponseDto signup(@Validated(ValidationSequence.class) @RequestBody SocialSignupDto request) {
+
+        return userService.socialSignup(request);
     }
 
     @PostMapping("/auth/nickname")
