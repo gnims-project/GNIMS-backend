@@ -8,6 +8,7 @@ import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
+import com.gnims.project.social.dto.SocialSignupDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +28,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
-    private String pt = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,20}$";
-
 
     @Value("${cloud.aws.s3.bucket}")
     private String S3Bucket;
@@ -39,36 +37,46 @@ public class UserService {
     @Transactional
     public MessageResponseDto signup(SignupRequestDto request) {
 
+        String email = "Gnims.Auth." + request.getEmail();
+
+        //이메일 / 닉네임 중복체크
+        checkDuplicate(email, request.getNickname());
+
+        //비밀번호 암호화
+        String password = passwordEncoder.encode(request.getPassword());
+
+        userRepository.save(new User(request.getUsername(), request.getNickname(), email, password));
+
+        return new MessageResponseDto("회원가입 성공!");
+    }
+
+    @Transactional
+    public MessageResponseDto socialSignup(SocialSignupDto request) {
+
         String email = "Gnims." + request.getSocialCode().getValue() + "." + request.getEmail();
 
+        //이메일 / 닉네임 중복체크
+        checkDuplicate(email, request.getNickname());
+
+        //소셜 회원가입 시 비밀번호 임의 생성
+        //비밀번호 암호화
+        String password = passwordEncoder.encode(UUID.randomUUID().toString());
+
+        userRepository.save(new User(request.getUsername(), request.getNickname(), email, password));
+
+        return new MessageResponseDto("회원가입 성공!");
+    }
+
+    private void checkDuplicate(String email, String nickname) {
         //이메일 중복 체크
         if(userRepository.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("이미 등록된 이메일 입니다");
         }
 
         //닉네임 중복 체크
-        if(userRepository.findByNickname(request.getNickname()).isPresent()) {
+        if(userRepository.findByNickname(nickname).isPresent()) {
             throw new IllegalArgumentException("중복된 닉네임 입니다");
         }
-
-        String password = request.getPassword();
-
-        //소셜 회원가입
-        if (request.getPassword() == null) {
-            password = UUID.randomUUID().toString();
-        }
-
-        //일반 회원가입
-        else if(!Pattern.matches(pt, password)) {
-            throw new IllegalArgumentException("영문자와 숫자가 포함된 8 ~ 20 자리의 비밀번호만 가능합니다.");
-        }
-
-        //비밀번호 암호화
-        password = passwordEncoder.encode(password);
-
-        userRepository.save(new User(request.getUsername(), request.getNickname(), email, password));
-
-        return new MessageResponseDto("회원가입 성공!");
     }
 
     public MessageResponseDto checkNickname(NicknameDto request) {
