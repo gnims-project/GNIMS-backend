@@ -4,6 +4,9 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.gnims.project.domain.friendship.entity.FollowStatus;
+import com.gnims.project.domain.friendship.entity.Friendship;
+import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -20,12 +23,14 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final FriendshipRepository friendshipRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
@@ -89,7 +94,7 @@ public class UserService {
 
     public MessageResponseDto checkEmail(EmailDto request) {
 
-        String email = "Gnims." + request.getSocialCode().getValue() + "." + request.getEmail();
+        String email = "Gnims.Auth." + request.getEmail();
 
         if (userRepository.findByEmail(email).isPresent()) {
             return new MessageResponseDto("이미 등록된 이메일 입니다");
@@ -139,5 +144,23 @@ public class UserService {
                 .get().updateProfile(imageUrl);
 
         return new MessageResponseDto("성공!");
+    }
+
+    public SearchResponseDto search(String nickname, User user) {
+
+        //검색한 닉네임을 찾음
+        User searchedUser = userRepository.findByNickname(nickname).orElseThrow(
+                () -> new IllegalArgumentException("해당 닉네임의 유저가 존재하지 않습니다.")
+        );
+
+        Optional<Friendship> friend = friendshipRepository
+                .findAllByMyself_IdAndFollowing_Id(user.getId(), searchedUser.getId());
+
+        //팔로우 한 적이 없거나, 언 팔로우 상태 일 경우
+        if(friend.isEmpty() || FollowStatus.INACTIVE.equals(friend.get().getStatus())) {
+            return new SearchResponseDto(searchedUser, false);
+        }
+
+        return new SearchResponseDto(searchedUser, true);
     }
 }
