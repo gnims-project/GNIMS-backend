@@ -51,7 +51,9 @@ public class ScheduleService {
     public List<ReadAllResponse> readAllSchedule(Long userId) {
         List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, true);
 
-        return schedules.stream().map(s -> new ReadAllResponse(
+        List<Schedule> liveSchedules = receiveNotDeletedSchedules(schedules);
+
+        return liveSchedules.stream().map(s -> new ReadAllResponse(
                         s.getEvent().getId(),
                         s.getEvent().getAppointment().getDate(),
                         s.getEvent().getAppointment().getTime(),
@@ -65,6 +67,8 @@ public class ScheduleService {
         List<Schedule> schedules = scheduleRepository.findAllByEvent_IdAndIsAcceptedIs(eventId, true);
 
         Event event = schedules.get(0).getEvent();
+
+        checkIsDeleted(event);
 
         List<ReadOneUserDto> readOneUserResponses = schedules.stream()
                 .filter(s -> s.getIsAccepted().equals(true))
@@ -84,7 +88,9 @@ public class ScheduleService {
     public List<ReadAllResponse> readPendingSchedule(Long userId) {
         List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, false);
 
-        return schedules.stream().map(s -> new ReadAllResponse(
+        List<Schedule> liveSchedules = receiveNotDeletedSchedules(schedules);
+
+        return liveSchedules.stream().map(s -> new ReadAllResponse(
                 s.getEvent().getId(),
                 s.getEvent().getAppointment().getDate(),
                 s.getEvent().getAppointment().getTime(),
@@ -117,5 +123,11 @@ public class ScheduleService {
         if (event.getIsDeleted().equals(true)) {
             throw new IllegalArgumentException("이미 삭제된 일정입니다.");
         }
+    }
+
+    private static List<Schedule> receiveNotDeletedSchedules(List<Schedule> schedules) {
+        List<Schedule> liveSchedules = schedules.stream().filter(s -> s.getEvent().getIsDeleted().equals(false))
+                .collect(Collectors.toList());
+        return liveSchedules;
     }
 }
