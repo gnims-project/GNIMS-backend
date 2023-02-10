@@ -4,6 +4,7 @@ import com.gnims.project.domain.friendship.dto.FollowResponse;
 import com.gnims.project.domain.friendship.dto.FollowingResponse;
 import com.gnims.project.domain.friendship.dto.PagingDataResponse;
 import com.gnims.project.domain.friendship.dto.PageDto;
+import com.gnims.project.domain.friendship.entity.FollowStatus;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.user.entity.User;
@@ -77,4 +78,13 @@ public class FriendshipService {
         return new PagingDataResponse(page, data);
     }
 
+    public Integer countFollowing(Long myselfId) {
+        return friendshipRepository.countAllByMyself_IdAndStatusNot(myselfId, INACTIVE);
+
+    }
+
+    public Integer countFollower(Long myselfId) {
+        return friendshipRepository.countAllByFollowing_IdAndStatusNot(myselfId, INACTIVE);
+
+    }
 }
