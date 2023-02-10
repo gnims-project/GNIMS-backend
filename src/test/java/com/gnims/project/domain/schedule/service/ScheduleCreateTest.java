@@ -78,8 +78,10 @@ class ScheduleCreateTest {
     }
 
     @DisplayName("이벤트를 만들고 일정을 잡으면 - " +
-            "message 필드 -> 일정 조회 완료'" +
-            "생성된 Schedule 엔티티는 사용자의 id 값 포함")
+            "message 필드 -> '일정 조회 완료'" +
+            "생성된 Schedule 엔티티는 초대한 user의 id 값 포함" +
+            "스케줄 생성자는 Schedule 엔티티 isAccepted 필드 true" +
+            "초대받은 사람들은 isAccepted 필드 false 여야 한다.")
     @Test
     void test1() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
@@ -87,9 +89,9 @@ class ScheduleCreateTest {
 
         //given
         String expression = "$.[?(@.message == '%s')]";
-        Long id1 = userRepository.findByNickname("딸기").get().getId();
-        Long id2 = userRepository.findByNickname("당근").get().getId();
-        Long id3 = userRepository.findByNickname("수박").get().getId();
+        Long hostId = userRepository.findByNickname("딸기").get().getId();
+        Long inviteeId1 = userRepository.findByNickname("당근").get().getId();
+        Long inviteeId2 = userRepository.findByNickname("수박").get().getId();
 
         //when
         mvc.perform(post("/events").header("Authorization", token)
@@ -99,19 +101,26 @@ class ScheduleCreateTest {
                         "\"subject\":\"과일 정기 모임\"," +
                         "\"content\":\"방이동 채소가게에서 저녁 식사\", " +
                         "\"participantsId\": " +
-                        "[" + id1 + "," + id2 + "," + id3 + "]}"))
+                        "[" + hostId + "," + inviteeId1 + "," + inviteeId2 + "]}"))
                 //then
                 .andExpect(MockMvcResultMatchers.jsonPath(expression, "일정 등록 완료").exists());
 
 
         List<Schedule> schedules = scheduleRepository.findAll();
-        Event event = schedules.get(0).getEvent();
+        Schedule hostSchedule = schedules.stream().filter(s -> s.getIsAccepted().equals(true)).findFirst().get();
         List<Long> userIds = schedules.stream().map(s -> s.getUser().getId()).collect(Collectors.toList());
         Event findEvent = eventRepository.findBySubject("과일 정기 모임").get();
 
-        //then - 생성된 Schedule에는 초대된 사용자 id 들이 포함되어 있다.
-        Assertions.assertThat(userIds).contains(id1, id2, id3);
-        Assertions.assertThat(event.getContent()).isEqualTo(findEvent.getContent());
+        //then - 생성된 Schedule 엔티티는 초대한 userId 값 포함
+        Assertions.assertThat(userIds).contains(hostId, inviteeId1, inviteeId2);
+        Assertions.assertThat(hostSchedule.getEvent().getContent()).isEqualTo(findEvent.getContent());
+
+        //then - 스케줄 생성자는 Schedule 엔티티 isAccepted 필드 true
+        Assertions.assertThat(hostSchedule.receiveUserId()).isEqualTo(hostId);
+        //then - 초대받은 사람들은 isAccepted 필드 false 여야 한다.
+        Schedule inviteeSchedule = schedules.stream().filter(s -> s.getIsAccepted().equals(false)).findFirst().get();
+        Assertions.assertThat(inviteeSchedule.receiveUserId()).isIn(List.of(inviteeId1, inviteeId2));
+
 
     }
 }
