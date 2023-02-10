@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
     Optional<Event> findBySubject(String subject);
+    Optional<Event> findByCreateByAndId(Long createBy, Long eventId);
 }

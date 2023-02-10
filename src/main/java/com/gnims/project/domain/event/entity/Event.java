@@ -24,9 +24,9 @@ public class Event extends BaseEntity {
     private Appointment appointment;
 
     private String cardColor;
-
     private String subject;
     private String content;
+    private Boolean isDeleted;
 
     @OneToMany(mappedBy = "event")
     private List<Schedule> schedule = new ArrayList<>();
@@ -36,5 +36,10 @@ public class Event extends BaseEntity {
         this.subject = form.getSubject();
         this.content = form.getContent();
         this.cardColor = form.getCardColor();
+        this.isDeleted = false;
+    }
+
+    public void removeEvent() {
+        this.isDeleted = true;
     }
 }
