@@ -22,9 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -125,6 +123,22 @@ public class UserService {
 
         if(image == null || Objects.equals(image.getOriginalFilename(), "")) {
             throw new IllegalArgumentException("이미지를 넣어 주세요!");
+        }
+
+        String fileRealName = image.getOriginalFilename();
+
+        //확장자 분리
+        String extension = fileRealName.substring(fileRealName.lastIndexOf(".") + 1);
+
+        //허용할 확장자 목록
+        List<String> checkFile = new ArrayList<>(List.of(
+                "gif", "jfif", "pjpeg", "jpeg",
+                "pjp", "jpg", "png", "bmp",
+                "dib", "webp", "svgz", "svg"));
+
+        //확장자 체크
+        if(!checkFile.contains(extension)) {
+            throw new IllegalArgumentException(checkFile + " 확장자의 이미지 파일만 업로드 가능합니다!");
         }
 
         String originName = UUID.randomUUID().toString();
