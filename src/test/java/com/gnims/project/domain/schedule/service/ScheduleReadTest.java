@@ -90,7 +90,13 @@ public class ScheduleReadTest {
         userRepository.deleteAll();
     }
 
-    @DisplayName("일정 상세 조회 시, 초대 받은 사람의 username 반환")
+    /**
+     * 기본적으로 일정을 생성한 사람(주최자)은 일정(Schedule)에 참석(isAccepted = true)한다고 결정하였습니다.
+     */
+    @DisplayName("일정 상세 조회 시, " +
+            "응답 결과로 초대를 수락한(isAccepted) 사람의 username 반환 " +
+            "초대를 수락하지 않은 사람의 username 은 반환하지 않습니다." +
+            "일정 제목, 본문, 카드 색상, 날짜, 시간 반환")
     @Test
     void test1() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
@@ -104,11 +110,19 @@ public class ScheduleReadTest {
                 .header("Authorization", token)
                 .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data[?(@.subject == '%s')]","자바 스터디").exists())
-                .andExpect(jsonPath("$.data.invitees[?(@.username == '%s')]", "이땡땡", "김땡땡").exists())
-                .andExpect(jsonPath("$.data.invitees[?(@.username == '%s')]", "박땡땡").doesNotExist());
+                .andExpect(jsonPath("$.data[?(@.content == '%s')]","람다, 스트림에 대해 공부합니다.").exists())
+                .andExpect(jsonPath("$.data[?(@.cardColor == '%s')]","pink").exists())
+                .andExpect(jsonPath("$.data[?(@.date == '%s')]","2023-03-15").exists())
+                .andExpect(jsonPath("$.data[?(@.time == '%s')]","16:00:00").exists())
+                .andExpect(jsonPath("$.data.invitees[?(@.username == '%s')]", "이땡땡").exists())
+                .andExpect(jsonPath("$.data.invitees[?(@.username == '%s')]", "박땡땡").doesNotExist())
+                .andExpect(jsonPath("$.data.invitees[?(@.username == '%s')]", "김땡땡").doesNotExist());
     }
 
-    @DisplayName("일정 전체 조회 시, 초대 받은 사람의 username, profile 반환")
+    @DisplayName("일정 전체 조회 시, " +
+            "응답 결과로 초대를 수락한(isAccepted) 사람의 username, profile 반환" +
+            "초대를 수락하지 않은 사람의 username 은 반환하지 않습니다." +
+            "일정 제목, 카드 색상, 날짜, 시간 반환")
     @Test
     void test2() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
@@ -122,12 +136,16 @@ public class ScheduleReadTest {
                         .header("Authorization", token)
                         .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data[?(@.subject == '%s')]","자바 스터디").exists())
-                .andExpect(jsonPath("$..invitees[?(@.username == '%s')]", "이땡땡", "김땡땡").exists())
+                .andExpect(jsonPath("$.data[?(@.cardColor == '%s')]","pink").exists())
+                .andExpect(jsonPath("$.data[?(@.date == '%s')]","2023-03-15").exists())
+                .andExpect(jsonPath("$.data[?(@.time == '%s')]","16:00:00").exists())
+                .andExpect(jsonPath("$..invitees[?(@.username == '%s')]", "이땡땡").exists())
+                .andExpect(jsonPath("$..invitees[?(@.profile == '%s')]", "대충 프로필 URI").exists())
                 .andExpect(jsonPath("$..invitees[?(@.username == '%s')]", "박땡땡").doesNotExist())
-                .andExpect(jsonPath("$..invitees[?(@.profile == '%s')]", "대충 프로필 URI").exists());
+                .andExpect(jsonPath("$..invitees[?(@.username == '%s')]", "김땡땡").doesNotExist());
     }
 
-    @DisplayName("일정 전체 조회 시, 응답 결과의 data 길이 자신이 가진 일정 갯수와 동일해야 한다.")
+    @DisplayName("일정 전체 조회 시, 응답 결과의 data 길이는 자신이 수락(isAccepted = true)한 일정 갯수와 동일해야 한다.")
     @Test
     void test3() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
@@ -149,7 +167,7 @@ public class ScheduleReadTest {
         mvc.perform(MockMvcRequestBuilders.get("/users/" +userId + "/events")
                         .header("Authorization", token)
                         .contentType(APPLICATION_JSON))
-                .andExpect(jsonPath("$.data.size()", 2).exists());
+                .andExpect(jsonPath("$.data.size()").value(2));
 
     }
 }

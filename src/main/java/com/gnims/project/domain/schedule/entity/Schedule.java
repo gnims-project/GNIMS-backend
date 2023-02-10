@@ -44,7 +44,11 @@ public class Schedule extends TimeStamped {
         return this.getUser().getUsername();
     }
     private String receiveProfile() {
-        return "대충 프로필 URI";
+        if (user.getProfileImage() == null) {
+            return "대충 프로필 URI";
+        }
+
+        return user.getProfileImage();
     }
 
     public List<ReadAllUserDto> findInvitees() {
