@@ -2,9 +2,11 @@ package com.gnims.project.domain.schedule.controller;
 
 import com.gnims.project.domain.schedule.dto.*;
 import com.gnims.project.domain.schedule.service.ScheduleService;
+import com.gnims.project.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,5 +52,14 @@ public class ScheduleController {
                                                                     @PathVariable("event-id") Long eventId) {
         scheduleService.acceptSchedule(userId, eventId);
         return new ResponseEntity<>(new SimpleScheduleResult(200, "스케줄을 수락합니다."), HttpStatus.OK);
+    }
+
+    //스케줄 삭제
+    @DeleteMapping("/users/events/{event-id}")
+    public ResponseEntity<SimpleScheduleResult> deleteSchedule(@PathVariable("event-id") Long eventId,
+                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        scheduleService.softDeleteSchedule(userDetails.getUser().getId(), eventId);
+        return new ResponseEntity<>(new SimpleScheduleResult(200, "스케줄을 삭제합니다."), HttpStatus.OK);
     }
 }
