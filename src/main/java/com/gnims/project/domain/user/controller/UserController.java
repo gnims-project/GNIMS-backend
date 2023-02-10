@@ -36,7 +36,7 @@ public class UserController {
         return userService.checkEmail(request);
     }
 
-    @PatchMapping("/auth/profile")
+    @PatchMapping("/users/profile")
     public MessageResponseDto updateProfile(@RequestPart(value = "file") MultipartFile image, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
         return userService.updateProfile(image, userDetails.getUser());
