@@ -17,12 +17,11 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-
     //스케줄 등록
     @PostMapping("/events")
     public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody ScheduleForm scheduleForm) {
-        SimpleScheduleResult result = scheduleService.makeSchedule(scheduleForm);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+        scheduleService.makeSchedule(scheduleForm);
+        return new ResponseEntity<>(new SimpleScheduleResult(201, "스케줄 생성 완료"), HttpStatus.CREATED);
     }
 
     //스케줄 전체 조회
@@ -35,8 +34,8 @@ public class ScheduleController {
     //스케줄 단건 조회
     @GetMapping("/users/events/{event-id}")
     public ResponseEntity<ReadScheduleResult> readOneSchedule(@PathVariable("event-id") Long eventId) {
-        ReadOneResponse readOneResponse = scheduleService.readOneSchedule(eventId);
-        return new ResponseEntity<>(new ReadScheduleResult(200, "상세 조회 완료", readOneResponse), HttpStatus.OK);
+        ReadOneResponse response = scheduleService.readOneSchedule(eventId);
+        return new ResponseEntity<>(new ReadScheduleResult(200, "상세 조회 완료", response), HttpStatus.OK);
     }
 
     // 수락을 대기중인 스케줄
