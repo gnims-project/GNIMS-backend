@@ -24,7 +24,7 @@ public class ScheduleService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public SimpleScheduleResult makeSchedule(ScheduleForm form) {
+    public void makeSchedule(ScheduleForm form) {
         //이벤트 엔티티 생성 및 저장
         Appointment appointment = new Appointment(form);
         Event event = new Event(appointment, form);
@@ -46,7 +46,6 @@ public class ScheduleService {
         eventMakerSchedule.acceptSchedule();
 
         scheduleRepository.saveAll(schedules);
-        return new SimpleScheduleResult(200, "일정 등록 완료");
     }
 
     public List<ReadAllResponse> readAllSchedule(Long userId) {
