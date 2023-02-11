@@ -103,7 +103,7 @@ class ScheduleCreateTest {
                         "\"participantsId\": " +
                         "[" + hostId + "," + inviteeId1 + "," + inviteeId2 + "]}"))
                 //then
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, "일정 등록 완료").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression, "스케줄 생성 완료").exists());
 
 
         List<Schedule> schedules = scheduleRepository.findAll();
