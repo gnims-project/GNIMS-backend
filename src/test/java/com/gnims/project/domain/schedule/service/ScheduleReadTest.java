@@ -106,7 +106,7 @@ public class ScheduleReadTest {
         Long eventId = event.getId();
 
 
-        mvc.perform(MockMvcRequestBuilders.get("/users/events/" + eventId)
+        mvc.perform(MockMvcRequestBuilders.get("/events/" + eventId)
                 .header("Authorization", token)
                 .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data[?(@.subject == '%s')]","자바 스터디").exists())
@@ -129,10 +129,8 @@ public class ScheduleReadTest {
         transactionManager.commit(status);
 
         User user = userRepository.findByUsername("이땡땡").get();
-        Long userId = user.getId();
 
-
-        mvc.perform(MockMvcRequestBuilders.get("/users/" +userId + "/events")
+        mvc.perform(MockMvcRequestBuilders.get("/events")
                         .header("Authorization", token)
                         .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data[?(@.subject == '%s')]","자바 스터디").exists())
@@ -164,7 +162,7 @@ public class ScheduleReadTest {
                         "\"participantsId\": " +
                         "[" + userId + "]}"));
 
-        mvc.perform(MockMvcRequestBuilders.get("/users/" +userId + "/events")
+        mvc.perform(MockMvcRequestBuilders.get( "/events")
                         .header("Authorization", token)
                         .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data.size()").value(2));
