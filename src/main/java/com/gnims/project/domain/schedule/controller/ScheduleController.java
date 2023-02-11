@@ -19,8 +19,10 @@ public class ScheduleController {
 
     //스케줄 등록
     @PostMapping("/events")
-    public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody ScheduleForm scheduleForm) {
-        scheduleService.makeSchedule(scheduleForm);
+    public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody ScheduleForm scheduleForm,
+                                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long userId = userDetails.receiveUserId();
+        scheduleService.makeSchedule(scheduleForm, userId);
         return new ResponseEntity<>(new SimpleScheduleResult(201, "스케줄 생성 완료"), HttpStatus.CREATED);
     }
 

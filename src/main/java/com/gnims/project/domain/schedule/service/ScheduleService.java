@@ -26,27 +26,28 @@ public class ScheduleService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public void makeSchedule(ScheduleForm form) {
+    public void makeSchedule(ScheduleForm form, Long userId) {
         //이벤트 엔티티 생성 및 저장
-        Appointment appointment = new Appointment(form);
-        Event event = new Event(appointment, form);
-        Event saveEvent = eventRepository.save(event);
-
+        Event event = eventRepository.save(new Event(new Appointment(form), form));
+        //주최자 스케줄 처리 -> 주최자는 자동 일정에 자동 참여
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        Schedule hostSchedule = new Schedule(user, event);
+        hostSchedule.acceptSchedule();
+        //개인 스케줄일 경우
+        if (isPersonalSchedule(form, userId)) {
+            scheduleRepository.save(hostSchedule);
+            return;
+        }
         //초대된 사용자 목록
         List<User> users = userRepository.findAllById(form.getParticipantsId());
-
         //User 들이 팔로우 인지 확인할 필요성 있음 (개선 버전에서 추가)
-
         //스케쥴 엔티티 생성 및 저장
-        List<Schedule> schedules = users.stream().map(user -> new Schedule(user, saveEvent))
-                .collect(Collectors.toList());
-
-        //스케줄 생성자는 isAccepted = true
-        Long eventMakerId = event.getCreateBy();
-        Schedule eventMakerSchedule = schedules.stream().filter(s -> s.receiveUserId().equals(eventMakerId))
-                .findFirst().get();
-        eventMakerSchedule.acceptSchedule();
-
+        List<Schedule> schedules = users.stream()
+                //자기 자신이 participants 목록에 들어갈 경우 필터링
+                .filter(u -> !userId.equals(u.getId()))
+                .map(u -> new Schedule(u, event)).collect(Collectors.toList());
+        schedules.add(hostSchedule);
         scheduleRepository.saveAll(schedules);
     }
 
@@ -160,5 +161,10 @@ public class ScheduleService {
                 .filter(s -> s.getEvent().getIsDeleted().equals(false))
                 .collect(Collectors.toList());
         return liveSchedules;
+    }
+
+    private static boolean isPersonalSchedule(ScheduleForm form, Long userId) {
+        return form.getParticipantsId().isEmpty() ||
+                (form.getParticipantsId().size() == 1 && form.getParticipantsId().get(0).equals(userId));
     }
 }
