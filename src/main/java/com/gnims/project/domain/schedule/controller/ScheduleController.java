@@ -62,4 +62,14 @@ public class ScheduleController {
         scheduleService.softDeleteSchedule(userDetails.getUser().getId(), eventId);
         return new ResponseEntity<>(new SimpleScheduleResult(200, "스케줄을 삭제합니다."), HttpStatus.OK);
     }
+
+    //스케줄 수정
+    @PutMapping("/users/events/{event-id}")
+    public ResponseEntity<SimpleScheduleResult> updateSchedule(@PathVariable("event-id") Long eventId,
+                                                               @RequestBody UpdateForm updateForm,
+                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        scheduleService.updateSchedule(userDetails.getUser().getId(), updateForm, eventId);
+        return new ResponseEntity<>(new SimpleScheduleResult(200, "스케줄을 수정합니다."), HttpStatus.OK);
+    }
 }
