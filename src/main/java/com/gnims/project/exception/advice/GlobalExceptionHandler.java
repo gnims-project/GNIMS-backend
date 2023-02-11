@@ -2,6 +2,7 @@ package com.gnims.project.exception.advice;
 
 import com.gnims.project.exception.dto.ExceptionResponseListMessage;
 import com.gnims.project.exception.dto.ExceptionResponseMessage;
+import io.jsonwebtoken.security.SecurityException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -39,6 +40,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<ExceptionResponseMessage> BadCredentialsExceptionHandle(BadCredentialsException exception) {
+        ExceptionResponseMessage message = new ExceptionResponseMessage(UNAUTHORIZED.value(), exception.getMessage());
+        return new ResponseEntity<>(message, HttpStatus.valueOf(message.getStatus()));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ExceptionResponseMessage> SecurityExceptionHandle(SecurityException exception) {
         ExceptionResponseMessage message = new ExceptionResponseMessage(UNAUTHORIZED.value(), exception.getMessage());
         return new ResponseEntity<>(message, HttpStatus.valueOf(message.getStatus()));
     }
