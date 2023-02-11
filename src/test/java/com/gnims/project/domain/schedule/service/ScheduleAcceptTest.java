@@ -112,7 +112,7 @@ public class ScheduleAcceptTest {
         Assertions.assertThat(subackSchedule.getIsAccepted()).isFalse();
 
         //when
-        mvc.perform(post("/users/" + inviteeId1 + "/events/" + eventId + "/acceptance")
+        mvc.perform(post( "/events/" + eventId + "/acceptance")
                 .header("Authorization", inviteeToken)
                 .contentType(APPLICATION_JSON));
 
