@@ -102,7 +102,7 @@ public class ScheduleService {
     }
 
     public List<ReadPastAllResponse> readPastSchedule(Long userId) {
-        List<Schedule> schedules = scheduleRepository.findAllByEvent_IdAndIsAcceptedIs(userId, true);
+        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, true);
         List<Schedule> pastSchedules = schedules.stream().filter(s -> s.getEvent().getIsDeleted().equals(false))
                 .filter(s -> ChronoUnit.DAYS.between(LocalDate.now(), s.getEvent().receiveDate()) < 0)
                 .collect(Collectors.toList());
