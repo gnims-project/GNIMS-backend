@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,5 +51,13 @@ public class Event extends BaseEntity {
         this.subject = form.getSubject();
         this.content = form.getContent();
         this.appointment = new Appointment(form);
+    }
+
+    public LocalDate receiveDate() {
+        return this.appointment.getDate();
+    }
+
+    public LocalTime receiveTime() {
+        return this.appointment.getTime();
     }
 }

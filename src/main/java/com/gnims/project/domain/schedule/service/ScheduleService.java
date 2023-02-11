@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,15 +50,15 @@ public class ScheduleService {
         scheduleRepository.saveAll(schedules);
     }
 
-    public List<ReadAllResponse> readAllSchedule(Long userId) {
+    public List<ReadPastAllResponse> readAllSchedule(Long userId) {
         List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, true);
 
-        List<Schedule> liveSchedules = receiveNotDeletedSchedules(schedules);
+        List<Schedule> liveSchedules = filterDeletedSchedules(schedules);
 
-        return liveSchedules.stream().map(s -> new ReadAllResponse(
+        return liveSchedules.stream().map(s -> new ReadPastAllResponse(
                         s.getEvent().getId(),
-                        s.getEvent().getAppointment().getDate(),
-                        s.getEvent().getAppointment().getTime(),
+                        s.getEvent().receiveDate(),
+                        s.getEvent().receiveTime(),
                         s.getEvent().getCardColor(),
                         s.getEvent().getSubject(),
                         s.findInvitees()
@@ -70,34 +72,48 @@ public class ScheduleService {
 
         checkIsDeleted(event);
 
-        List<ReadOneUserDto> readOneUserResponses = schedules.stream()
+        List<ReadOneUserDto> invitees = schedules.stream()
                 .filter(s -> s.getIsAccepted().equals(true))
                 .map(s -> new ReadOneUserDto(s.getUser().getUsername()))
                 .collect(Collectors.toList());
 
         return new ReadOneResponse(
                 event.getId(),
-                event.getAppointment().getDate(),
-                event.getAppointment().getTime(),
+                event.receiveDate(),
+                event.receiveTime(),
                 event.getCardColor(),
                 event.getSubject(),
                 event.getContent(),
-                readOneUserResponses);
+                invitees);
     }
 
-    public List<ReadAllResponse> readPendingSchedule(Long userId) {
+    public List<ReadPastAllResponse> readPendingSchedule(Long userId) {
         List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, false);
 
-        List<Schedule> liveSchedules = receiveNotDeletedSchedules(schedules);
+        List<Schedule> liveSchedules = filterDeletedSchedules(schedules);
 
-        return liveSchedules.stream().map(s -> new ReadAllResponse(
+        return liveSchedules.stream().map(s -> new ReadPastAllResponse(
                 s.getEvent().getId(),
-                s.getEvent().getAppointment().getDate(),
-                s.getEvent().getAppointment().getTime(),
+                s.getEvent().receiveDate(),
+                s.getEvent().receiveTime(),
                 s.getEvent().getCardColor(),
                 s.getEvent().getSubject(),
-                s.findInvitees()
-        )).collect(Collectors.toList());
+                s.findInvitees())).collect(Collectors.toList());
+    }
+
+    public List<ReadPastAllResponse> readPastSchedule(Long userId) {
+        List<Schedule> schedules = scheduleRepository.findAllByEvent_IdAndIsAcceptedIs(userId, true);
+        List<Schedule> pastSchedules = schedules.stream().filter(s -> s.getEvent().getIsDeleted().equals(false))
+                .filter(s -> ChronoUnit.DAYS.between(LocalDate.now(), s.getEvent().receiveDate()) < 0)
+                .collect(Collectors.toList());
+
+        return pastSchedules.stream().map(s -> new ReadPastAllResponse(
+                s.getEvent().getId(),
+                s.getEvent().receiveDate(),
+                s.getEvent().receiveTime(),
+                s.getEvent().getCardColor(),
+                s.getEvent().getSubject(),
+                s.findInvitees())).collect(Collectors.toList());
     }
 
     @Transactional
@@ -139,8 +155,9 @@ public class ScheduleService {
         }
     }
 
-    private static List<Schedule> receiveNotDeletedSchedules(List<Schedule> schedules) {
-        List<Schedule> liveSchedules = schedules.stream().filter(s -> s.getEvent().getIsDeleted().equals(false))
+    private static List<Schedule> filterDeletedSchedules(List<Schedule> schedules) {
+        List<Schedule> liveSchedules = schedules.stream()
+                .filter(s -> s.getEvent().getIsDeleted().equals(false))
                 .collect(Collectors.toList());
         return liveSchedules;
     }
