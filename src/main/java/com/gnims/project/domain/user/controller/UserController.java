@@ -44,7 +44,8 @@ public class UserController {
     }
 
     @PatchMapping("/users/profile")
-    public MessageResponseDto updateProfile(@RequestPart(value = "file") MultipartFile image, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+    public MessageResponseDto updateProfile(@RequestPart(value = "file") MultipartFile image,
+                                            @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
         return userService.updateProfile(image, userDetails.getUser());
     }
@@ -53,5 +54,12 @@ public class UserController {
     public LoginResponseDto login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
 
         return userService.login(request, response);
+    }
+
+    @GetMapping("/users/search")
+    public SearchResponseDto search(@RequestParam(value = "nickname") String nickname,
+                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        return userService.search(nickname, userDetails.getUser());
     }
 }
