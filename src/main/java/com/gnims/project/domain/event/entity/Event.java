@@ -1,6 +1,7 @@
 package com.gnims.project.domain.event.entity;
 
 import com.gnims.project.domain.schedule.dto.ScheduleForm;
+import com.gnims.project.domain.schedule.dto.UpdateForm;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.util.embedded.Appointment;
 import com.gnims.project.util.BaseEntity;
@@ -41,5 +42,12 @@ public class Event extends BaseEntity {
 
     public void removeEvent() {
         this.isDeleted = true;
+    }
+
+    public void updateEvent(UpdateForm form) {
+        this.cardColor = form.getCardColor();
+        this.subject = form.getSubject();
+        this.content = form.getContent();
+        this.appointment = new Appointment(form);
     }
 }

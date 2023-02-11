@@ -8,6 +8,7 @@ import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.util.embedded.Appointment;
+import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,11 +115,22 @@ public class ScheduleService {
     @Transactional
     public void softDeleteSchedule(Long userId, Long eventId) {
         Event event = eventRepository.findByCreateByAndId(userId, eventId).orElseThrow(
-                () -> new IllegalArgumentException("이벤트는 생성한 사람만 삭제할 수 있습니다."));
+                () -> new SecurityException("삭제 권한이 없습니다."));
 
         checkIsDeleted(event);
 
         event.removeEvent();
+        eventRepository.save(event);
+    }
+
+    @Transactional
+    public void updateSchedule(Long userId, UpdateForm updateForm, Long eventId) {
+        Event event = eventRepository.findByCreateByAndId(userId, eventId).orElseThrow(
+                () -> new SecurityException("수정 권한이 없습니다."));
+
+        checkIsDeleted(event);
+
+        event.updateEvent(updateForm);
         eventRepository.save(event);
     }
 
