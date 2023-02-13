@@ -67,7 +67,7 @@ public class ScheduleService {
     }
 
     public ReadOneResponse readOneSchedule(Long eventId) {
-        List<Schedule> schedules = scheduleRepository.findAllByEvent_IdAndIsAcceptedIs(eventId, true);
+        List<Schedule> schedules = scheduleRepository.findByEvent_IdAndIsAcceptedIs(eventId, true);
 
         Event event = schedules.get(0).getEvent();
 

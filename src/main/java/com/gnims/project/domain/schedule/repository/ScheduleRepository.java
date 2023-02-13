@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    List<Schedule> findAllByEvent_IdAndIsAcceptedIs(Long eventId, Boolean isAccepted);
+    List<Schedule> findByEvent_IdAndIsAcceptedIs(Long eventId, Boolean isAccepted);
     List<Schedule> findAllByUser_IdAndIsAcceptedIs(Long userId, Boolean isAccepted);
 
     Optional<Schedule> findByUser_IdAndEvent_Id(Long userId, Long eventId);
