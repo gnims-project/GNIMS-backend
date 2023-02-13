@@ -20,6 +20,9 @@ public class User {
     @Column(nullable = false)
     private String nickname;
 
+//    @Column(nullable = false)
+//    private String searchNickname;
+
     @Column(nullable = false)
     private String email;
 
@@ -36,11 +39,15 @@ public class User {
 //    @Column
 //    private String socialId;
 
-    public User(String username, String nickname, String email, String password) {
+    public User(String username, String nickname,  String email, String password) {
         this.username = username;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
+    }
+
+    public String getNickname() {
+        return nickname.replaceAll("[ㄱ-ㅎ]", "");
     }
 
     public void updateProfile(String profileImage) {
