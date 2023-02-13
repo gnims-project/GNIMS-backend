@@ -84,7 +84,7 @@ public class FollowingTest {
         String expression = "$.data[?(@.username == '%s')]";
         String followingNickname = "박땡땡";
 
-        User user = userRepository.findByNickname("수박").get();
+        User user = userRepository.findByNickname("수ㅅ박ㅂ").get();
         Long userId = user.getId();
 
         // 최초 팔로우 - FollowStatus == INIT
@@ -107,7 +107,7 @@ public class FollowingTest {
         String expression = "$.data[?(@.username == '%s')]";
         String followingNickname = "박땡땡";
 
-        User user = userRepository.findByNickname("수박").get();
+        User user = userRepository.findByNickname("수ㅅ박ㅂ").get();
         Long userId = user.getId();
 
         // 최초 팔로우 - FollowStatus == INIT
@@ -132,7 +132,7 @@ public class FollowingTest {
         String expression = "$.data[?(@.username == '%s')]";
         String followingNickname = "박땡땡";
 
-        User user = userRepository.findByNickname("수박").get();
+        User user = userRepository.findByNickname("수ㅅ박ㅂ").get();
         Long userId = user.getId();
 
         // 최초 팔로우 - FollowStatus == INIT

@@ -62,13 +62,13 @@ public class NaverService {
         User naverUser = userRepository.findByEmail(naverEmail)
                 .orElse(null);
         if (naverUser == null) {
-            return new SocialLoginDto("non-member", "", naverUserInfo.getEmail());
+            throw new IllegalArgumentException("non-member");
         }
 
         // 4. JWT 토큰 담기
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(naverUser.getNickname()));
 
-        return new SocialLoginDto("member", naverUser.getNickname(), naverUserInfo.getEmail());
+        return new SocialLoginDto("member", naverUser.getNickname(), naverUserInfo.getEmail(), naverUser.getProfileImage());
     }
 
     // 2. 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
@@ -96,13 +96,15 @@ public class NaverService {
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
         //네이버 식별자 id
-        String id = jsonNode.get("response").get("id").asText();
+//        String id = jsonNode.get("response").get("id").asText();
         //네이버 유저 이름
-        String nickname = jsonNode.get("response").get("name").asText();
+//        String nickname = jsonNode.get("response").get("name").asText();
+
         //네이버 유저 이메일
         String email = jsonNode.get("response").get("email").asText();
 
-        log.info("네이버 사용자 정보: " + id + ", " + nickname + ", " + email);
+//        System.out.println("____________________________ naverEmail: " + email);
+        log.info("네이버 사용자 정보: " + email);
 
         return new SocialProfileDto(email);
     }
