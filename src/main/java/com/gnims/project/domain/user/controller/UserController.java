@@ -1,11 +1,13 @@
 package com.gnims.project.domain.user.controller;
 
+import com.gnims.project.domain.friendship.dto.PagingDataResponse;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
 import com.gnims.project.security.service.UserDetailsImpl;
 import com.gnims.project.social.dto.SocialSignupDto;
 import com.gnims.project.util.validation.ValidationSequence;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -56,10 +58,26 @@ public class UserController {
         return userService.login(request, response);
     }
 
-    @GetMapping("/users/search")
-    public SearchResponseDto search(@RequestParam(value = "nickname") String nickname,
-                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//    @GetMapping("/users/search")
+//    public SearchResponseDto search(@RequestParam(value = "nickname") String nickname,
+//                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//
+//        return userService.search(nickname, userDetails.getUser());
+//    }
 
-        return userService.search(nickname, userDetails.getUser());
+//    @GetMapping("/test/search")
+//    public List<String> testsearch(@RequestParam(value = "nickname") String nickname/*,
+//                                   @AuthenticationPrincipal UserDetailsImpl userDetails*/) {
+//
+//        return userService.testSearch(nickname/*, userDetails.getUser()*/);
+//    }
+
+    @GetMapping("/users/search")
+    public PagingDataResponse testsearch2(@RequestParam(value = "nickname") String nickname,
+                                          @RequestParam Integer number,
+                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        PageRequest pageRequest = PageRequest.of(number, 5);
+        return userService.testSearch2(nickname, pageRequest, userDetails.getUser());
     }
 }

@@ -90,7 +90,7 @@ public class FollowerTest {
         //given
         String expression = "$.data[?(@.username == '%s')]";
 
-        User ddalgi = userRepository.findByNickname("딸기").get();
+        User ddalgi = userRepository.findByNickname("딸ㄸ기ㄱ").get();
         Long ddalgiId = ddalgi.getId();
         mvc.perform(MockMvcRequestBuilders.post("/friendship/followings/" + ddalgiId)
                 .header("Authorization", subackToken));
@@ -112,7 +112,7 @@ public class FollowerTest {
         //given
         String expression = "$.data[?(@.username == '%s')]";
 
-        User ddalgi = userRepository.findByNickname("딸기").get();
+        User ddalgi = userRepository.findByNickname("딸ㄸ기ㄱ").get();
         Long ddalgiId = ddalgi.getId();
         mvc.perform(MockMvcRequestBuilders.post("/friendship/followings/" + ddalgiId)
                 .header("Authorization", subackToken));
@@ -124,7 +124,7 @@ public class FollowerTest {
 
         String danguenToken = result.getResponse().getHeader("Authorization");
 
-        User danguen = userRepository.findByNickname("당근").get();
+        User danguen = userRepository.findByNickname("당ㄷ근ㄱ").get();
         Long danguenId = danguen.getId();
         mvc.perform(MockMvcRequestBuilders.post("/friendship/followings/" + danguenId)
                 .header("Authorization", danguenToken));

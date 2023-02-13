@@ -55,13 +55,13 @@ public class KakaoService {
         User kakaoUser = userRepository.findByEmail(kakaoEmail)
                 .orElse(null);
         if (kakaoUser == null) {
-            return new SocialLoginDto("non-member", "", kakaoUserInfo.getEmail());
+            throw new IllegalArgumentException("non-member");
         }
 
         // 4. JWT 토큰 담기
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(kakaoUser.getNickname()));
 
-        return new SocialLoginDto("member", kakaoUser.getNickname(), kakaoUserInfo.getEmail());
+        return new SocialLoginDto("member", kakaoUser.getNickname(), kakaoUserInfo.getEmail(), kakaoUser.getProfileImage());
     }
 
     // 1. "인가 코드"로 "액세스 토큰" 요청

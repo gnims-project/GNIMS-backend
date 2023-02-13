@@ -24,7 +24,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @AutoConfigureMockMvc
@@ -89,9 +89,9 @@ class ScheduleCreateTest {
 
         //given
         String expression = "$.[?(@.message == '%s')]";
-        Long hostId = userRepository.findByNickname("딸기").get().getId();
-        Long inviteeId1 = userRepository.findByNickname("당근").get().getId();
-        Long inviteeId2 = userRepository.findByNickname("수박").get().getId();
+        Long hostId = userRepository.findByNickname("딸ㄸ기ㄱ").get().getId();
+        Long inviteeId1 = userRepository.findByNickname("당ㄷ근ㄱ").get().getId();
+        Long inviteeId2 = userRepository.findByNickname("수ㅅ박ㅂ").get().getId();
 
         //when
         mvc.perform(post("/events").header("Authorization", token)
