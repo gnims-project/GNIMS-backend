@@ -27,10 +27,9 @@ public class ScheduleController {
     }
 
     //스케줄 전체 조회
-    @GetMapping("/events")
-    public ResponseEntity<ReadScheduleResult> readAllSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long userId = userDetails.receiveUserId();
-        List<ReadPastAllResponse> responses = scheduleService.readAllSchedule(userId);
+    @GetMapping("/users/{user-id}/events")
+    public ResponseEntity<ReadScheduleResult> readAllSchedule(@PathVariable("user-id") Long followId) {
+        List<ReadPastAllResponse> responses = scheduleService.readAllSchedule(followId);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
     }
 
