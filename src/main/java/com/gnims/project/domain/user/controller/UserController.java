@@ -72,7 +72,7 @@ public class UserController {
 //        return userService.testSearch(nickname/*, userDetails.getUser()*/);
 //    }
 
-    @GetMapping("/test/search2")
+    @GetMapping("/users/search")
     public PagingDataResponse testsearch2(@RequestParam(value = "nickname") String nickname,
                                           @RequestParam Integer number,
                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
