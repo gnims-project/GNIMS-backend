@@ -85,7 +85,7 @@ public class UserService {
     public MessageResponseDto checkNickname(NicknameDto request) {
 
         if (userRepository.findByNickname(request.getNickname()).isPresent()) {
-            return new MessageResponseDto("중복된 닉네임 입니다");
+            throw new IllegalArgumentException("중복된 닉네임 입니다.");
         }
         return new MessageResponseDto("사용 가능한 닉네임 입니다");
     }
@@ -95,7 +95,7 @@ public class UserService {
         String email = "Gnims.Auth." + request.getEmail();
 
         if (userRepository.findByEmail(email).isPresent()) {
-            return new MessageResponseDto("이미 등록된 이메일 입니다");
+            throw new IllegalArgumentException("이미 등록된 이메일 입니다.");
         }
         return new MessageResponseDto("사용 가능한 이메일 입니다");
     }
