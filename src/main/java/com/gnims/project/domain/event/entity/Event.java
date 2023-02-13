@@ -5,6 +5,7 @@ import com.gnims.project.domain.schedule.dto.UpdateForm;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.util.embedded.Appointment;
 import com.gnims.project.util.BaseEntity;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Event extends BaseEntity {
 
     @Id @Column(name = "event_id")
