@@ -115,7 +115,7 @@ public class UserService {
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getNickname()));
 
-        return new LoginResponseDto(user.getNickname(), request.getEmail());
+        return new LoginResponseDto(user.getNickname(), request.getEmail(), user.getProfileImage());
     }
 
     @Transactional
