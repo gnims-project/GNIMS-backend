@@ -65,7 +65,7 @@ public class WebSecurityConfig {
         configuration.addAllowedOrigin("http://localhost:3000"); //프론트가 3000번 포트를 사용함
         configuration.setAllowCredentials(true);
         configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
+        configuration.addAllowedHeader("Authorization");
         configuration.addExposedHeader("Authorization");
         configuration.addAllowedOriginPattern("*");
 
