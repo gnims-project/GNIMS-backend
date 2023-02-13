@@ -18,6 +18,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity // 스프링 Security 지원을 가능하게 함
@@ -65,8 +67,11 @@ public class WebSecurityConfig {
         configuration.addAllowedOrigin("http://localhost:3000"); //프론트가 3000번 포트를 사용함
         configuration.setAllowCredentials(true);
         configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("Authorization");
+        configuration.addAllowedHeader("*");
+
+        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
         configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader("Content-Type");
         configuration.addAllowedOriginPattern("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
