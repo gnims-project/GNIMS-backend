@@ -109,18 +109,17 @@ class ScheduleCreateTest {
         List<Schedule> schedules = scheduleRepository.findAll();
         Schedule hostSchedule = schedules.stream().filter(s -> s.getIsAccepted().equals(true)).findFirst().get();
         List<Long> userIds = schedules.stream().map(s -> s.getUser().getId()).collect(Collectors.toList());
-        Event findEvent = eventRepository.findBySubject("과일 정기 모임").get();
+        Event findEvent = eventRepository.findBySubject("과일 정기 모임")
+                .orElseThrow(() -> new IllegalAccessException("알 수 없는 에러"));
 
         //then - 생성된 Schedule 엔티티는 초대한 userId 값 포함
         Assertions.assertThat(userIds).contains(hostId, inviteeId1, inviteeId2);
-        Assertions.assertThat(hostSchedule.getEvent().getContent()).isEqualTo(findEvent.getContent());
+        Assertions.assertThat(findEvent.getContent()).isEqualTo("방이동 채소가게에서 저녁 식사");
 
         //then - 스케줄 생성자는 Schedule 엔티티 isAccepted 필드 true
         Assertions.assertThat(hostSchedule.receiveUserId()).isEqualTo(hostId);
         //then - 초대받은 사람들은 isAccepted 필드 false 여야 한다.
         Schedule inviteeSchedule = schedules.stream().filter(s -> s.getIsAccepted().equals(false)).findFirst().get();
         Assertions.assertThat(inviteeSchedule.receiveUserId()).isIn(List.of(inviteeId1, inviteeId2));
-
-
     }
 }
