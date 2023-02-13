@@ -16,14 +16,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -67,8 +66,8 @@ public class ScheduleReadTest {
 
         token = result.getResponse().getHeader("Authorization");
 
-        Long id1 = userRepository.findByNickname("딸기").get().getId();
-        Long id2 = userRepository.findByNickname("당근").get().getId();
+        Long id1 = userRepository.findByNickname("딸ㄸ기ㄱ").get().getId();
+        Long id2 = userRepository.findByNickname("당ㄷ근ㄱ").get().getId();
 
 
         //when
@@ -149,7 +148,7 @@ public class ScheduleReadTest {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
         transactionManager.commit(status);
 
-        User user = userRepository.findByNickname("딸기").get();
+        User user = userRepository.findByNickname("딸ㄸ기ㄱ").get();
         Long userId = user.getId();
 
         mvc.perform(post("/events").header("Authorization", token)
