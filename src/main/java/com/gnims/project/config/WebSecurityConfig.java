@@ -69,9 +69,11 @@ public class WebSecurityConfig {
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
 
-        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
+//        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
         configuration.addExposedHeader("Authorization");
         configuration.addExposedHeader("Content-Type");
+        configuration.addExposedHeader("token");
+
         configuration.addAllowedOriginPattern("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
