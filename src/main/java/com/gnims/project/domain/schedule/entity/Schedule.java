@@ -41,17 +41,17 @@ public class Schedule extends TimeStamped {
         this.isAccepted = false;
     }
 
-    private String receiveUsername() {
+    public String receiveUsername() {
         return this.getUser().getUsername();
     }
-    private String receiveProfile() {
+    public String receiveProfile() {
         if (user.getProfileImage() == null) {
             return "대충 프로필 URI";
         }
 
         return user.getProfileImage();
     }
-
+    // 1대 다 조회
     public List<ReadAllUserDto> findInvitees() {
         return event.getSchedule().stream()
                 .filter(schedule -> schedule.getIsAccepted().equals(true))

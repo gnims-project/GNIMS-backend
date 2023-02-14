@@ -4,11 +4,13 @@ import com.gnims.project.domain.schedule.dto.*;
 import com.gnims.project.domain.schedule.service.ScheduleService;
 import com.gnims.project.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -19,17 +21,34 @@ public class ScheduleController {
 
     //스케줄 등록
     @PostMapping("/events")
-    public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody ScheduleForm scheduleForm,
-                                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody @Valid ScheduleForm scheduleForm,
+                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
         scheduleService.makeSchedule(scheduleForm, userId);
         return new ResponseEntity<>(new SimpleScheduleResult(201, "스케줄 생성 완료"), HttpStatus.CREATED);
     }
 
-    //스케줄 전체 조회
+    //스케줄 전체 조회 기본 버전 - user-id 붙인 이유는 타인의 일정도 볼 수 있어야 하기 때문에
     @GetMapping("/users/{user-id}/events")
     public ResponseEntity<ReadScheduleResult> readAllSchedule(@PathVariable("user-id") Long followId) {
         List<ReadPastAllResponse> responses = scheduleService.readAllSchedule(followId);
+        return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
+    }
+
+    //스케줄 전체 조회 최적화 진행중 - user <- fetch join // event batch-size
+    @GetMapping("/v2/users/{user-id}/events")
+    public ResponseEntity<ReadScheduleResult> readAllScheduleV2(@PathVariable("user-id") Long followId) {
+        List<ReadPastAllResponse> responses = scheduleService.readAllScheduleV2(followId);
+        return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
+    }
+
+    //스케줄 전체 조회 최적화 진행중 - Paging 버전
+    @GetMapping("/v2-page/users/{user-id}/events")
+    public ResponseEntity<ReadScheduleResult> readAllScheduleV2Page(@PathVariable("user-id") Long followId,
+                                                                    @RequestParam Integer page,
+                                                                    @RequestParam Integer size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<ReadPastAllResponse> responses = scheduleService.readAllScheduleV2Pageable(followId, pageRequest);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
     }
 
@@ -37,6 +56,14 @@ public class ScheduleController {
     @GetMapping("/events/{event-id}")
     public ResponseEntity<ReadScheduleResult> readOneSchedule(@PathVariable("event-id") Long eventId) {
         ReadOneResponse response = scheduleService.readOneSchedule(eventId);
+        return new ResponseEntity<>(new ReadScheduleResult(200, "상세 조회 완료", response), HttpStatus.OK);
+    }
+
+    //스케줄 단건 조회 - 최적
+    @GetMapping("/v2/users/{user-id}/events/{event-id}")
+    public ResponseEntity<ReadScheduleResult> readOneScheduleV2(@PathVariable("user-id") Long userId,
+                                                                @PathVariable("event-id") Long eventId) {
+        ReadOneResponse response = scheduleService.readOneScheduleV2(userId, eventId);
         return new ResponseEntity<>(new ReadScheduleResult(200, "상세 조회 완료", response), HttpStatus.OK);
     }
 
