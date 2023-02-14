@@ -43,7 +43,7 @@ public class UserService {
     private final AmazonS3Client amazonS3Client;
 
     @Transactional
-    public MessageResponseDto signup(SignupRequestDto request) {
+    public void signup(SignupRequestDto request) {
 
         String email = "Gnims.Auth." + request.getEmail();
 
@@ -72,7 +72,7 @@ public class UserService {
     }
 
     @Transactional
-    public MessageResponseDto socialSignup(SocialSignupDto request) {
+    public void socialSignup(SocialSignupDto request) {
 
         String email = "Gnims." + request.getSocialCode().getValue() + "." + request.getEmail();
 
@@ -111,9 +111,7 @@ public class UserService {
         }
     }
 
-    public MessageResponseDto checkNickname(NicknameDto request) {
-
-        char[] chars = request.getNickname().toCharArray();
+    public SimpleMessageResult checkNickname(NicknameDto request) {
 
         if (userRepository.findByNickname(request.getNickname()).isPresent()) {
             return new SimpleMessageResult(400, "중복된 닉네임 입니다.");
@@ -121,14 +119,14 @@ public class UserService {
         return new SimpleMessageResult(200, "사용 가능한 닉네임 입니다.");
     }
 
-    public MessageResponseDto checkEmail(EmailDto request) {
+    public SimpleMessageResult checkEmail(EmailDto request) {
 
         String email = "Gnims.Auth." + request.getEmail();
 
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("이미 등록된 이메일 입니다.");
+            return new SimpleMessageResult(400, "이미 등록된 이메일 입니다.");
         }
-        return new MessageResponseDto("사용 가능한 이메일 입니다");
+        return new SimpleMessageResult(200, "사용 가능한 이메일 입니다.");
     }
 
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
@@ -136,21 +134,21 @@ public class UserService {
         String email = "Gnims.Auth." + request.getEmail();
 
         User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new BadCredentialsException("등록된 사용자가 없습니다.")
+                () -> new BadCredentialsException("이메일 혹은 비밀번호가 일치하지 않습니다.")
         );
 
         //암호화 된 비밀번호를 비교
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
+            throw new BadCredentialsException("이메일 혹은 비밀번호가 일치하지 않습니다.");
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getNickname()));
 
-        return new LoginResponseDto(user.getNickname(), request.getEmail(), user.getProfileImage());
+        return new LoginResponseDto(user.getNickname(), request.getEmail());
     }
 
     @Transactional
-    public MessageResponseDto updateProfile(MultipartFile image, User user) throws IOException {
+    public void updateProfile(MultipartFile image, User user) throws IOException {
 
         if(image == null || Objects.equals(image.getOriginalFilename(), "")) {
             throw new IllegalArgumentException("이미지를 넣어 주세요!");
@@ -187,8 +185,6 @@ public class UserService {
 
         userRepository.findById(user.getId())
                 .get().updateProfile(imageUrl);
-
-        return new MessageResponseDto("성공!");
     }
 
     /*
