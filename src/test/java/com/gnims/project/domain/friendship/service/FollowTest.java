@@ -84,7 +84,7 @@ class FollowTest {
         //given
         String expression = "$.data[?(@.status == '%s')]";
 
-        User user = userRepository.findByNickname("수ㅅ박ㅂ").get();
+        User user = userRepository.findByNickname("수박").get();
         Long userId = user.getId();
 
         //when
@@ -104,7 +104,7 @@ class FollowTest {
         //given
         String expression = "$.data[?(@.status == '%s')]";
 
-        User user = userRepository.findByNickname("수ㅅ박ㅂ").get();
+        User user = userRepository.findByNickname("수박").get();
         Long userId = user.getId();
 
         // 최초 팔로우
@@ -127,7 +127,7 @@ class FollowTest {
         transactionManager.commit(status);
         String expression = "$.data[?(@.status == '%s')]";
 
-        User user = userRepository.findByNickname("수ㅅ박ㅂ").get();
+        User user = userRepository.findByNickname("수박").get();
         Long userId = user.getId();
 
         // 최초 팔로우

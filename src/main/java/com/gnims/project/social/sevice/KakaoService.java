@@ -6,13 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
-import com.gnims.project.social.dto.SocialLoginDto;
+import com.gnims.project.social.dto.SocialEmailDto;
+import com.gnims.project.social.dto.SocialEmailNicknameDto;
 import com.gnims.project.social.dto.SocialProfileDto;
+import com.gnims.project.social.dto.SocialResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -42,7 +46,7 @@ public class KakaoService {
     @Value("${kakao.userInfoUri}")
     private String kakaoProfileUri;
 
-    public SocialLoginDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public SocialResult kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
@@ -52,16 +56,18 @@ public class KakaoService {
 
         // DB 에 중복된 Kakao email 이 있는지 확인
         String kakaoEmail = "Gnims.Kakao." + kakaoUserInfo.getEmail();
-        User kakaoUser = userRepository.findByEmail(kakaoEmail)
-                .orElse(null);
-        if (kakaoUser == null) {
-            throw new IllegalArgumentException("non-member");
+        Optional<User> optionalKakaoUser = userRepository.findByEmail(kakaoEmail);
+
+        // DB 에 없을 때 "non-member:"
+        if (optionalKakaoUser.isEmpty()) {
+            return new SocialResult(HttpStatus.OK.value(), "non-member", new SocialEmailDto(kakaoUserInfo.getEmail()));
         }
+        User kakaoUser = optionalKakaoUser.get();
 
         // 4. JWT 토큰 담기
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(kakaoUser.getNickname()));
 
-        return new SocialLoginDto("member", kakaoUser.getNickname(), kakaoUserInfo.getEmail(), kakaoUser.getProfileImage());
+        return new SocialResult(HttpStatus.OK.value(), "member", new SocialEmailNicknameDto(kakaoUserInfo.getEmail(), kakaoUser.getNickname()));
     }
 
     // 1. "인가 코드"로 "액세스 토큰" 요청
