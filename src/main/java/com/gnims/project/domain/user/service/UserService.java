@@ -47,10 +47,10 @@ public class UserService {
 
         String email = "Gnims.Auth." + request.getEmail();
 
-        //이메일 / 닉네임 중복체크
-        checkDuplicate(email, request.getNickname());
-
         String nickname = request.getNickname();
+
+        //이메일 / 닉네임 중복체크
+        checkDuplicate(email, nickname);
 
         char[] chars = nickname.toCharArray();
 
@@ -66,11 +66,9 @@ public class UserService {
         //비밀번호 암호화
         String password = passwordEncoder.encode(request.getPassword());
 
-        userRepository.save(new User(request.getUsername(), searchNickname, email, password));
+        userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password));
 
-        System.out.println(userRepository.findByNickname(searchNickname).get().getNickname());
-
-        return new MessageResponseDto("회원가입 성공!");
+        System.out.println(userRepository.findByNickname(nickname).get().getNickname());
     }
 
     @Transactional
@@ -98,9 +96,7 @@ public class UserService {
         //비밀번호 암호화
         String password = passwordEncoder.encode(UUID.randomUUID().toString());
 
-        userRepository.save(new User(request.getUsername(), searchNickname, email, password));
-
-        return new MessageResponseDto("회원가입 성공!");
+        userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password));
     }
 
     private void checkDuplicate(String email, String nickname) {
@@ -109,19 +105,8 @@ public class UserService {
             throw new IllegalArgumentException("이미 등록된 이메일 입니다");
         }
 
-        char[] chars = nickname.toCharArray();
-
-        String searchNickname = "";
-
-        for(char char1: chars) {
-            searchNickname += char1;
-            if('가' <= char1 && char1 <= '힣') {
-                searchNickname = searchNickname + CHO.get((char1-'가')/28/21);
-            }
-        }
-
         //닉네임 중복 체크
-        if(userRepository.findByNickname(searchNickname).isPresent()) {
+        if(userRepository.findByNickname(nickname).isPresent()) {
             throw new IllegalArgumentException("중복된 닉네임 입니다");
         }
     }
@@ -130,19 +115,10 @@ public class UserService {
 
         char[] chars = request.getNickname().toCharArray();
 
-        String searchNickname = "";
-
-        for(char char1: chars) {
-            searchNickname += char1;
-            if('가' <= char1 && char1 <= '힣') {
-                searchNickname = searchNickname + CHO.get((char1-'가')/28/21);
-            }
+        if (userRepository.findByNickname(request.getNickname()).isPresent()) {
+            return new SimpleMessageResult(400, "중복된 닉네임 입니다.");
         }
-
-        if (userRepository.findByNickname(searchNickname).isPresent()) {
-            throw new IllegalArgumentException("중복된 닉네임 입니다.");
-        }
-        return new MessageResponseDto("사용 가능한 닉네임 입니다");
+        return new SimpleMessageResult(200, "사용 가능한 닉네임 입니다.");
     }
 
     public MessageResponseDto checkEmail(EmailDto request) {
@@ -250,7 +226,7 @@ public class UserService {
     //본인 제외
 
     //현재 정렬 ID 내림차순
-    public PagingDataResponse testSearch2(String nickname, PageRequest pageRequest, User user) {
+    public PagingDataResponse search(String nickname, PageRequest pageRequest, User user) {
 
         System.out.println("nickname2 = " + user.getNickname());
 
