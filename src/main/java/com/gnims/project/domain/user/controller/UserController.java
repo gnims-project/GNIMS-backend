@@ -8,6 +8,8 @@ import com.gnims.project.social.dto.SocialSignupDto;
 import com.gnims.project.util.validation.ValidationSequence;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -16,46 +18,61 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+
 @RestController
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
     @PostMapping("/auth/signup")
-    public MessageResponseDto signup(@Validated(ValidationSequence.class) @RequestBody SignupRequestDto request) {
+    public ResponseEntity<SimpleMessageResult> signup(
+            @Validated(ValidationSequence.class) @RequestPart(value = "data") SignupRequestDto request,
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
-        return userService.signup(request);
+        userService.signup(request, image);
+        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "회원가입 완료"), CREATED);
     }
 
     @PostMapping("/social/signup")
-    public MessageResponseDto signup(@Validated(ValidationSequence.class) @RequestBody SocialSignupDto request) {
+    public ResponseEntity<SimpleMessageResult> socialSignup(
+            @Validated(ValidationSequence.class) @RequestPart(value = "data") SocialSignupDto request,
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
-        return userService.socialSignup(request);
+        userService.socialSignup(request, image);
+        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "회원가입 완료"), CREATED);
     }
 
     @PostMapping("/auth/nickname")
-    public MessageResponseDto checkNickname(@Validated(ValidationSequence.class) @RequestBody NicknameDto request) {
+    public ResponseEntity<SimpleMessageResult> checkNickname(@Validated(ValidationSequence.class)
+                                                                 @RequestBody NicknameDto request) {
 
-        return userService.checkNickname(request);
+        SimpleMessageResult result = userService.checkNickname(request);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
     @PostMapping("/auth/email")
-    public MessageResponseDto checkEmail(@Validated(ValidationSequence.class) @RequestBody EmailDto request) {
+    public ResponseEntity<SimpleMessageResult> checkEmail(@Validated(ValidationSequence.class)
+                                                              @RequestBody EmailDto request) {
 
-        return userService.checkEmail(request);
+        SimpleMessageResult result = userService.checkEmail(request);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
     @PatchMapping("/users/profile")
-    public MessageResponseDto updateProfile(@RequestPart(value = "file") MultipartFile image,
-                                            @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+    public ResponseEntity<SimpleMessageResult> updateProfile(@RequestPart(value = "image", required = false) MultipartFile image,
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
-        return userService.updateProfile(image, userDetails.getUser());
+        userService.updateProfile(image, userDetails.getUser());
+        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), "프로필 변경 성공"), OK);
     }
 
     @PostMapping("/auth/login")
-    public LoginResponseDto login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
+    public ResponseEntity<UserResult> login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
 
-        return userService.login(request, response);
+        LoginResponseDto result = userService.login(request, response);
+        return new ResponseEntity<>(new UserResult<>(OK.value(), "로그인 성공", result), OK);
     }
 
 //    @GetMapping("/users/search")
@@ -73,11 +90,27 @@ public class UserController {
 //    }
 
     @GetMapping("/users/search")
-    public PagingDataResponse testsearch2(@RequestParam(value = "nickname") String nickname,
+    public ResponseEntity<SearchPageableResult> search(@RequestParam(value = "nickname") String nickname,
                                           @RequestParam Integer number,
                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         PageRequest pageRequest = PageRequest.of(number, 5);
-        return userService.testSearch2(nickname, pageRequest, userDetails.getUser());
+        PagingDataResponse response = userService.search(nickname, pageRequest, userDetails.getUser());
+
+        return new ResponseEntity<>(new SearchPageableResult<>(OK.value(), "유저 검색 성공", response), OK);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

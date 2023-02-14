@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByNickname(String nickname);
 
     //정규식으로 searching
-    @Query(value = "select * From users where (nickname REGEXP :searchKeyword) order by id desc ", nativeQuery = true)
+    @Query(value = "select * From users where (search_nickname REGEXP :searchKeyword) order by id desc ", nativeQuery = true)
     Page<User> searchByRegExpKeyword(@Param("searchKeyword") String searchKeyword, @Param("pageRequest") Pageable pageable);
 
 //    Page<User> searchByRegExpKeyword(String searchKeyword, Pageable pageable);

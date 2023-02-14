@@ -6,13 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
-import com.gnims.project.social.dto.SocialLoginDto;
+import com.gnims.project.social.dto.SocialEmailDto;
+import com.gnims.project.social.dto.SocialEmailNicknameDto;
 import com.gnims.project.social.dto.SocialProfileDto;
+import com.gnims.project.social.dto.SocialResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -46,7 +50,7 @@ public class NaverService {
     @Value("${naver.userInfoUri}")
     private String naverProfileUri;
 
-    public SocialLoginDto naverLogin(String token, HttpServletResponse response) throws JsonProcessingException {
+    public SocialResult naverLogin(String token, HttpServletResponse response) throws JsonProcessingException {
 
         // 1. 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
         SocialProfileDto naverUserInfo = getNaverUserInfo(token);
@@ -59,16 +63,17 @@ public class NaverService {
 
         // DB 에 중복된 Naver email 이 있는지 확인
         String naverEmail = "Gnims.Naver." + naverUserInfo.getEmail();
-        User naverUser = userRepository.findByEmail(naverEmail)
-                .orElse(null);
-        if (naverUser == null) {
-            throw new IllegalArgumentException("non-member");
+        Optional<User> optionalNaverUser = userRepository.findByEmail(naverEmail);
+
+        if (optionalNaverUser.isEmpty()) {
+            return new SocialResult(HttpStatus.OK.value(), "non-member", new SocialEmailDto(naverUserInfo.getEmail()));
         }
+        User naverUser = optionalNaverUser.get();
 
         // 4. JWT 토큰 담기
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(naverUser.getNickname()));
 
-        return new SocialLoginDto("member", naverUser.getNickname(), naverUserInfo.getEmail(), naverUser.getProfileImage());
+        return new SocialResult(HttpStatus.OK.value(), "member", new SocialEmailNicknameDto(naverUserInfo.getEmail(), naverUser.getNickname()));
     }
 
     // 2. 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
