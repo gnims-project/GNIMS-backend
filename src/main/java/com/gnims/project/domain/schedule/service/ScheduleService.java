@@ -10,12 +10,14 @@ import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.util.embedded.Appointment;
 import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,18 +54,40 @@ public class ScheduleService {
     }
 
     public List<ReadPastAllResponse> readAllSchedule(Long userId) {
-        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, true);
+        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIsAndEvent_IsDeletedIs(userId, true, false);
 
-        List<Schedule> liveSchedules = filterDeletedSchedules(schedules);
+        return schedules.stream().map(s -> new ReadPastAllResponse(
+                s.getEvent().getId(),
+                s.getEvent().receiveDate(),
+                s.getEvent().receiveTime(),
+                s.getEvent().getCardColor(),
+                s.getEvent().getSubject(),
+                s.findInvitees()
+        )).collect(Collectors.toList());
+    }
 
-        return liveSchedules.stream().map(s -> new ReadPastAllResponse(
-                        s.getEvent().getId(),
-                        s.getEvent().receiveDate(),
-                        s.getEvent().receiveTime(),
-                        s.getEvent().getCardColor(),
-                        s.getEvent().getSubject(),
-                        s.findInvitees()
-                )).collect(Collectors.toList());
+    public List<ReadPastAllResponse> readAllScheduleV2(Long userId) {
+        List<Schedule> schedules = scheduleRepository.readAllScheduleV2(userId);
+
+        return schedules.stream().map(s -> new ReadPastAllResponse(
+                s.getEvent().getId(),
+                s.getEvent().receiveDate(),
+                s.getEvent().receiveTime(),
+                s.getEvent().getCardColor(),
+                s.getEvent().getSubject(),
+                s.findInvitees())).collect(Collectors.toList());
+    }
+
+    public List<ReadPastAllResponse> readAllScheduleV2Pageable(Long userId, PageRequest pageRequest) {
+        List<Schedule> schedules = scheduleRepository.readAllScheduleV2Pageable(userId, pageRequest);
+
+        return schedules.stream().map(s -> new ReadPastAllResponse(
+                s.getEvent().getId(),
+                s.getEvent().receiveDate(),
+                s.getEvent().receiveTime(),
+                s.getEvent().getCardColor(),
+                s.getEvent().getSubject(),
+                s.findInvitees())).collect(Collectors.toList());
     }
 
     public ReadOneResponse readOneSchedule(Long eventId) {
@@ -76,6 +100,28 @@ public class ScheduleService {
         List<ReadOneUserDto> invitees = schedules.stream()
                 .filter(s -> s.getIsAccepted().equals(true))
                 .map(s -> new ReadOneUserDto(s.getUser().getUsername()))
+                .collect(Collectors.toList());
+
+        return new ReadOneResponse(
+                event.getId(),
+                event.receiveDate(),
+                event.receiveTime(),
+                event.getCardColor(),
+                event.getSubject(),
+                event.getContent(),
+                invitees);
+    }
+
+    public ReadOneResponse readOneScheduleV2(Long userId, Long eventId) {
+        Optional<Schedule> optionalSchedule = scheduleRepository.readOneSchedule(userId, eventId);
+        if (optionalSchedule.isEmpty()) {
+            throw new IllegalArgumentException("존재하지 않는 일정입니다.");
+        }
+        Event event = optionalSchedule.get().getEvent();
+
+        List<ReadOneUserDto> invitees = event.getSchedule().stream()
+                .filter(s -> s.getIsAccepted().equals(true))
+                .map(s -> new ReadOneUserDto(s.receiveUsername()))
                 .collect(Collectors.toList());
 
         return new ReadOneResponse(
