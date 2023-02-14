@@ -89,9 +89,9 @@ class ScheduleCreateTest {
 
         //given
         String expression = "$.[?(@.message == '%s')]";
-        Long hostId = userRepository.findByNickname("딸ㄸ기ㄱ").get().getId();
-        Long inviteeId1 = userRepository.findByNickname("당ㄷ근ㄱ").get().getId();
-        Long inviteeId2 = userRepository.findByNickname("수ㅅ박ㅂ").get().getId();
+        Long hostId = userRepository.findByNickname("딸기").get().getId();
+        Long inviteeId1 = userRepository.findByNickname("당근").get().getId();
+        Long inviteeId2 = userRepository.findByNickname("수박").get().getId();
 
         //when
         mvc.perform(post("/events").header("Authorization", token)

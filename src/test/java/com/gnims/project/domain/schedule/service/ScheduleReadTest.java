@@ -66,8 +66,8 @@ public class ScheduleReadTest {
 
         token = result.getResponse().getHeader("Authorization");
 
-        Long id1 = userRepository.findByNickname("딸ㄸ기ㄱ").get().getId();
-        Long id2 = userRepository.findByNickname("당ㄷ근ㄱ").get().getId();
+        Long id1 = userRepository.findByNickname("딸기").get().getId();
+        Long id2 = userRepository.findByNickname("당근").get().getId();
 
 
         //when
@@ -148,7 +148,7 @@ public class ScheduleReadTest {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
         transactionManager.commit(status);
 
-        User user = userRepository.findByNickname("딸ㄸ기ㄱ").get();
+        User user = userRepository.findByNickname("딸기").get();
         Long userId = user.getId();
 
         mvc.perform(post("/events").header("Authorization", token)
