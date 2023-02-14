@@ -2,6 +2,7 @@ package com.gnims.project.domain.friendship.entity;
 
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.util.TimeStamped;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +12,7 @@ import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Friendship extends TimeStamped {
 
     @Id @Column(name = "friendship_id")
@@ -19,12 +20,12 @@ public class Friendship extends TimeStamped {
     private Long id;
 
     //자기 자신
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "myself_id")
     private User myself;
 
     //팔로우 등록할 친구
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "following_id")
     private User following;
 

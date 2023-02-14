@@ -129,7 +129,7 @@ public class ScheduleReadTest {
 
         User user = userRepository.findByUsername("이땡땡").get();
 
-        mvc.perform(MockMvcRequestBuilders.get("/events")
+        mvc.perform(MockMvcRequestBuilders.get("/users/" + user.getId() + "/events")
                         .header("Authorization", token)
                         .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data[?(@.subject == '%s')]","자바 스터디").exists())
@@ -161,7 +161,7 @@ public class ScheduleReadTest {
                         "\"participantsId\": " +
                         "[" + userId + "]}"));
 
-        mvc.perform(MockMvcRequestBuilders.get( "/events")
+        mvc.perform(MockMvcRequestBuilders.get( "/users/" + user.getId() + "/events")
                         .header("Authorization", token)
                         .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data.size()").value(2));
