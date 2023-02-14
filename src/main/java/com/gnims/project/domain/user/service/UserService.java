@@ -26,7 +26,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +46,7 @@ public class UserService {
     private final AmazonS3Client amazonS3Client;
 
     @Transactional
-    public void signup(SignupRequestDto request) {
+    public void signup(SignupRequestDto request, MultipartFile image) throws IOException {
 
         String email = "Gnims.Auth." + request.getEmail();
 
@@ -66,13 +69,45 @@ public class UserService {
         //비밀번호 암호화
         String password = passwordEncoder.encode(request.getPassword());
 
-        userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password));
+        if(image == null) {
+            userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, "https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"));
+            return;
+        }
 
-        System.out.println(userRepository.findByNickname(nickname).get().getNickname());
+        String fileRealName = image.getOriginalFilename();
+
+        //확장자 분리
+        String extension = fileRealName.substring(fileRealName.lastIndexOf(".") + 1);
+
+        //허용할 확장자 목록
+        List<String> checkFile = new ArrayList<>(List.of(
+                "gif", "jfif", "pjpeg", "jpeg",
+                "pjp", "jpg", "png", "bmp",
+                "dib", "webp", "svgz", "svg"));
+
+        //확장자 체크
+        if(!checkFile.contains(extension)) {
+            throw new IllegalArgumentException(checkFile + " 확장자의 이미지 파일만 업로드 가능합니다!");
+        }
+
+        String originName = UUID.randomUUID().toString();
+        long size = image.getSize();
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(image.getContentType());
+        objectMetadata.setContentLength(size);
+
+        amazonS3Client.putObject(
+                new PutObjectRequest(S3Bucket, originName, image.getInputStream(), objectMetadata )
+                        .withCannedAcl(CannedAccessControlList.PublicRead)
+        );
+        String imageUrl = amazonS3Client.getUrl(S3Bucket, originName).toString();
+
+        userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, imageUrl));
     }
 
     @Transactional
-    public void socialSignup(SocialSignupDto request) {
+    public void socialSignup(SocialSignupDto request, MultipartFile image) throws IOException {
 
         String email = "Gnims." + request.getSocialCode().getValue() + "." + request.getEmail();
 
@@ -96,7 +131,41 @@ public class UserService {
         //비밀번호 암호화
         String password = passwordEncoder.encode(UUID.randomUUID().toString());
 
-        userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password));
+        if(image == null) {
+            userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, "https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"));
+            return;
+        }
+
+        String fileRealName = image.getOriginalFilename();
+
+        //확장자 분리
+        String extension = fileRealName.substring(fileRealName.lastIndexOf(".") + 1);
+
+        //허용할 확장자 목록
+        List<String> checkFile = new ArrayList<>(List.of(
+                "gif", "jfif", "pjpeg", "jpeg",
+                "pjp", "jpg", "png", "bmp",
+                "dib", "webp", "svgz", "svg"));
+
+        //확장자 체크
+        if(!checkFile.contains(extension)) {
+            throw new IllegalArgumentException(checkFile + " 확장자의 이미지 파일만 업로드 가능합니다!");
+        }
+
+        String originName = UUID.randomUUID().toString();
+        long size = image.getSize();
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(image.getContentType());
+        objectMetadata.setContentLength(size);
+
+        amazonS3Client.putObject(
+                new PutObjectRequest(S3Bucket, originName, image.getInputStream(), objectMetadata )
+                        .withCannedAcl(CannedAccessControlList.PublicRead)
+        );
+        String imageUrl = amazonS3Client.getUrl(S3Bucket, originName).toString();
+
+        userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, imageUrl));
     }
 
     private void checkDuplicate(String email, String nickname) {
@@ -150,8 +219,9 @@ public class UserService {
     @Transactional
     public void updateProfile(MultipartFile image, User user) throws IOException {
 
-        if(image == null || Objects.equals(image.getOriginalFilename(), "")) {
-            throw new IllegalArgumentException("이미지를 넣어 주세요!");
+        if(image == null) {
+            userRepository.findById(user.getId()).get().updateProfile("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png");
+            return;
         }
 
         String fileRealName = image.getOriginalFilename();

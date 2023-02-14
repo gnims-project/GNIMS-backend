@@ -27,18 +27,20 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/auth/signup")
-    public ResponseEntity<SimpleMessageResult> signup(@Validated(ValidationSequence.class)
-                                                          @RequestBody SignupRequestDto request) {
+    public ResponseEntity<SimpleMessageResult> signup(
+            @Validated(ValidationSequence.class) @RequestPart(value = "data") SignupRequestDto request,
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
-        userService.signup(request);
+        userService.signup(request, image);
         return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "회원가입 완료"), CREATED);
     }
 
     @PostMapping("/social/signup")
-    public ResponseEntity<SimpleMessageResult> socialSignup(@Validated(ValidationSequence.class)
-                                                                @RequestBody SocialSignupDto request) {
+    public ResponseEntity<SimpleMessageResult> socialSignup(
+            @Validated(ValidationSequence.class) @RequestPart(value = "data") SocialSignupDto request,
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
-        userService.socialSignup(request);
+        userService.socialSignup(request, image);
         return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "회원가입 완료"), CREATED);
     }
 
@@ -59,7 +61,7 @@ public class UserController {
     }
 
     @PatchMapping("/users/profile")
-    public ResponseEntity<SimpleMessageResult> updateProfile(@RequestPart(value = "file") MultipartFile image,
+    public ResponseEntity<SimpleMessageResult> updateProfile(@RequestPart(value = "image", required = false) MultipartFile image,
                                              @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
         userService.updateProfile(image, userDetails.getUser());
