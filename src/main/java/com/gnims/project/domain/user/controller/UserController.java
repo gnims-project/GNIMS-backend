@@ -31,7 +31,7 @@ public class UserController {
                                                           @RequestBody SignupRequestDto request) {
 
         userService.signup(request);
-        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "회원가입 완료"), OK);
+        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "회원가입 완료"), CREATED);
     }
 
     @PostMapping("/social/signup")
@@ -39,7 +39,7 @@ public class UserController {
                                                                 @RequestBody SocialSignupDto request) {
 
         userService.socialSignup(request);
-        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "회원가입 완료"), OK);
+        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "회원가입 완료"), CREATED);
     }
 
     @PostMapping("/auth/nickname")
@@ -63,7 +63,7 @@ public class UserController {
                                              @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
         userService.updateProfile(image, userDetails.getUser());
-        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "프로필 변경 성공"), OK);
+        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), "프로필 변경 성공"), OK);
     }
 
     @PostMapping("/auth/login")
