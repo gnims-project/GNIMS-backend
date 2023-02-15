@@ -31,14 +31,21 @@ public class ScheduleController {
     //스케줄 전체 조회 기본 버전 - user-id 붙인 이유는 타인의 일정도 볼 수 있어야 하기 때문에
     @GetMapping("/users/{user-id}/events")
     public ResponseEntity<ReadScheduleResult> readAllSchedule(@PathVariable("user-id") Long followId) {
-        List<ReadPastAllResponse> responses = scheduleService.readAllSchedule(followId);
+        List<ReadAllResponse> responses = scheduleService.readAllSchedule(followId);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
     }
 
     //스케줄 전체 조회 최적화 진행중 - user <- fetch join // event batch-size
     @GetMapping("/v2/users/{user-id}/events")
     public ResponseEntity<ReadScheduleResult> readAllScheduleV2(@PathVariable("user-id") Long followId) {
-        List<ReadPastAllResponse> responses = scheduleService.readAllScheduleV2(followId);
+        List<ReadAllResponse> responses = scheduleService.readAllScheduleV2(followId);
+        return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
+    }
+
+    //스케줄 전체 조회 한방 쿼리 DTO
+    @GetMapping("/v2-dto/users/{user-id}/events")
+    public ResponseEntity<ReadScheduleResult> readAllScheduleV2Dto(@PathVariable("user-id") Long followId) {
+        List<ReadAllResponse> responses = scheduleService.readAllScheduleV2Dto(followId);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
     }
 
@@ -48,7 +55,7 @@ public class ScheduleController {
                                                                     @RequestParam Integer page,
                                                                     @RequestParam Integer size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        List<ReadPastAllResponse> responses = scheduleService.readAllScheduleV2Pageable(followId, pageRequest);
+        List<ReadAllResponse> responses = scheduleService.readAllScheduleV2Pageable(followId, pageRequest);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
     }
 
@@ -111,7 +118,7 @@ public class ScheduleController {
     //스케줄 수정
     @PutMapping("/events/{event-id}")
     public ResponseEntity<SimpleScheduleResult> updateSchedule(@PathVariable("event-id") Long eventId,
-                                                               @RequestBody UpdateForm updateForm,
+                                                               @RequestBody @Valid UpdateForm updateForm,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         scheduleService.updateSchedule(userDetails.receiveUserId(), updateForm, eventId);

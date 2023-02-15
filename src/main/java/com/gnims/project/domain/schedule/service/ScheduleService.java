@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,10 +56,10 @@ public class ScheduleService {
         scheduleRepository.saveAll(schedules);
     }
 
-    public List<ReadPastAllResponse> readAllSchedule(Long userId) {
+    public List<ReadAllResponse> readAllSchedule(Long userId) {
         List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIsAndEvent_IsDeletedIs(userId, true, false);
 
-        return schedules.stream().map(s -> new ReadPastAllResponse(
+        return schedules.stream().map(s -> new ReadAllResponse(
                 s.getEvent().getId(),
                 s.getEvent().receiveDate(),
                 s.getEvent().receiveTime(),
@@ -68,10 +69,10 @@ public class ScheduleService {
         )).collect(Collectors.toList());
     }
 
-    public List<ReadPastAllResponse> readAllScheduleV2(Long userId) {
+    public List<ReadAllResponse> readAllScheduleV2(Long userId) {
         List<Schedule> schedules = scheduleRepository.readAllScheduleV2(userId);
 
-        return schedules.stream().map(s -> new ReadPastAllResponse(
+        return schedules.stream().map(s -> new ReadAllResponse(
                 s.getEvent().getId(),
                 s.getEvent().receiveDate(),
                 s.getEvent().receiveTime(),
@@ -80,10 +81,31 @@ public class ScheduleService {
                 s.findInvitees())).collect(Collectors.toList());
     }
 
-    public List<ReadPastAllResponse> readAllScheduleV2Pageable(Long userId, PageRequest pageRequest) {
+    public List<ReadAllResponse> readAllScheduleV2Dto(Long userId) {
+        List<EventAllQueryDto> eventQueries = scheduleRepository.readAllScheduleV2Dto(userId);
+        HashSet<Long> set = new HashSet<>(eventQueries.size());
+
+        List<EventAllQueryDto> event = eventQueries.stream()
+                .filter(e -> set.add(e.getEventId()))
+                .collect(Collectors.toList());
+
+        return event.stream().map(e -> new ReadAllResponse(
+                e.getEventId(),
+                e.getDate(),
+                e.getTime(),
+                e.getCardColor(),
+                e.getSubject(),
+                eventQueries.stream().filter(eq -> eq.getEventId().equals(e.getEventId()))
+                        .map(eq -> new ReadAllUserDto(eq.getUsername(),eq.getProfile()))
+                        .collect(Collectors.toList())
+        )).collect(Collectors.toList());
+
+    }
+
+    public List<ReadAllResponse> readAllScheduleV2Pageable(Long userId, PageRequest pageRequest) {
         List<Schedule> schedules = scheduleRepository.readAllScheduleV2Pageable(userId, pageRequest);
 
-        return schedules.stream().map(s -> new ReadPastAllResponse(
+        return schedules.stream().map(s -> new ReadAllResponse(
                 s.getEvent().getId(),
                 s.getEvent().receiveDate(),
                 s.getEvent().receiveTime(),

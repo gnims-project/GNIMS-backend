@@ -1,6 +1,7 @@
 package com.gnims.project.domain.schedule.repository;
 
 import com.gnims.project.domain.event.entity.Event;
+import com.gnims.project.domain.schedule.dto.EventAllQueryDto;
 import com.gnims.project.domain.schedule.dto.EventOneQueryDto;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,20 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "join fetch s.user as u " +
             "where s.user.id = :userId and s.isAccepted = true and s.event.isDeleted = false")
     List<Schedule> readAllScheduleV2(Long userId);
+
+    /**
+     * 전체 조회 최적화 DTO -> 필요한 데이터를 한 번에 select
+     * WHY? -> batch size, join fetch 를 적용해도 메모리 상에서 한 번 더 필터링을 하는 구조 때문에 지연 로딩이 초기화 되어 추가 쿼리가 나감
+     * join을 통해 필요한 데이터를 한 번에 추출
+     */
+
+    @Query(value = "select new com.gnims.project.domain.schedule.dto.EventAllQueryDto" +
+            "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, u.username, u.profileImage) from Schedule s " +
+            "join s.event e " +
+            "join s.user u " +
+            "where e.id in (select e.id from Schedule s2 where s2.user.id =:userId) and s.isAccepted = true and e.isDeleted = false " +
+            "and s.isAccepted = true and e.isDeleted =false")
+    List<EventAllQueryDto> readAllScheduleV2Dto(Long userId);
 
     /**
      * 전체 조회 페이징 처리
