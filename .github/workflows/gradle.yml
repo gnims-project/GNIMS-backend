@@ -40,9 +40,9 @@ jobs:
         shell: bash
 
         # 테스트 환경 properties
+        # mkdir -p ./src/test/resources
       - name: make test env application.properties
         run: |
-#          mkdir -p ./src/test/resources
           touch ./src/test/resources/application.properties
         shell: bash
 
