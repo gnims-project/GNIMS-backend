@@ -52,18 +52,24 @@ public class ScheduleController {
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
     }
 
-    //스케줄 단건 조회
+    //스케줄 단건 조회 - 기본 버전
     @GetMapping("/events/{event-id}")
     public ResponseEntity<ReadScheduleResult> readOneSchedule(@PathVariable("event-id") Long eventId) {
         ReadOneResponse response = scheduleService.readOneSchedule(eventId);
         return new ResponseEntity<>(new ReadScheduleResult(200, "상세 조회 완료", response), HttpStatus.OK);
     }
 
-    //스케줄 단건 조회 - 최적
+    //스케줄 단건 조회 - join fetch
     @GetMapping("/v2/users/{user-id}/events/{event-id}")
     public ResponseEntity<ReadScheduleResult> readOneScheduleV2(@PathVariable("user-id") Long userId,
                                                                 @PathVariable("event-id") Long eventId) {
         ReadOneResponse response = scheduleService.readOneScheduleV2(userId, eventId);
+        return new ResponseEntity<>(new ReadScheduleResult(200, "상세 조회 완료", response), HttpStatus.OK);
+    }
+    //스케줄 단건 조회 - 쿼리 최적화 한방 쿼리 DTO 반환
+    @GetMapping("/v2/events/{event-id}")
+    public ResponseEntity<ReadScheduleResult> readOneScheduleV2DTO(@PathVariable("event-id") Long eventId) {
+        ReadOneResponse response = scheduleService.readOneScheduleV2DTO(eventId);
         return new ResponseEntity<>(new ReadScheduleResult(200, "상세 조회 완료", response), HttpStatus.OK);
     }
 

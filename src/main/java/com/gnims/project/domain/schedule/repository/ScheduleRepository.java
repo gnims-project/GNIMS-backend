@@ -1,5 +1,7 @@
 package com.gnims.project.domain.schedule.repository;
 
+import com.gnims.project.domain.event.entity.Event;
+import com.gnims.project.domain.schedule.dto.EventOneQueryDto;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,5 +41,20 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "where e.id = :eventId and u.id = :userId and s.isAccepted = true and e.isDeleted = false")
     Optional<Schedule> readOneSchedule(Long userId, Long eventId);
 
+    @Query(value = "select e from Event e " +
+            "join fetch e.schedule s " +
+            "join fetch s.user u " +
+            "where e.id = :eventId and s.isAccepted = true and e.isDeleted = false")
+    List<Event> readOneScheduleV3(Long eventId);
+
+    /**
+     * 단건 조회 최적화
+     */
+    @Query(value = "select new com.gnims.project.domain.schedule.dto.EventOneQueryDto" +
+            "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.content, u.username) from Event e " +
+            "join e.schedule s " +
+            "join s.user u " +
+            "where e.id = :eventId and s.isAccepted = true and e.isDeleted = false")
+    List<EventOneQueryDto> readOneScheduleV2Dto(Long eventId);
 
 }
