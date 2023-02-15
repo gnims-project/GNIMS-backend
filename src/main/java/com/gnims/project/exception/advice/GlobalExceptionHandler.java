@@ -43,10 +43,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.valueOf(message.getStatus()));
     }
 
-//    @ExceptionHandler
-//    public ResponseEntity<ExceptionResponseMessage> SecurityExceptionHandle(SecurityException exception) {
-//        ExceptionResponseMessage message = new ExceptionResponseMessage(FORBIDDEN.value(), exception.getMessage());
-//        return new ResponseEntity<>(message, HttpStatus.valueOf(message.getStatus()));
-//    }
+    @ExceptionHandler
+    public ResponseEntity<ExceptionResponseMessage> SecurityExceptionHandle(SecurityException exception) {
+        ExceptionResponseMessage message = new ExceptionResponseMessage(FORBIDDEN.value(), exception.getMessage());
+        return new ResponseEntity<>(message, HttpStatus.valueOf(message.getStatus()));
+    }
 
 }
