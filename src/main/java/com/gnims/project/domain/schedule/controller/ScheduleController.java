@@ -111,7 +111,7 @@ public class ScheduleController {
     //스케줄 수정
     @PutMapping("/events/{event-id}")
     public ResponseEntity<SimpleScheduleResult> updateSchedule(@PathVariable("event-id") Long eventId,
-                                                               @RequestBody UpdateForm updateForm,
+                                                               @RequestBody @Valid UpdateForm updateForm,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         scheduleService.updateSchedule(userDetails.receiveUserId(), updateForm, eventId);
