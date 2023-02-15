@@ -10,6 +10,7 @@ import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.util.embedded.Appointment;
 import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ScheduleService {
@@ -132,6 +134,24 @@ public class ScheduleService {
                 event.getSubject(),
                 event.getContent(),
                 invitees);
+    }
+
+    public ReadOneResponse readOneScheduleV2DTO(Long eventId) {
+        List<EventOneQueryDto> events = scheduleRepository.readOneScheduleV2Dto(eventId);
+        if (events.isEmpty()) {
+            throw new IllegalArgumentException("존재하지 않는 일정입니다.");
+        }
+
+        EventOneQueryDto event = events.get(0);
+        return new ReadOneResponse(
+                event.getEventId(),
+                event.getDate(),
+                event.getTime(),
+                event.getCardColor(),
+                event.getSubject(),
+                event.getContent(),
+                events.stream().map(e -> new ReadOneUserDto(e.getUsername())).collect(Collectors.toList())
+        );
     }
 
     public List<ReadPastAllResponse> readPendingSchedule(Long userId) {
