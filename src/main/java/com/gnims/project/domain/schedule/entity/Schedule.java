@@ -45,10 +45,6 @@ public class Schedule extends TimeStamped {
         return this.getUser().getUsername();
     }
     public String receiveProfile() {
-        if (user.getProfileImage() == null) {
-            return "대충 프로필 URI";
-        }
-
         return user.getProfileImage();
     }
     // 1대 다 조회
