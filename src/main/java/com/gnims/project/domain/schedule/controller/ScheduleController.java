@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -15,18 +16,10 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Transactional
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
-
-    //스케줄 등록
-    @PostMapping("/events")
-    public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody @Valid ScheduleForm scheduleForm,
-                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long userId = userDetails.receiveUserId();
-        scheduleService.makeSchedule(scheduleForm, userId);
-        return new ResponseEntity<>(new SimpleScheduleResult(201, "스케줄 생성 완료"), HttpStatus.CREATED);
-    }
 
     //스케줄 전체 조회 기본 버전 - user-id 붙인 이유는 타인의 일정도 볼 수 있어야 하기 때문에
     @GetMapping("/users/{user-id}/events")
@@ -99,8 +92,8 @@ public class ScheduleController {
 
     //스케줄 수락하기
     @PostMapping("/events/{event-id}/acceptance")
-    public ResponseEntity<SimpleScheduleResult> readPendingSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                    @PathVariable("event-id") Long eventId) {
+    public ResponseEntity<SimpleScheduleResult> readPendingSchedule(@PathVariable("event-id") Long eventId,
+                                                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
         scheduleService.acceptSchedule(userId, eventId);
         return new ResponseEntity<>(new SimpleScheduleResult(200, "스케줄을 수락합니다."), HttpStatus.OK);

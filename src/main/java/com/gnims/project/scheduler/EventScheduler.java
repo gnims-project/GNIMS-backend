@@ -21,7 +21,7 @@ public class EventScheduler {
     /**
      * 매일 0시에 d-day 작업
      */
-    @Scheduled(cron = "* * 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     private void updateEventDDay() {
         try {
             eventRepository.updateDDay();
