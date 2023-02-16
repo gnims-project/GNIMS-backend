@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,12 +36,15 @@ public class Event extends BaseEntity {
     @OneToMany(mappedBy = "event")
     private List<Schedule> schedule = new ArrayList<>();
 
+    private Long dDay;
+
     public Event(Appointment appointment, ScheduleForm form) {
         this.appointment = appointment;
         this.subject = form.getSubject();
         this.content = form.getContent();
         this.cardColor = form.getCardColor();
         this.isDeleted = false;
+        this.dDay = calculateDDay();
     }
 
     public void removeEvent() {
@@ -52,6 +56,7 @@ public class Event extends BaseEntity {
         this.subject = form.getSubject();
         this.content = form.getContent();
         this.appointment = new Appointment(form);
+        this.dDay = calculateDDay();
     }
 
     public LocalDate receiveDate() {
@@ -61,4 +66,9 @@ public class Event extends BaseEntity {
     public LocalTime receiveTime() {
         return this.appointment.getTime();
     }
+
+    private long calculateDDay() {
+        return ChronoUnit.DAYS.between(LocalDate.now(), appointment.getDate());
+    }
+
 }

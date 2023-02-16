@@ -65,6 +65,7 @@ public class ScheduleService {
                 s.getEvent().receiveTime(),
                 s.getEvent().getCardColor(),
                 s.getEvent().getSubject(),
+                s.getEvent().getDDay(),
                 s.findInvitees()
         )).collect(Collectors.toList());
     }
@@ -78,6 +79,7 @@ public class ScheduleService {
                 s.getEvent().receiveTime(),
                 s.getEvent().getCardColor(),
                 s.getEvent().getSubject(),
+                s.getEvent().getDDay(),
                 s.findInvitees())).collect(Collectors.toList());
     }
 
@@ -95,6 +97,7 @@ public class ScheduleService {
                 e.getTime(),
                 e.getCardColor(),
                 e.getSubject(),
+                e.getDDay(),
                 eventQueries.stream().filter(eq -> eq.getEventId().equals(e.getEventId()))
                         .map(eq -> new ReadAllUserDto(eq.getUsername(),eq.getProfile()))
                         .collect(Collectors.toList())
@@ -111,6 +114,7 @@ public class ScheduleService {
                 s.getEvent().receiveTime(),
                 s.getEvent().getCardColor(),
                 s.getEvent().getSubject(),
+                s.getEvent().getDDay(),
                 s.findInvitees())).collect(Collectors.toList());
     }
 
@@ -133,6 +137,7 @@ public class ScheduleService {
                 event.getCardColor(),
                 event.getSubject(),
                 event.getContent(),
+                event.getDDay(),
                 invitees);
     }
 
@@ -155,6 +160,7 @@ public class ScheduleService {
                 event.getCardColor(),
                 event.getSubject(),
                 event.getContent(),
+                event.getDDay(),
                 invitees);
     }
 
@@ -172,6 +178,7 @@ public class ScheduleService {
                 event.getCardColor(),
                 event.getSubject(),
                 event.getContent(),
+                event.getDDay(),
                 events.stream().map(e -> new ReadOneUserDto(e.getUsername())).collect(Collectors.toList())
         );
     }

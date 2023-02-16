@@ -18,18 +18,14 @@ public class ReadOneResponse {
     private Long dDay;
     private List<ReadOneUserDto> invitees;
 
-
-    public ReadOneResponse(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, String content, List<ReadOneUserDto> invitees) {
+    public ReadOneResponse(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, String content, Long dDay, List<ReadOneUserDto> invitees) {
         this.eventId = eventId;
         this.date = date;
         this.time = time;
         this.cardColor = cardColor;
         this.subject = subject;
         this.content = content;
-        this.dDay = calculateDDay();
+        this.dDay = dDay;
         this.invitees = invitees;
-    }
-    private long calculateDDay() {
-        return ChronoUnit.DAYS.between(LocalDate.now(), date);
     }
 }
