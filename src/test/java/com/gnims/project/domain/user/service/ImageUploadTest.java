@@ -88,13 +88,16 @@ public class ImageUploadTest {
                 fileInputStream
         );
 
+        //테스트 할 때마다 S3에 들어가기 때문에 추가했습니다.
+        Assertions.assertThat(imageFile.getOriginalFilename()).isEqualTo("르탄이.png");
+
         mvc.perform(multipart(HttpMethod.PATCH, "/users/profile")
-                        .file(imageFile).characterEncoding("utf-8")
+                        /*.file(imageFile).characterEncoding("utf-8")*/
                         .header("Authorization", token))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("프로필 변경 성공"));
 
-        Assertions.assertThat(userRepository.findByNickname("딸기").get().getProfileImage()).isNotEqualTo("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png");
+        Assertions.assertThat(userRepository.findByNickname("딸기").get().getProfileImage()).isEqualTo("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png")/*.isNotEqualTo("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png")*/;
     }
 
     @DisplayName("이미지 업데이트 시 허용하지 않은 확장자 - 상태코드 400, 실패 메세지를 반환, db에 저장 실패")
