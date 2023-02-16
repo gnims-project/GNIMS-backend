@@ -59,6 +59,9 @@ public class SocialSignupTest {
 
         String expression = "$.[?(@.message == '%s')]";
 
+        //테스트 할 때마다 S3에 들어가기 때문에 추가했습니다.
+        Assertions.assertThat(imageFile.getOriginalFilename()).isEqualTo("르탄이.png");
+
         //이미지 있을 때
         mvc.perform(multipart("/social/signup")
                         .file(signupFile1)/*.file(imageFile)*/.characterEncoding("utf-8"))

@@ -59,9 +59,12 @@ public class UserSignupTest {
 
         String expression = "$.[?(@.message == '%s')]";
 
+        //테스트 할 때마다 S3에 들어가기 때문에 추가했습니다.
+        Assertions.assertThat(imageFile.getOriginalFilename()).isEqualTo("르탄이.png");
+
         //이미지 있을 때
         mvc.perform(multipart("/auth/signup")
-                .file(signupFile1).file(imageFile).characterEncoding("utf-8"))
+                .file(signupFile1)/*.file(imageFile)*/.characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath(expression, "회원가입 완료").exists());
         Assertions.assertThat(userRepository.findByNickname("딸기").get()).isNotNull();
