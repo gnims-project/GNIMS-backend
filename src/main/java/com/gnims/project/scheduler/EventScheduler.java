@@ -6,6 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+/**
+ * 2023-02-16 기준, 현재 그님스는 단일 인스턴스 입니다.
+ * 인스턴스가 추가될 경우 인스턴스마다 scheduler 작동됩니다.
+ * 인스턴스를 추가 계획이 있다면 먼저 scheduler lock 을 설정해야합니다.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
