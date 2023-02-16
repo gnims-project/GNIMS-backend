@@ -82,7 +82,7 @@ public class ScheduleDeleteTest {
 
 
     @DisplayName("주최자(일정을 만든 사람)가 일정 삭제 시 " +
-            "상태 코드 200, 응답 메시지{스케줄을 삭제합니다.} 반환" +
+            "상태 코드 200, message : {스케줄을 삭제합니다.} 반환" +
             "event 엔티티 isDeleted 필드 false -> true 변경")
     @Test
     void 일정삭제_성공_케이스() throws Exception {
@@ -104,7 +104,7 @@ public class ScheduleDeleteTest {
     }
 
     @DisplayName("주최자가 아닌 사람이 일정을 삭제할 경우 " +
-            "상태 코드 403, 응답 메시지{삭제 권한이 없습니다.} 반환" +
+            "상태 코드 403, message : {삭제 권한이 없습니다.} 반환" +
             "event 엔티티 isDeleted 필드 false 유지")
     @Test
     void 일정삭제_실패_케이스1() throws Exception {
@@ -126,7 +126,7 @@ public class ScheduleDeleteTest {
     }
 
     @DisplayName("존재하지 않는 일정을 삭제할 경우 " +
-            "상태 코드 403, 응답 메시지{삭제 권한이 없습니다.} 반환" +
+            "상태 코드 403, message : {삭제 권한이 없습니다.} 반환" +
             "event 엔티티 isDeleted 필드 false 유지")
     @Test
     void 일정삭제_실패_케이스2() throws Exception {
@@ -142,7 +142,7 @@ public class ScheduleDeleteTest {
     }
 
     @DisplayName("이미 삭제된 일정을 삭제하려는 경우 " +
-            "상태 코드 400, 응답 메시지{이미 삭제된 일정입니다} 반환" +
+            "상태 코드 400, message : {이미 삭제된 일정입니다} 반환" +
             "event 엔티티 isDeleted 필드 true -> true 유지")
     @Test
     void 일정삭제_이미_삭제된_케이스() throws Exception {

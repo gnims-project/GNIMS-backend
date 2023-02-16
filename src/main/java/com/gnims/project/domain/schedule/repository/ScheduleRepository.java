@@ -31,7 +31,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      */
 
     @Query(value = "select new com.gnims.project.domain.schedule.dto.EventAllQueryDto" +
-            "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, u.username, u.profileImage) from Schedule s " +
+            "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.dDay, u.username, u.profileImage) from Schedule s " +
             "join s.event e " +
             "join s.user u " +
             "where e.id in (select e.id from Schedule s2 where s2.user.id =:userId) and s.isAccepted = true and e.isDeleted = false " +
@@ -66,7 +66,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      * 단건 조회 최적화
      */
     @Query(value = "select new com.gnims.project.domain.schedule.dto.EventOneQueryDto" +
-            "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.content, u.username) from Event e " +
+            "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.content, e.dDay, u.username) from Event e " +
             "join e.schedule s " +
             "join s.user u " +
             "where e.id = :eventId and s.isAccepted = true and e.isDeleted = false")

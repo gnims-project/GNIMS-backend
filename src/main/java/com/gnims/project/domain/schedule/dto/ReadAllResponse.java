@@ -17,17 +17,13 @@ public class ReadAllResponse {
     private Long dDay;
     private List<ReadAllUserDto> invitees;
 
-    public ReadAllResponse(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, List<ReadAllUserDto> invitees) {
+    public ReadAllResponse(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, Long dDay, List<ReadAllUserDto> invitees) {
         this.eventId = eventId;
         this.date = date;
         this.time = time;
         this.cardColor = cardColor;
         this.subject = subject;
-        this.dDay = calculateDDay();
+        this.dDay = dDay;
         this.invitees = invitees;
-    }
-
-    private long calculateDDay() {
-        return ChronoUnit.DAYS.between(LocalDate.now(), date);
     }
 }

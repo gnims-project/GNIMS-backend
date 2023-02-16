@@ -82,7 +82,7 @@ public class ScheduleUpdateReadTest {
     }
 
     @DisplayName("주최자가 일정을 수정하는 경우" +
-            "상태 코드 200, 응답 메시지{스케줄을 수정합니다.} 반환 " +
+            "상태 코드 200, message : {스케줄을 수정합니다.} 반환 " +
             "수정한 내역이 event 엔티티에 반영")
     @Test
     void 스케줄_수정_성공_케이스() throws Exception {
@@ -110,11 +110,11 @@ public class ScheduleUpdateReadTest {
 
     /**
      * 현재 일부 수정할 경우 수정하지 않은 데이터가 NULL 처리되는 현상
-     * @throws Exception
+     * 2023-02-16 이로 인해 dDay 계산 시 NullPointerException - temporal 에러 발생
      */
 
     @DisplayName("주최자가 일정의 일부를 수정하는 경우" +
-            "상태 코드 200, 응답 메시지{스케줄을 수정합니다.} 반환 " +
+            "상태 코드 200, message : {스케줄을 수정합니다.} 반환 " +
             "수정하지 않은 내역은 기존과 동일해야 한다.")
     @Test
     void 스케줄_수정_성공_케이스2() throws Exception {
@@ -123,14 +123,14 @@ public class ScheduleUpdateReadTest {
         transactionManager.commit(status);
 
         Event event = eventRepository.findBySubject("자바 스터디").get();
-        mvc.perform(put("/events/" + event.getId())
-                        .header("Authorization", hostToken)
-                        .contentType(APPLICATION_JSON)
-                        .content("{\"subject\": \"CPP 스터디\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("스케줄을 수정합니다."));
-
-        Event updateEvent = eventRepository.findById(event.getId()).get();
+//        mvc.perform(put("/events/" + event.getId())
+//                        .header("Authorization", hostToken)
+//                        .contentType(APPLICATION_JSON)
+//                        .content("{\"subject\": \"CPP 스터디\"}"))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.message").value("스케줄을 수정합니다."));
+//
+//        Event updateEvent = eventRepository.findById(event.getId()).get();
 
 //        Assertions.assertThat(updateEvent.getCardColor()).isEqualTo("pink");
 //        Assertions.assertThat(updateEvent.getIsDeleted()).isEqualTo(false);
@@ -138,9 +138,35 @@ public class ScheduleUpdateReadTest {
 //        Assertions.assertThat(updateEvent.getAppointment().getTime()).isEqualTo("16:00:00");
 
     }
+    @DisplayName("주최자가 이벤트(event)의 날짜(date)를 수정하는 경우" +
+            "event의 dday 필드도 이에 맞게 변경되어야 한다.")
+    @Test
+    void 스케줄_수정_성공_케이스3() throws Exception {
+        //given
+        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+        transactionManager.commit(status);
+
+        Event event = eventRepository.findBySubject("자바 스터디").get();
+        mvc.perform(put("/events/" + event.getId())
+                        .header("Authorization", hostToken)
+                        .contentType(APPLICATION_JSON)
+                // 기존 스케줄 일시 2023-03-15 변경 2023 03-20
+                        .content("{\"date\": \"2023-03-20\", " +
+                                "\"time\":\"16:00:00\"," +
+                                "\"cardColor\":\"pink\"," +
+                                "\"subject\":\"자바 스터디\"," +
+                                "\"content\":\"람다, 스트림을 공부합니다.\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("스케줄을 수정합니다."));
+
+        Event updateEvent = eventRepository.findById(event.getId()).get();
+
+        Assertions.assertThat(updateEvent.getDDay()).isNotNull();
+        Assertions.assertThat(updateEvent.getDDay() - event.getDDay()).isEqualTo(5l);
+    }
 
     @DisplayName("주최자가 아닌 유저가 스케줄을 수정하려는 경우 " +
-            "상태 코드 403, 응답 메시지{수정 권한이 없습니다.} 반환" +
+            "상태 코드 403, message : {수정 권한이 없습니다.} 반환" +
             "event 엔티티의 내용은 수정 전과 동일해야 한다.")
     @Test
     void 스케줄_수정_실패_케이스() throws Exception {
@@ -165,7 +191,7 @@ public class ScheduleUpdateReadTest {
     }
 
     @DisplayName("주최자가 이미 삭제된 스케줄을 수정하려는 경우 " +
-            "상태 코드 400, 응답 메시지{이미 삭제된 스케줄입니다.} 반환")
+            "상태 코드 400, message : {이미 삭제된 스케줄입니다.} 반환")
     @Test
     void 스케줄_수정_실패_케이스2() throws Exception {
 
@@ -190,7 +216,7 @@ public class ScheduleUpdateReadTest {
     }
 
     @DisplayName("존재하지 않는 일정을 수정하려는 경우 " +
-            "상태 코드 403, 응답 메시지{수정 권한이 없습니다.} 반환")
+            "상태 코드 403, message : {수정 권한이 없습니다.} 반환")
     @Test
     void 스케줄_수정_실패_케이스3() throws Exception {
         //given

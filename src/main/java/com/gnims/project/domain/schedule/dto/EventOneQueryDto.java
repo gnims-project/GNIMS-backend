@@ -4,7 +4,6 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 
 @Getter
 public class EventOneQueryDto {
@@ -17,18 +16,14 @@ public class EventOneQueryDto {
     private Long dDay;
     private String username;
 
-    public EventOneQueryDto(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, String content, String username) {
+    public EventOneQueryDto(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, String content, Long dDay, String username) {
         this.eventId = eventId;
         this.date = date;
         this.time = time;
         this.cardColor = cardColor;
         this.subject = subject;
         this.content = content;
-        this.dDay = calculateDDay();
+        this.dDay = dDay;
         this.username = username;
-    }
-
-    private long calculateDDay() {
-        return ChronoUnit.DAYS.between(LocalDate.now(), date);
     }
 }

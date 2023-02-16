@@ -95,7 +95,8 @@ class ScheduleCreateTest {
             "message 필드 -> '일정 조회 완료'" +
             "생성된 Schedule 엔티티는 초대한 user의 id 값 포함" +
             "스케줄 생성자는 Schedule 엔티티 isAccepted 필드 true" +
-            "초대받은 사람들은 isAccepted 필드 false 여야 한다.")
+            "초대받은 사람들은 isAccepted 필드 false 여야 한다. " +
+            "이벤트가 생성되면 dDay 필드는 null이 아니다.")
     @Test
     void test1() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
@@ -135,5 +136,7 @@ class ScheduleCreateTest {
         //then - 초대받은 사람들은 isAccepted 필드 false 여야 한다.
         Schedule inviteeSchedule = schedules.stream().filter(s -> s.getIsAccepted().equals(false)).findFirst().get();
         Assertions.assertThat(inviteeSchedule.receiveUserId()).isIn(List.of(inviteeId1, inviteeId2));
+        //then - 이벤트가 생성되면 dDay 필드는 null이 아니다.
+        Assertions.assertThat(findEvent.getDDay()).isNotNull();
     }
 }
