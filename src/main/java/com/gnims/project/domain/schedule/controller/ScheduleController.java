@@ -1,7 +1,11 @@
 package com.gnims.project.domain.schedule.controller;
 
+import com.gnims.project.domain.notification.entity.AlarmType;
+import com.gnims.project.domain.notification.service.NotificationService;
 import com.gnims.project.domain.schedule.dto.*;
 import com.gnims.project.domain.schedule.service.ScheduleService;
+import com.gnims.project.domain.user.entity.User;
+import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +22,8 @@ import java.util.List;
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
+    private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     //스케줄 등록
     @PostMapping("/events")
@@ -25,6 +31,17 @@ public class ScheduleController {
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
         scheduleService.makeSchedule(scheduleForm, userId);
+
+        List<User> invitedUsers = userRepository.findAllById(scheduleForm.getParticipantsId());
+        invitedUsers.forEach(user -> notificationService.send(
+                user,
+                AlarmType.SCHEDULE,
+                userDetails.getUser().getUsername() + "님께서 "+ user.getUsername() + "님에게 (" + scheduleForm.getSubject()+ ")일정 초대를 보내셨습니다.!",
+                null,
+                scheduleForm.getSubject(),
+                null));
+
+
         return new ResponseEntity<>(new SimpleScheduleResult(201, "스케줄 생성 완료"), HttpStatus.CREATED);
     }
 
