@@ -5,6 +5,7 @@ import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -109,7 +110,7 @@ public class ScheduleReadTest {
     @DisplayName("일정 상세 조회 시, " +
             "응답 결과로 초대를 수락한(isAccepted) 사람의 username 반환 " +
             "초대를 수락하지 않은 사람의 username 은 반환하지 않습니다." +
-            "일정 제목, 본문, 카드 색상, 날짜, 시간 반환")
+            "일정 제목, 본문, 카드 색상, 날짜, 시간, 디데이 반환")
     @Test
     void test1() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
@@ -117,7 +118,6 @@ public class ScheduleReadTest {
 
         Event event = eventRepository.findBySubject("자바 스터디").get();
         Long eventId = event.getId();
-
 
         mvc.perform(MockMvcRequestBuilders.get("/events/" + eventId)
                 .header("Authorization", token)
@@ -127,6 +127,7 @@ public class ScheduleReadTest {
                 .andExpect(jsonPath("$.data[?(@.cardColor == '%s')]","pink").exists())
                 .andExpect(jsonPath("$.data[?(@.date == '%s')]","2023-03-15").exists())
                 .andExpect(jsonPath("$.data[?(@.time == '%s')]","16:00:00").exists())
+                .andExpect(jsonPath("$..dday").isNotEmpty())
                 .andExpect(jsonPath("$.data.invitees[?(@.username == '%s')]", "이땡땡").exists())
                 .andExpect(jsonPath("$.data.invitees[?(@.username == '%s')]", "박땡땡").doesNotExist())
                 .andExpect(jsonPath("$.data.invitees[?(@.username == '%s')]", "김땡땡").doesNotExist());
@@ -135,7 +136,7 @@ public class ScheduleReadTest {
     @DisplayName("일정 전체 조회 시, " +
             "응답 결과로 초대를 수락한(isAccepted) 사람의 username, profile 반환" +
             "초대를 수락하지 않은 사람의 username 은 반환하지 않습니다." +
-            "일정 제목, 카드 색상, 날짜, 시간 반환")
+            "일정 제목, 카드 색상, 프로필, 날짜, 시간, 디데이 반환")
     @Test
     void test2() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());
@@ -150,6 +151,7 @@ public class ScheduleReadTest {
                 .andExpect(jsonPath("$.data[?(@.cardColor == '%s')]","pink").exists())
                 .andExpect(jsonPath("$.data[?(@.date == '%s')]","2023-03-15").exists())
                 .andExpect(jsonPath("$.data[?(@.time == '%s')]","16:00:00").exists())
+                .andExpect(jsonPath("$..dday").isNotEmpty())
                 .andExpect(jsonPath("$..invitees[?(@.username == '%s')]", "이땡땡").exists())
                 .andExpect(jsonPath("$..invitees[?(@.profile == '%s')]", "https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png").exists())
                 .andExpect(jsonPath("$..invitees[?(@.username == '%s')]", "박땡땡").doesNotExist())
