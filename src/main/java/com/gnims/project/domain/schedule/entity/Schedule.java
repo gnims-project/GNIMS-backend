@@ -13,6 +13,8 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,13 +34,13 @@ public class Schedule extends TimeStamped {
 
     private Boolean isAttend;
 
-    private Boolean isAccepted;
+    private ScheduleStatus scheduleStatus;
 
     public Schedule(User user, Event event) {
         this.user = user;
         this.event = event;
         this.isAttend = false;
-        this.isAccepted = false;
+        this.scheduleStatus = PENDING;
     }
 
     public String receiveUsername() {
@@ -50,16 +52,24 @@ public class Schedule extends TimeStamped {
     // 1대 다 조회
     public List<ReadAllUserDto> findInvitees() {
         return event.getSchedule().stream()
-                .filter(schedule -> schedule.getIsAccepted().equals(true))
+                .filter(schedule -> schedule.isAccepted())
                 .map(s -> new ReadAllUserDto(s.receiveUsername(), s.receiveProfile()))
                 .collect(Collectors.toList());
     }
 
     public void acceptSchedule() {
-        this.isAccepted = true;
+        this.scheduleStatus = ACCEPT;
     }
 
     public Long receiveUserId() {
         return this.getUser().getId();
+    }
+
+    public boolean isAccepted() {
+        return getScheduleStatus().equals(ACCEPT);
+    }
+
+    public boolean isDeletedEvent() {
+        return event.getIsDeleted().equals(false);
     }
 }
