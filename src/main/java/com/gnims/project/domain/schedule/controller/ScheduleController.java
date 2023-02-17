@@ -89,15 +89,24 @@ public class ScheduleController {
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "과거 스케줄 조회 완료", responses), HttpStatus.OK);
     }
 
-
     //스케줄 수락하기
     @PostMapping("/events/{event-id}/acceptance")
-    public ResponseEntity<SimpleScheduleResult> readPendingSchedule(@PathVariable("event-id") Long eventId,
-                                                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long userId = userDetails.receiveUserId();
-        scheduleService.acceptSchedule(userId, eventId);
+    public ResponseEntity<SimpleScheduleResult> acceptSchedule(@PathVariable("event-id") Long eventId,
+                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        scheduleService.acceptSchedule(userDetails.receiveUserId(), eventId);
         return new ResponseEntity<>(new SimpleScheduleResult(200, "스케줄을 수락합니다."), HttpStatus.OK);
     }
+
+    //스케줄 거절하기
+    @PostMapping("/events/{event-id}/rejection")
+    public ResponseEntity<SimpleScheduleResult> rejectSchedule(@PathVariable("event-id") Long eventId,
+                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        scheduleService.rejectSchedule(userDetails.receiveUserId(), eventId);
+        return new ResponseEntity<>(new SimpleScheduleResult(200, "스케줄을 거절합니다."), HttpStatus.OK);
+    }
+
 
     //스케줄 삭제
     @DeleteMapping("/events/{event-id}")

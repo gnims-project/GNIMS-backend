@@ -34,6 +34,7 @@ public class Schedule extends TimeStamped {
 
     private Boolean isAttend;
 
+    @Enumerated(value = EnumType.STRING)
     private ScheduleStatus scheduleStatus;
 
     public Schedule(User user, Event event) {
@@ -57,8 +58,8 @@ public class Schedule extends TimeStamped {
                 .collect(Collectors.toList());
     }
 
-    public void acceptSchedule() {
-        this.scheduleStatus = ACCEPT;
+    public void decideScheduleStatus(ScheduleStatus scheduleStatus) {
+        this.scheduleStatus = scheduleStatus;
     }
 
     public Long receiveUserId() {

@@ -62,14 +62,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "and e.isDeleted = false")
     Optional<Schedule> readOneSchedule(Long userId, Long eventId);
 
-    @Query(value = "select e from Event e " +
-            "join fetch e.schedule s " +
-            "join fetch s.user u " +
-            "where e.id = :eventId " +
-            "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
-            "and e.isDeleted = false")
-    List<Event> readOneScheduleV3(Long eventId);
-
     /**
      * 단건 조회 최적화
      */
@@ -81,5 +73,12 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false")
     List<EventOneQueryDto> readOneScheduleV2Dto(Long eventId);
+
+    //수락 및 거절을 대기중인 스케줄 조회
+    @Query(value = "select s from Schedule s " +
+            "where s.user.id = :userId and s.event.id = :eventId " +
+            "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.PENDING " +
+            "and s.event.isDeleted = false")
+    Optional<Schedule> readOnePendingSchedule(Long userId, Long eventId);
 
 }

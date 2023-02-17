@@ -41,7 +41,7 @@ public class ScheduleService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         Schedule hostSchedule = new Schedule(user, event);
-        hostSchedule.acceptSchedule();
+        hostSchedule.decideScheduleStatus(ACCEPT);
         //개인 스케줄일 경우
         if (isPersonalSchedule(form, userId)) {
             scheduleRepository.save(hostSchedule);
@@ -217,19 +217,26 @@ public class ScheduleService {
 
     @Transactional
     public void acceptSchedule(Long userId, Long eventId) {
-        Schedule schedule = scheduleRepository.findByUser_IdAndEvent_Id(userId, eventId).get();
-        Event event = schedule.getEvent();
+        Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
+                .orElseThrow(() -> new IllegalArgumentException("이미 요청이 처리되었거나 존재하지 않는 일정입니다."));
 
-        checkIsDeleted(event);
+        schedule.decideScheduleStatus(ACCEPT);
+        scheduleRepository.save(schedule);
+    }
 
-        schedule.acceptSchedule();
+    @Transactional
+    public void rejectSchedule(Long userId, Long eventId) {
+        Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
+                .orElseThrow(() -> new IllegalArgumentException("이미 요청이 처리되었거나 존재하지 않는 일정입니다."));
+
+        schedule.decideScheduleStatus(REJECT);
         scheduleRepository.save(schedule);
     }
 
     @Transactional
     public void softDeleteSchedule(Long userId, Long eventId) {
-        Event event = eventRepository.findByCreateByAndId(userId, eventId).orElseThrow(
-                () -> new SecurityException("삭제 권한이 없습니다."));
+        Event event = eventRepository.findByCreateByAndId(userId, eventId)
+                .orElseThrow(() -> new SecurityException("이미 요청이 처리되었거나 삭제 권한이 없습니다."));
 
         checkIsDeleted(event);
 
@@ -240,7 +247,7 @@ public class ScheduleService {
     @Transactional
     public void updateSchedule(Long userId, UpdateForm updateForm, Long eventId) {
         Event event = eventRepository.findByCreateByAndId(userId, eventId).orElseThrow(
-                () -> new SecurityException("수정 권한이 없습니다."));
+                () -> new SecurityException("이미 요청이 처리되었거나 수정 권한이 없습니다."));
 
         checkIsDeleted(event);
 
