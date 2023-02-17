@@ -144,10 +144,10 @@ public class UserSignupTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         expression2,
-                        "비밀번호는 영문/숫자를 포함하여 9~20자로 입력해야합니다.",
+                        "12자 이내의 한글, 영어 이름만 가능합니다.",
+                        "비밀번호는 영문/숫자를 포함하여 8~16자로 입력해야합니다.",
                         "올바른 형식의 이메일 주소여야 합니다",
-                        "특수문자를 제외한 2 ~ 8 자리의 닉네임만 가능합니다.",
-                        "한글, 영어 이름만 가능합니다."
+                        "특수문자를 제외한 2 ~ 8 자리의 닉네임만 가능합니다."
                 ).exists());
         Assertions.assertThat(userRepository.findByNickname("오렌지1234567890")).isEmpty();
     }
