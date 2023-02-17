@@ -1,6 +1,6 @@
 package com.gnims.project.domain.user.controller;
 
-import com.gnims.project.domain.friendship.dto.PagingDataResponse;
+import com.gnims.project.domain.schedule.dto.ReadScheduleResult;
 import com.gnims.project.domain.user.NicknameEmailDto;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
@@ -91,14 +92,14 @@ public class UserController {
 //    }
 
     @GetMapping("/users/search")
-    public ResponseEntity<SearchPageableResult> search(@RequestParam(value = "nickname") String nickname,
-                                          @RequestParam Integer number,
-                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ReadScheduleResult> search(@RequestParam(value = "nickname") String nickname,
+                                                     @RequestParam Integer number,
+                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         PageRequest pageRequest = PageRequest.of(number, 5);
-        PagingDataResponse response = userService.search(nickname, pageRequest, userDetails.getUser());
+        List<SearchResponseDto> response = userService.search(nickname, pageRequest, userDetails.getUser());
 
-        return new ResponseEntity<>(new SearchPageableResult<>(OK.value(), "유저 검색 성공", response), OK);
+        return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), "유저 검색 성공", response), OK);
     }
 
     //이메일 인증을 날릴 api

@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.gnims.project.domain.friendship.dto.PageDto;
-import com.gnims.project.domain.friendship.dto.PagingDataResponse;
 import com.gnims.project.domain.friendship.entity.FollowStatus;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
@@ -252,7 +251,7 @@ public class UserService {
     //본인 제외
 
     //현재 정렬 ID 내림차순
-    public PagingDataResponse search(String nickname, PageRequest pageRequest, User user) {
+    public List<SearchResponseDto> search(String nickname, PageRequest pageRequest, User user) {
 
         System.out.println("nickname2 = " + user.getNickname());
 
@@ -302,7 +301,7 @@ public class UserService {
         }
 
 
-        return new PagingDataResponse(page, data);
+        return data;
     }
 
     /*
