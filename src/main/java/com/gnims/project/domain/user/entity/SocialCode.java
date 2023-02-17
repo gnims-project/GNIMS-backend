@@ -4,8 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum SocialCode {
-    /*AUTH("Auth"), */
-    KAKAO("Kakao"), NAVER("Naver");
+    AUTH("Gnims.Auth."), KAKAO("Gnims.Kakao."), NAVER("Gnims.Naver.");
 
     private String value;
 
