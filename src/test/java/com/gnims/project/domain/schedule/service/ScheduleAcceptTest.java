@@ -2,6 +2,7 @@ package com.gnims.project.domain.schedule.service;
 
 import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.schedule.entity.Schedule;
+import com.gnims.project.domain.schedule.entity.ScheduleStatus;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
@@ -20,6 +21,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -122,8 +124,8 @@ public class ScheduleAcceptTest {
 
 
         // 스케줄을 수락하기 전 당근,수박의 isAccepted 필드
-        Assertions.assertThat(danguenSchedule.getIsAccepted()).isFalse();
-        Assertions.assertThat(subackSchedule.getIsAccepted()).isFalse();
+        Assertions.assertThat(danguenSchedule.getScheduleStatus()).isEqualTo(PENDING);
+        Assertions.assertThat(subackSchedule.getScheduleStatus()).isEqualTo(PENDING);
 
         //when
         mvc.perform(post( "/events/" + eventId + "/acceptance")
@@ -134,7 +136,7 @@ public class ScheduleAcceptTest {
         // 스케줄을 수락 후 당근, 수박의 isAccepted 필드
         Schedule updateDanguenSchedule = scheduleRepository.findByUser_IdAndEvent_Id(inviteeId1, eventId).get();
         Schedule updateSubackSchedule = scheduleRepository.findByUser_IdAndEvent_Id(inviteeId2, eventId).get();
-        Assertions.assertThat(updateDanguenSchedule.getIsAccepted()).isTrue();
-        Assertions.assertThat(updateSubackSchedule.getIsAccepted()).isFalse();
+        Assertions.assertThat(updateDanguenSchedule.getScheduleStatus()).isEqualTo(ACCEPT);
+        Assertions.assertThat(updateSubackSchedule.getScheduleStatus()).isEqualTo(PENDING);
     }
 }
