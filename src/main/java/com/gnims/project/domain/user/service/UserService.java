@@ -49,8 +49,6 @@ public class UserService {
     @Transactional
     public void signup(SignupRequestDto request, MultipartFile image) throws IOException {
 
-        String email = "Gnims.Auth." + request.getEmail();
-
         String nickname = request.getNickname();
 
         String email = SocialCode.AUTH.getValue() + request.getEmail();
