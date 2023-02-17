@@ -15,13 +15,13 @@ public class PasswordDto {
             groups = ValidationGroups.NotNullGroup.class)
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,16}$",
             groups = ValidationGroups.PatternCheckGroup.class,
-            message = "비밀번호는 영문/숫자를 포함하여 9~20자로 입력해야합니다.")
+            message = "비밀번호는 영문/숫자를 포함하여 8~16자로 입력해야합니다.")
     private String oldPassword;
 
     @NotBlank(message = "새 비밀번호는 필수 입력 값입니다.",
             groups = ValidationGroups.NotNullGroup.class)
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,16}$",
             groups = ValidationGroups.PatternCheckGroup.class,
-            message = "비밀번호는 영문/숫자를 포함하여 9~20자로 입력해야합니다.")
+            message = "비밀번호는 영문/숫자를 포함하여 8~16자로 입력해야합니다.")
     private String newPassword;
 }
