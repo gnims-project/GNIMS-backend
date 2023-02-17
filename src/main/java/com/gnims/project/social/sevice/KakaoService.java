@@ -68,7 +68,7 @@ public class KakaoService {
         // 4. JWT 토큰 담기
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(kakaoUser.getNickname()));
 
-        return new SocialResult(HttpStatus.OK.value(), "member", new LoginResponseDto(kakaoUserInfo.getEmail(), kakaoUser.getNickname(), kakaoUser.getProfileImage()));
+        return new SocialResult(HttpStatus.OK.value(), "member", new LoginResponseDto(kakaoUser));
     }
 
     // 1. "인가 코드"로 "액세스 토큰" 요청
