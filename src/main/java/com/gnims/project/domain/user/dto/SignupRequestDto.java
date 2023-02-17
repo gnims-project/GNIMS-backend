@@ -17,9 +17,9 @@ public class SignupRequestDto {
 
     @NotBlank(message = "이름은 필수 입력 값입니다.",
             groups = ValidationGroups.NotNullGroup.class)
-    @Pattern(regexp = "^[a-zA-Z가-힣]{2,8}$",
+    @Pattern(regexp = "^[a-zA-Z가-힣]{1,12}$",
             groups = ValidationGroups.PatternCheckGroup.class,
-            message = "한글, 영어 이름만 가능합니다.")
+            message = "12자 이내의 한글, 영어 이름만 가능합니다.")
     private String username;
 
     @NotBlank(message = "이메일은 필수 입력 값입니다.",
@@ -31,8 +31,8 @@ public class SignupRequestDto {
 
     @NotBlank(message = "비밀번호는 필수 입력 값입니다.",
             groups = ValidationGroups.NotNullGroup.class)
-    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{9,20}$",
+    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,16}$",
             groups = ValidationGroups.PatternCheckGroup.class,
-            message = "비밀번호는 영문/숫자를 포함하여 9~20자로 입력해야합니다.")
+            message = "비밀번호는 영문/숫자를 포함하여 8~16자로 입력해야합니다.")
     private String password;
 }
