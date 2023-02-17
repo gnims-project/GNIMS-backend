@@ -82,7 +82,7 @@ public class PasswordUpdateTest {
                         .content("{\"oldPassword\": \"123456aA9\", " +
                                 "\"newPassword\": \"12345789\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.messages == ['%s'])]", "비밀번호는 영문/숫자를 포함하여 9~20자로 입력해야합니다.").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.messages == ['%s'])]", "비밀번호는 영문/숫자를 포함하여 8~16자로 입력해야합니다.").exists());
 
         Assertions.assertThat(passwordEncoder.matches("12345789", userRepository.findByNickname("딸기")
                 .get().getPassword())).isFalse();
