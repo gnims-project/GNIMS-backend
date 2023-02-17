@@ -13,7 +13,7 @@ public class EmailController {
     private final EmailServiceImpl emailServiceImpl;
 
     @GetMapping("/email/password")
-    public ResponseEntity<SimpleMessageResult> emailConfirm(EmailPasswordDto request)  throws Exception {
+    public ResponseEntity<SimpleMessageResult> confirmEmail(EmailPasswordDto request)  throws Exception {
         emailServiceImpl.emailLinkCheck(request);
 
         SimpleMessageResult response = new SimpleMessageResult(200, "변경 성공");
