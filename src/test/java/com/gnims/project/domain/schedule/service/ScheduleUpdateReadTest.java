@@ -184,7 +184,7 @@ public class ScheduleUpdateReadTest {
                         "\"subject\":\"자바스크립트 스터디\"," +
                         "\"content\":\"비동기 처리를 공부합니다.\"}"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value("수정 권한이 없습니다."));
+                .andExpect(jsonPath("$.message").value("이미 요청이 처리되었거나 수정 권한이 없습니다."));
 
         Event updateEvent = eventRepository.findBySubject("자바 스터디").get();
         Assertions.assertThat(updateEvent.getModifiedAt()).isEqualTo(originalEvent.getModifiedAt());
@@ -232,7 +232,7 @@ public class ScheduleUpdateReadTest {
                                 "\"subject\":\"자바스크립트 스터디\"," +
                                 "\"content\":\"비동기 처리를 공부합니다.\"}"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value("수정 권한이 없습니다."));
+                .andExpect(jsonPath("$.message").value("이미 요청이 처리되었거나 수정 권한이 없습니다."));
     }
 
     private MvcResult getLoginResult() throws Exception {

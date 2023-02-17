@@ -104,7 +104,7 @@ public class ScheduleDeleteTest {
     }
 
     @DisplayName("주최자가 아닌 사람이 일정을 삭제할 경우 " +
-            "상태 코드 403, message : {삭제 권한이 없습니다.} 반환" +
+            "상태 코드 403, message : {이미 요청이 처리되었거나 삭제 권한이 없습니다.} 반환" +
             "event 엔티티 isDeleted 필드 false 유지")
     @Test
     void 일정삭제_실패_케이스1() throws Exception {
@@ -118,7 +118,7 @@ public class ScheduleDeleteTest {
                         .header("Authorization", userToken))
                 //then
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value( "삭제 권한이 없습니다."));
+                .andExpect(jsonPath("$.message").value( "이미 요청이 처리되었거나 삭제 권한이 없습니다."));
 
         Event updateEvent = eventRepository.findBySubject("자바 스터디").get();
         //then
@@ -138,7 +138,7 @@ public class ScheduleDeleteTest {
                         .header("Authorization", userToken))
                 //then
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value( "삭제 권한이 없습니다."));
+                .andExpect(jsonPath("$.message").value( "이미 요청이 처리되었거나 삭제 권한이 없습니다."));
     }
 
     @DisplayName("이미 삭제된 일정을 삭제하려는 경우 " +
