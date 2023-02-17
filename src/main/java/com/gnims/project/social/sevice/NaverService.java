@@ -74,7 +74,7 @@ public class NaverService {
         // 4. JWT 토큰 담기
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(naverUser.getNickname()));
 
-        return new SocialResult(HttpStatus.OK.value(), "member", new LoginResponseDto(naverUserInfo.getEmail(), naverUser.getNickname(), naverUser.getProfileImage()));
+        return new SocialResult(HttpStatus.OK.value(), "member", new LoginResponseDto(naverUser));
     }
 
     // 2. 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
