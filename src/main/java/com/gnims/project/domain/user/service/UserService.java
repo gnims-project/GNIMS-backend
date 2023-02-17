@@ -61,7 +61,7 @@ public class UserService {
 
         String nickname = request.getNickname();
 
-        String email = SocialCode.AUTH.getValue() + request.getEmail();
+        String email = SocialCode.EMAIL.getValue() + request.getEmail();
 
         //이메일 / 닉네임 중복체크
         checkDuplicate(email, nickname);
@@ -180,7 +180,7 @@ public class UserService {
     public SimpleMessageResult checkEmail(EmailDto request) {
 
         //이메일 중복 체크는 일반 회원가입에서만 사용 됨
-        if (userRepository.findByEmail(SocialCode.AUTH.getValue() + request.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).isPresent()) {
             return new SimpleMessageResult(400, "이미 등록된 이메일 입니다.");
         }
         return new SimpleMessageResult(200, "사용 가능한 이메일 입니다.");
@@ -188,7 +188,7 @@ public class UserService {
 
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
 
-        User user = userRepository.findByEmail(SocialCode.AUTH.getValue() + request.getEmail()).orElseThrow(
+        User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
                 () -> new BadCredentialsException("이메일 혹은 비밀번호가 일치하지 않습니다.")
         );
 
