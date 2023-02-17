@@ -9,12 +9,14 @@ import com.gnims.project.domain.friendship.dto.PagingDataResponse;
 import com.gnims.project.domain.friendship.entity.FollowStatus;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
+import com.gnims.project.domain.user.NicknameEmailDto;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
 import com.gnims.project.social.dto.SocialSignupDto;
+import com.gnims.project.util.gmail.EmailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -37,6 +39,7 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
+    private final EmailServiceImpl emailServiceImpl;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final List<String> CHO = List.of("ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ");
@@ -45,6 +48,14 @@ public class UserService {
     private String S3Bucket;
 
     private final AmazonS3Client amazonS3Client;
+
+    /**
+     * Gnims.Auth. + email 을 하는 이유
+     * 네이버 소셜 회원가입 하는 사람의 이메일이
+     * 기존 이메일 회원가입이 되어 있는 경우에
+     * 이메일의 중복이 생길 수 있기 때문에
+     * 중복을 차단하기 위해 사용
+     * */
 
     @Transactional
     public void signup(SignupRequestDto request, MultipartFile image) throws IOException {
@@ -56,7 +67,9 @@ public class UserService {
         //이메일 / 닉네임 중복체크
         checkDuplicate(email, nickname);
 
-        char[] chars = nickname.toCharArray();
+        String search = request.getUsername() + "@" + request.getNickname();
+
+        char[] chars = search.toCharArray();
 
         String searchNickname = "";
 
@@ -74,7 +87,12 @@ public class UserService {
             userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, "https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"));
             return;
         }
+        String imageUrl = getImage(image);
 
+        userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, imageUrl));
+    }
+
+    private String getImage(MultipartFile image) throws IOException {
         String fileRealName = image.getOriginalFilename();
 
         //확장자 분리
@@ -102,9 +120,7 @@ public class UserService {
                 new PutObjectRequest(S3Bucket, originName, image.getInputStream(), objectMetadata )
                         .withCannedAcl(CannedAccessControlList.PublicRead)
         );
-        String imageUrl = amazonS3Client.getUrl(S3Bucket, originName).toString();
-
-        userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, imageUrl));
+        return amazonS3Client.getUrl(S3Bucket, originName).toString();
     }
 
     @Transactional
@@ -137,34 +153,7 @@ public class UserService {
             return;
         }
 
-        String fileRealName = image.getOriginalFilename();
-
-        //확장자 분리
-        String extension = fileRealName.substring(fileRealName.lastIndexOf(".") + 1);
-
-        //허용할 확장자 목록
-        List<String> checkFile = new ArrayList<>(List.of(
-                "gif", "jfif", "pjpeg", "jpeg",
-                "pjp", "jpg", "png", "bmp",
-                "dib", "webp", "svgz", "svg"));
-
-        //확장자 체크
-        if(!checkFile.contains(extension)) {
-            throw new IllegalArgumentException(checkFile + " 확장자의 이미지 파일만 업로드 가능합니다!");
-        }
-
-        String originName = UUID.randomUUID().toString();
-        long size = image.getSize();
-
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(image.getContentType());
-        objectMetadata.setContentLength(size);
-
-        amazonS3Client.putObject(
-                new PutObjectRequest(S3Bucket, originName, image.getInputStream(), objectMetadata )
-                        .withCannedAcl(CannedAccessControlList.PublicRead)
-        );
-        String imageUrl = amazonS3Client.getUrl(S3Bucket, originName).toString();
+        String imageUrl = getImage(image);
 
         userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, imageUrl));
     }
@@ -191,9 +180,8 @@ public class UserService {
 
     public SimpleMessageResult checkEmail(EmailDto request) {
 
-        String email = "Gnims.Auth." + request.getEmail();
-
-        if (userRepository.findByEmail(email).isPresent()) {
+        //이메일 중복 체크는 일반 회원가입에서만 사용 됨
+        if (userRepository.findByEmail(SocialCode.AUTH.getValue() + request.getEmail()).isPresent()) {
             return new SimpleMessageResult(400, "이미 등록된 이메일 입니다.");
         }
         return new SimpleMessageResult(200, "사용 가능한 이메일 입니다.");
@@ -201,9 +189,7 @@ public class UserService {
 
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
 
-        String email = "Gnims.Auth." + request.getEmail();
-
-        User user = userRepository.findByEmail(email).orElseThrow(
+        User user = userRepository.findByEmail(SocialCode.AUTH.getValue() + request.getEmail()).orElseThrow(
                 () -> new BadCredentialsException("이메일 혹은 비밀번호가 일치하지 않습니다.")
         );
 
@@ -225,34 +211,7 @@ public class UserService {
             return;
         }
 
-        String fileRealName = image.getOriginalFilename();
-
-        //확장자 분리
-        String extension = fileRealName.substring(fileRealName.lastIndexOf(".") + 1);
-
-        //허용할 확장자 목록
-        List<String> checkFile = new ArrayList<>(List.of(
-                "gif", "jfif", "pjpeg", "jpeg",
-                "pjp", "jpg", "png", "bmp",
-                "dib", "webp", "svgz", "svg"));
-
-        //확장자 체크
-        if(!checkFile.contains(extension)) {
-            throw new IllegalArgumentException(checkFile + " 확장자의 이미지 파일만 업로드 가능합니다!");
-        }
-
-        String originName = UUID.randomUUID().toString();
-        long size = image.getSize();
-
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(image.getContentType());
-        objectMetadata.setContentLength(size);
-
-        amazonS3Client.putObject(
-                new PutObjectRequest(S3Bucket, originName, image.getInputStream(), objectMetadata )
-                        .withCannedAcl(CannedAccessControlList.PublicRead)
-        );
-        String imageUrl = amazonS3Client.getUrl(S3Bucket, originName).toString();
+        String imageUrl = getImage(image);
 
         userRepository.findById(user.getId())
                 .get().updateProfile(imageUrl);
@@ -308,7 +267,7 @@ public class UserService {
 
         char[] chars = nickname2.toCharArray();
 
-        nickname2 = "";
+        nickname2 = "@?";
 
         for(char char1: chars) {
             nickname2 = nickname2 + "[a-zA-Z0-9ㄱ-ㅎ가-힣]*";
@@ -323,9 +282,9 @@ public class UserService {
 
         nickname2.replaceFirst("[a-zA-Z0-9ㄱ-ㅎ가-힣]*", "");
 
-        System.out.println(nickname2);
+        System.out.println("searchNickname = " + nickname2);
 
-        Page<User> users = userRepository.searchByRegExpKeyword(nickname2, pageRequest);
+        Page<User> users = userRepository.searchByRegExpKeyword(nickname2 + "@?", pageRequest);
         PageDto page = new PageDto(users);
 
 //        List<SearchResponseDto> data = users.stream()
@@ -360,4 +319,32 @@ public class UserService {
 //
 //        return userRepository.searchByRegExpKeyword(searchNickname).get();
 //    }
+
+    @Transactional
+    public void authPassword(NicknameEmailDto request) throws Exception {
+
+        Optional<User> user = userRepository.findByNickname(request.getNickname());
+
+        if(user.isEmpty() || !(request.getEmail()).equals(user.get().getEmail())) {
+            throw new IllegalArgumentException("닉네임 혹은 이메일이 일치하지 않습니다.");
+        }
+
+        emailServiceImpl.sendSimpleMessage(request.getNickname(), request.getEmail());
+    }
+
+    @Transactional
+    public void updatePassword(PasswordDto request, User user) {
+
+        if(request.getOldPassword().equals(request.getNewPassword())) {
+            throw new IllegalArgumentException("기존의 비밀번호와 같은 비밀번호 입니다!");
+        }
+
+        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        String newPassword = passwordEncoder.encode(request.getNewPassword());
+
+        userRepository.findByNickname(user.getNickname()).get().updatePassword(newPassword);
+    }
 }
