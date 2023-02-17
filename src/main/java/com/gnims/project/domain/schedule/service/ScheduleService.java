@@ -4,6 +4,7 @@ import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.schedule.dto.*;
 import com.gnims.project.domain.schedule.entity.Schedule;
+import com.gnims.project.domain.schedule.entity.ScheduleStatus;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,7 +41,7 @@ public class ScheduleService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         Schedule hostSchedule = new Schedule(user, event);
-        hostSchedule.acceptSchedule();
+        hostSchedule.decideScheduleStatus(ACCEPT);
         //개인 스케줄일 경우
         if (isPersonalSchedule(form, userId)) {
             scheduleRepository.save(hostSchedule);
@@ -57,7 +60,7 @@ public class ScheduleService {
     }
 
     public List<ReadAllResponse> readAllSchedule(Long userId) {
-        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIsAndEvent_IsDeletedIs(userId, true, false);
+        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndScheduleStatusIsAndEvent_IsDeletedIs(userId, ACCEPT, false);
 
         return schedules.stream().map(s -> new ReadAllResponse(
                 s.getEvent().getId(),
@@ -119,14 +122,14 @@ public class ScheduleService {
     }
 
     public ReadOneResponse readOneSchedule(Long eventId) {
-        List<Schedule> schedules = scheduleRepository.findByEvent_IdAndIsAcceptedIs(eventId, true);
+        List<Schedule> schedules = scheduleRepository.findByEvent_IdAndScheduleStatusIs(eventId, ACCEPT);
 
         Event event = schedules.get(0).getEvent();
 
         checkIsDeleted(event);
 
         List<ReadOneUserDto> invitees = schedules.stream()
-                .filter(s -> s.getIsAccepted().equals(true))
+                .filter(s -> s.isAccepted())
                 .map(s -> new ReadOneUserDto(s.getUser().getUsername()))
                 .collect(Collectors.toList());
 
@@ -149,7 +152,7 @@ public class ScheduleService {
         Event event = optionalSchedule.get().getEvent();
 
         List<ReadOneUserDto> invitees = event.getSchedule().stream()
-                .filter(s -> s.getIsAccepted().equals(true))
+                .filter(s -> s.isAccepted())
                 .map(s -> new ReadOneUserDto(s.receiveUsername()))
                 .collect(Collectors.toList());
 
@@ -184,7 +187,7 @@ public class ScheduleService {
     }
 
     public List<ReadPastAllResponse> readPendingSchedule(Long userId) {
-        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, false);
+        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndScheduleStatusIs(userId, PENDING);
 
         List<Schedule> liveSchedules = filterDeletedSchedules(schedules);
 
@@ -198,8 +201,8 @@ public class ScheduleService {
     }
 
     public List<ReadPastAllResponse> readPastSchedule(Long userId) {
-        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndIsAcceptedIs(userId, true);
-        List<Schedule> pastSchedules = schedules.stream().filter(s -> s.getEvent().getIsDeleted().equals(false))
+        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndScheduleStatusIs(userId, ACCEPT);
+        List<Schedule> pastSchedules = schedules.stream().filter(s -> s.isDeletedEvent())
                 .filter(s -> ChronoUnit.DAYS.between(LocalDate.now(), s.getEvent().receiveDate()) < 0)
                 .collect(Collectors.toList());
 
@@ -214,19 +217,26 @@ public class ScheduleService {
 
     @Transactional
     public void acceptSchedule(Long userId, Long eventId) {
-        Schedule schedule = scheduleRepository.findByUser_IdAndEvent_Id(userId, eventId).get();
-        Event event = schedule.getEvent();
+        Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
+                .orElseThrow(() -> new IllegalArgumentException("이미 요청이 처리되었거나 존재하지 않는 일정입니다."));
 
-        checkIsDeleted(event);
+        schedule.decideScheduleStatus(ACCEPT);
+        scheduleRepository.save(schedule);
+    }
 
-        schedule.acceptSchedule();
+    @Transactional
+    public void rejectSchedule(Long userId, Long eventId) {
+        Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
+                .orElseThrow(() -> new IllegalArgumentException("이미 요청이 처리되었거나 존재하지 않는 일정입니다."));
+
+        schedule.decideScheduleStatus(REJECT);
         scheduleRepository.save(schedule);
     }
 
     @Transactional
     public void softDeleteSchedule(Long userId, Long eventId) {
-        Event event = eventRepository.findByCreateByAndId(userId, eventId).orElseThrow(
-                () -> new SecurityException("삭제 권한이 없습니다."));
+        Event event = eventRepository.findByCreateByAndId(userId, eventId)
+                .orElseThrow(() -> new SecurityException("이미 요청이 처리되었거나 삭제 권한이 없습니다."));
 
         checkIsDeleted(event);
 
@@ -237,7 +247,7 @@ public class ScheduleService {
     @Transactional
     public void updateSchedule(Long userId, UpdateForm updateForm, Long eventId) {
         Event event = eventRepository.findByCreateByAndId(userId, eventId).orElseThrow(
-                () -> new SecurityException("수정 권한이 없습니다."));
+                () -> new SecurityException("이미 요청이 처리되었거나 수정 권한이 없습니다."));
 
         checkIsDeleted(event);
 
@@ -253,7 +263,7 @@ public class ScheduleService {
 
     private static List<Schedule> filterDeletedSchedules(List<Schedule> schedules) {
         List<Schedule> liveSchedules = schedules.stream()
-                .filter(s -> s.getEvent().getIsDeleted().equals(false))
+                .filter(s -> s.isDeletedEvent())
                 .collect(Collectors.toList());
         return liveSchedules;
     }

@@ -4,6 +4,7 @@ import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.schedule.dto.EventAllQueryDto;
 import com.gnims.project.domain.schedule.dto.EventOneQueryDto;
 import com.gnims.project.domain.schedule.entity.Schedule;
+import com.gnims.project.domain.schedule.entity.ScheduleStatus;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,16 +13,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    List<Schedule> findByEvent_IdAndIsAcceptedIs(Long eventId, Boolean isAccepted);
-    List<Schedule> findAllByUser_IdAndIsAcceptedIsAndEvent_IsDeletedIs(Long userId, Boolean isAccepted, Boolean isDeleted);
-    List<Schedule> findAllByUser_IdAndIsAcceptedIs(Long userId, Boolean isAccepted);
-
+    List<Schedule> findByEvent_IdAndScheduleStatusIs(Long eventId, ScheduleStatus scheduleStatus);
+    List<Schedule> findAllByUser_IdAndScheduleStatusIsAndEvent_IsDeletedIs(Long userId, ScheduleStatus scheduleStatus, Boolean isDeleted);
+    List<Schedule> findAllByUser_IdAndScheduleStatusIs(Long userId, ScheduleStatus scheduleStatus);
     Optional<Schedule> findByUser_IdAndEvent_Id(Long userId, Long eventId);
 
     //현재 최적화
     @Query(value = "select s from Schedule s " +
             "join fetch s.user as u " +
-            "where s.user.id = :userId and s.isAccepted = true and s.event.isDeleted = false")
+            "where s.user.id = :userId and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
+            "and s.event.isDeleted = false")
     List<Schedule> readAllScheduleV2(Long userId);
 
     /**
@@ -34,8 +35,9 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.dDay, u.username, u.profileImage) from Schedule s " +
             "join s.event e " +
             "join s.user u " +
-            "where e.id in (select e.id from Schedule s2 where s2.user.id =:userId) and s.isAccepted = true and e.isDeleted = false " +
-            "and s.isAccepted = true and e.isDeleted =false")
+            "where e.id in (select e.id from Schedule s2 where s2.user.id =:userId) " +
+            "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
+            "and e.isDeleted = false")
     List<EventAllQueryDto> readAllScheduleV2Dto(Long userId);
 
     /**
@@ -44,7 +46,9 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      */
     @Query(value = "select s from Schedule s " +
             "join fetch s.user as u " +
-            "where s.user.id = :userId and s.isAccepted = true and s.event.isDeleted = false")
+            "where s.user.id = :userId " +
+            "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
+            "and s.event.isDeleted = false")
     List<Schedule> readAllScheduleV2Pageable(Long userId, PageRequest pageRequest);
 
     /**
@@ -53,14 +57,10 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query(value = "select s from Schedule s " +
             "join fetch s.event as e " +
             "join fetch s.user u " +
-            "where e.id = :eventId and u.id = :userId and s.isAccepted = true and e.isDeleted = false")
+            "where e.id = :eventId and u.id = :userId " +
+            "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
+            "and e.isDeleted = false")
     Optional<Schedule> readOneSchedule(Long userId, Long eventId);
-
-    @Query(value = "select e from Event e " +
-            "join fetch e.schedule s " +
-            "join fetch s.user u " +
-            "where e.id = :eventId and s.isAccepted = true and e.isDeleted = false")
-    List<Event> readOneScheduleV3(Long eventId);
 
     /**
      * 단건 조회 최적화
@@ -69,7 +69,16 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.content, e.dDay, u.username) from Event e " +
             "join e.schedule s " +
             "join s.user u " +
-            "where e.id = :eventId and s.isAccepted = true and e.isDeleted = false")
+            "where e.id = :eventId " +
+            "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
+            "and e.isDeleted = false")
     List<EventOneQueryDto> readOneScheduleV2Dto(Long eventId);
+
+    //수락 및 거절을 대기중인 스케줄 조회
+    @Query(value = "select s from Schedule s " +
+            "where s.user.id = :userId and s.event.id = :eventId " +
+            "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.PENDING " +
+            "and s.event.isDeleted = false")
+    Optional<Schedule> readOnePendingSchedule(Long userId, Long eventId);
 
 }

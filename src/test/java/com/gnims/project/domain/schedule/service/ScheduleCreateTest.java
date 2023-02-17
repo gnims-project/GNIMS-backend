@@ -3,6 +3,7 @@ package com.gnims.project.domain.schedule.service;
 import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.schedule.entity.Schedule;
+import com.gnims.project.domain.schedule.entity.ScheduleStatus;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
@@ -25,6 +26,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -122,7 +124,7 @@ class ScheduleCreateTest {
 
 
         List<Schedule> schedules = scheduleRepository.findAll();
-        Schedule hostSchedule = schedules.stream().filter(s -> s.getIsAccepted().equals(true)).findFirst().get();
+        Schedule hostSchedule = schedules.stream().filter(s -> s.isAccepted()).findFirst().get();
         List<Long> userIds = schedules.stream().map(s -> s.getUser().getId()).collect(Collectors.toList());
         Event findEvent = eventRepository.findBySubject("과일 정기 모임")
                 .orElseThrow(() -> new IllegalAccessException("알 수 없는 에러"));
@@ -133,8 +135,8 @@ class ScheduleCreateTest {
 
         //then - 스케줄 생성자는 Schedule 엔티티 isAccepted 필드 true
         Assertions.assertThat(hostSchedule.receiveUserId()).isEqualTo(hostId);
-        //then - 초대받은 사람들은 isAccepted 필드 false 여야 한다.
-        Schedule inviteeSchedule = schedules.stream().filter(s -> s.getIsAccepted().equals(false)).findFirst().get();
+        //then - 초대받은 사람들은 scheduleStatus 필드 PENDING 여야 한다.
+        Schedule inviteeSchedule = schedules.stream().filter(s -> s.getScheduleStatus().equals(PENDING)).findFirst().get();
         Assertions.assertThat(inviteeSchedule.receiveUserId()).isIn(List.of(inviteeId1, inviteeId2));
         //then - 이벤트가 생성되면 dDay 필드는 null이 아니다.
         Assertions.assertThat(findEvent.getDDay()).isNotNull();
