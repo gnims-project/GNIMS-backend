@@ -200,7 +200,7 @@ public class UserService {
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getNickname()));
 
-        return new LoginResponseDto(user.getNickname(), request.getEmail(), user.getProfileImage());
+        return new LoginResponseDto(user);
     }
 
     @Transactional
