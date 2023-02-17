@@ -3,11 +3,12 @@ package com.gnims.project.social.sevice;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gnims.project.domain.user.dto.LoginResponseDto;
+import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
 import com.gnims.project.social.dto.SocialEmailDto;
-import com.gnims.project.social.dto.SocialEmailNicknameDto;
 import com.gnims.project.social.dto.SocialProfileDto;
 import com.gnims.project.social.dto.SocialResult;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +63,7 @@ public class NaverService {
 //        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(naverUser.getUsername()));
 
         // DB 에 중복된 Naver email 이 있는지 확인
-        String naverEmail = "Gnims.Naver." + naverUserInfo.getEmail();
+        String naverEmail = SocialCode.NAVER.getValue() + naverUserInfo.getEmail();
         Optional<User> optionalNaverUser = userRepository.findByEmail(naverEmail);
 
         if (optionalNaverUser.isEmpty()) {
@@ -73,7 +74,7 @@ public class NaverService {
         // 4. JWT 토큰 담기
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(naverUser.getNickname()));
 
-        return new SocialResult(HttpStatus.OK.value(), "member", new SocialEmailNicknameDto(naverUserInfo.getEmail(), naverUser.getNickname()));
+        return new SocialResult(HttpStatus.OK.value(), "member", new LoginResponseDto(naverUser));
     }
 
     // 2. 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
