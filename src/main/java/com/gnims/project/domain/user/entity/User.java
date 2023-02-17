@@ -56,6 +56,10 @@ public class User {
         this.profileImage = profileImage;
     }
 
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
     //    public User(String username, String nickname, SocialCode socialCode, /*String socialId, */String email, String password) {
 //        this.username = username;
 //        this.nickname = nickname;

@@ -1,6 +1,7 @@
 package com.gnims.project.domain.user.controller;
 
 import com.gnims.project.domain.friendship.dto.PagingDataResponse;
+import com.gnims.project.domain.user.NicknameEmailDto;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
 import com.gnims.project.security.service.UserDetailsImpl;
@@ -98,6 +99,22 @@ public class UserController {
         PagingDataResponse response = userService.search(nickname, pageRequest, userDetails.getUser());
 
         return new ResponseEntity<>(new SearchPageableResult<>(OK.value(), "유저 검색 성공", response), OK);
+    }
+
+    //이메일 인증을 날릴 api
+    @GetMapping("/auth/password")
+    public void authPassword(@RequestBody NicknameEmailDto request) throws Exception {
+
+        userService.authPassword(request);
+    }
+
+    //이메일 인증 x 비밀번호 재설정
+    @PatchMapping("/users/password")
+    public ResponseEntity<SimpleMessageResult> updatePassword(@Validated(ValidationSequence.class) @RequestBody PasswordDto request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        userService.updatePassword(request, userDetails.getUser());
+
+        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), "비밀번호 바꾸기 성공"), OK);
     }
 }
 
