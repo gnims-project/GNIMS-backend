@@ -52,6 +52,8 @@ public class UserService {
 
         String nickname = request.getNickname();
 
+        String email = SocialCode.AUTH.getValue() + request.getEmail();
+
         //이메일 / 닉네임 중복체크
         checkDuplicate(email, nickname);
 
@@ -109,7 +111,7 @@ public class UserService {
     @Transactional
     public void socialSignup(SocialSignupDto request, MultipartFile image) throws IOException {
 
-        String email = "Gnims." + request.getSocialCode().getValue() + "." + request.getEmail();
+        String email = request.getSocialCode().getValue() + request.getEmail();
 
         //이메일 / 닉네임 중복체크
         checkDuplicate(email, request.getNickname());
