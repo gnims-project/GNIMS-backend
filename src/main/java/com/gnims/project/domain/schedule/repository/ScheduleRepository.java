@@ -22,7 +22,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query(value = "select s from Schedule s " +
             "join fetch s.user as u " +
             "where s.user.id = :userId and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
-            "and s.event.isDeleted = false")
+            "and s.event.isDeleted = false and s.event.dDay >= 0")
     List<Schedule> readAllScheduleV2(Long userId);
 
     /**
@@ -38,7 +38,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "join s.user u " +
             "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
-            "and e.isDeleted = false")
+            "and e.isDeleted = false and e.dDay >= 0")
     List<EventAllQueryDto> readAllScheduleV2Dto(Long userId);
 
     /**
@@ -52,14 +52,14 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "join s.user u " +
             "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
-            "and e.isDeleted = false")
+            "and e.isDeleted = false and e.dDay >= 0")
     List<EventAllQueryDto> readAllScheduleV2DtoPageable(Long userId, PageRequest pageRequest);
 
     @Query(value = "select s from Schedule s " +
             "join fetch s.user as u " +
             "where s.user.id = :userId " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
-            "and s.event.isDeleted = false")
+            "and s.event.isDeleted = false and s.event.dDay > 0")
     List<Schedule> readAllScheduleV2Pageable(Long userId, PageRequest pageRequest);
 
     /**
