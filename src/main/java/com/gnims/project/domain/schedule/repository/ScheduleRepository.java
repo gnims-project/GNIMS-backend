@@ -29,21 +29,32 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      * 전체 조회 최적화 DTO -> 필요한 데이터를 한 번에 select
      * WHY? -> batch size, join fetch 를 적용해도 메모리 상에서 한 번 더 필터링을 하는 구조 때문에 지연 로딩이 초기화 되어 추가 쿼리가 나감
      * join을 통해 필요한 데이터를 한 번에 추출
+     * subquery = 자신이 참여하는 EVENT_ID SELECT
      */
 
     @Query(value = "select new com.gnims.project.domain.schedule.dto.EventAllQueryDto" +
             "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.dDay, u.username, u.profileImage) from Schedule s " +
             "join s.event e " +
             "join s.user u " +
-            "where e.id in (select e.id from Schedule s2 where s2.user.id =:userId) " +
+            "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false")
     List<EventAllQueryDto> readAllScheduleV2Dto(Long userId);
 
     /**
      * 전체 조회 페이징 처리
-     * user 는 4명 제한이기 때문에 패치 조인
+     * user 는 5명 제한이기 때문에 패치 조인 처리
      */
+
+    @Query(value = "select new com.gnims.project.domain.schedule.dto.EventAllQueryDto" +
+            "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.dDay, u.username, u.profileImage) from Schedule s " +
+            "join s.event e " +
+            "join s.user u " +
+            "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
+            "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
+            "and e.isDeleted = false")
+    List<EventAllQueryDto> readAllScheduleV2DtoPageable(Long userId, PageRequest pageRequest);
+
     @Query(value = "select s from Schedule s " +
             "join fetch s.user as u " +
             "where s.user.id = :userId " +

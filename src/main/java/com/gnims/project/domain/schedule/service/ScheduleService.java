@@ -121,6 +121,28 @@ public class ScheduleService {
                 s.findInvitees())).collect(Collectors.toList());
     }
 
+    public List<ReadAllResponse> readAllScheduleV3Pageable(Long userId, PageRequest pageRequest) {
+        List<EventAllQueryDto> eventAllQueries = scheduleRepository.readAllScheduleV2DtoPageable(userId, pageRequest);
+
+        // 이벤트는 중복될 수 있음으로 set으로 중복 처리
+        HashSet<Long> set = new HashSet<>(eventAllQueries.size());
+        List<EventAllQueryDto> event = eventAllQueries.stream()
+                .filter(e -> set.add(e.getEventId()))
+                .collect(Collectors.toList());
+
+        return event.stream().map(e -> new ReadAllResponse(
+                e.getEventId(),
+                e.getDate(),
+                e.getTime(),
+                e.getCardColor(),
+                e.getSubject(),
+                e.getDDay(),
+                eventAllQueries.stream().filter(eq -> eq.getEventId().equals(e.getEventId()))
+                        .map(eq -> new ReadAllUserDto(eq.getUsername(),eq.getProfile()))
+                        .collect(Collectors.toList())
+        )).collect(Collectors.toList());
+    }
+
     public ReadOneResponse readOneSchedule(Long eventId) {
         List<Schedule> schedules = scheduleRepository.findByEvent_IdAndScheduleStatusIs(eventId, ACCEPT);
 
