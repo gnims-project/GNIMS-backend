@@ -35,20 +35,33 @@ public class ScheduleController {
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
     }
 
-    //스케줄 전체 조회 한방 쿼리 DTO
+    //스케줄 전체 조회  DTO **한방쿼리**
     @GetMapping("/v2-dto/users/{user-id}/events")
     public ResponseEntity<ReadScheduleResult> readAllScheduleV2Dto(@PathVariable("user-id") Long followId) {
         List<ReadAllResponse> responses = scheduleService.readAllScheduleV2Dto(followId);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
     }
 
+    /**
+     * 프론트 요구사항 size = 6
+     */
+
     //스케줄 전체 조회 최적화 진행중 - Paging 버전
     @GetMapping("/v2-page/users/{user-id}/events")
+    public ResponseEntity<ReadScheduleResult> readAllSchedulePage(@PathVariable("user-id") Long followId,
+                                                                    @RequestParam Integer page) {
+        PageRequest pageRequest = PageRequest.of(page, 6);
+        List<ReadAllResponse> responses = scheduleService.readAllScheduleV2Pageable(followId, pageRequest);
+        return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
+    }
+
+    //스케줄 전체 조회 최적화 진행중 - Paging, dto 버전 **한방쿼리**
+    @GetMapping("/v3-page/users/{user-id}/events")
     public ResponseEntity<ReadScheduleResult> readAllScheduleV2Page(@PathVariable("user-id") Long followId,
                                                                     @RequestParam Integer page,
                                                                     @RequestParam Integer size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        List<ReadAllResponse> responses = scheduleService.readAllScheduleV2Pageable(followId, pageRequest);
+        List<ReadAllResponse> responses = scheduleService.readAllScheduleV3Pageable(followId, pageRequest);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, "전체 조회 완료", responses), HttpStatus.OK);
     }
 
@@ -66,7 +79,7 @@ public class ScheduleController {
         ReadOneResponse response = scheduleService.readOneScheduleV2(userId, eventId);
         return new ResponseEntity<>(new ReadScheduleResult(200, "상세 조회 완료", response), HttpStatus.OK);
     }
-    //스케줄 단건 조회 - 쿼리 최적화 한방 쿼리 DTO 반환
+    //스케줄 단건 조회 - 쿼리 최적화 DTO **한방쿼리**
     @GetMapping("/v2/events/{event-id}")
     public ResponseEntity<ReadScheduleResult> readOneScheduleV2DTO(@PathVariable("event-id") Long eventId) {
         ReadOneResponse response = scheduleService.readOneScheduleV2DTO(eventId);
