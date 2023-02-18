@@ -4,7 +4,6 @@ import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.schedule.dto.*;
 import com.gnims.project.domain.schedule.entity.Schedule;
-import com.gnims.project.domain.schedule.entity.ScheduleStatus;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -20,7 +19,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
@@ -59,7 +57,7 @@ public class ScheduleService {
         scheduleRepository.saveAll(schedules);
     }
 
-    public List<ReadAllResponse> readAllSchedule(Long userId) {
+    public List<ReadAllResponse> readAllScheduleProto(Long userId) {
         List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndScheduleStatusIsAndEvent_IsDeletedIs(userId, ACCEPT, false);
 
         return schedules.stream().map(s -> new ReadAllResponse(
@@ -73,21 +71,8 @@ public class ScheduleService {
         )).collect(Collectors.toList());
     }
 
-    public List<ReadAllResponse> readAllScheduleV2(Long userId) {
-        List<Schedule> schedules = scheduleRepository.readAllScheduleV2(userId);
-
-        return schedules.stream().map(s -> new ReadAllResponse(
-                s.getEvent().getId(),
-                s.getEvent().receiveDate(),
-                s.getEvent().receiveTime(),
-                s.getEvent().getCardColor(),
-                s.getEvent().getSubject(),
-                s.getEvent().getDDay(),
-                s.findInvitees())).collect(Collectors.toList());
-    }
-
-    public List<ReadAllResponse> readAllScheduleV2Dto(Long userId) {
-        List<EventAllQueryDto> eventQueries = scheduleRepository.readAllScheduleV2Dto(userId);
+    public List<ReadAllResponse> readAllSchedule(Long userId) {
+        List<EventAllQueryDto> eventQueries = scheduleRepository.readAllSchedule(userId);
         HashSet<Long> set = new HashSet<>(eventQueries.size());
 
         List<EventAllQueryDto> event = eventQueries.stream()
@@ -108,21 +93,8 @@ public class ScheduleService {
 
     }
 
-    public List<ReadAllResponse> readAllScheduleV2Pageable(Long userId, PageRequest pageRequest) {
-        List<Schedule> schedules = scheduleRepository.readAllScheduleV2Pageable(userId, pageRequest);
-
-        return schedules.stream().map(s -> new ReadAllResponse(
-                s.getEvent().getId(),
-                s.getEvent().receiveDate(),
-                s.getEvent().receiveTime(),
-                s.getEvent().getCardColor(),
-                s.getEvent().getSubject(),
-                s.getEvent().getDDay(),
-                s.findInvitees())).collect(Collectors.toList());
-    }
-
-    public List<ReadAllResponse> readAllScheduleV3Pageable(Long userId, PageRequest pageRequest) {
-        List<EventAllQueryDto> eventAllQueries = scheduleRepository.readAllScheduleV2DtoPageable(userId, pageRequest);
+    public List<ReadAllResponse> readAllSchedulePage(Long userId, PageRequest pageRequest) {
+        List<EventAllQueryDto> eventAllQueries = scheduleRepository.readAllSchedulePage(userId, pageRequest);
 
         // 이벤트는 중복될 수 있음으로 set으로 중복 처리
         HashSet<Long> set = new HashSet<>(eventAllQueries.size());
@@ -143,7 +115,7 @@ public class ScheduleService {
         )).collect(Collectors.toList());
     }
 
-    public ReadOneResponse readOneSchedule(Long eventId) {
+    public ReadOneResponse readOneScheduleProto(Long eventId) {
         List<Schedule> schedules = scheduleRepository.findByEvent_IdAndScheduleStatusIs(eventId, ACCEPT);
 
         Event event = schedules.get(0).getEvent();
@@ -166,31 +138,8 @@ public class ScheduleService {
                 invitees);
     }
 
-    public ReadOneResponse readOneScheduleV2(Long userId, Long eventId) {
-        Optional<Schedule> optionalSchedule = scheduleRepository.readOneSchedule(userId, eventId);
-        if (optionalSchedule.isEmpty()) {
-            throw new IllegalArgumentException("존재하지 않는 일정입니다.");
-        }
-        Event event = optionalSchedule.get().getEvent();
-
-        List<ReadOneUserDto> invitees = event.getSchedule().stream()
-                .filter(s -> s.isAccepted())
-                .map(s -> new ReadOneUserDto(s.receiveUsername()))
-                .collect(Collectors.toList());
-
-        return new ReadOneResponse(
-                event.getId(),
-                event.receiveDate(),
-                event.receiveTime(),
-                event.getCardColor(),
-                event.getSubject(),
-                event.getContent(),
-                event.getDDay(),
-                invitees);
-    }
-
-    public ReadOneResponse readOneScheduleV2DTO(Long eventId) {
-        List<EventOneQueryDto> events = scheduleRepository.readOneScheduleV2Dto(eventId);
+    public ReadOneResponse readOneSchedule(Long eventId) {
+        List<EventOneQueryDto> events = scheduleRepository.readOneSchedule(eventId);
         if (events.isEmpty()) {
             throw new IllegalArgumentException("존재하지 않는 일정입니다.");
         }
