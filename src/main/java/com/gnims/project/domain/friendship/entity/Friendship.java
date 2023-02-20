@@ -3,6 +3,7 @@ package com.gnims.project.domain.friendship.entity;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.util.TimeStamped;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,10 +33,17 @@ public class Friendship extends TimeStamped {
     @Enumerated(value = EnumType.STRING)
     private FollowStatus status;
 
-    public Friendship(User myself, User following) {
+    public Friendship(User myself, User follow) {
         this.myself = myself;
-        this.follow = following;
+        this.follow = follow;
         this.status = INIT;
+    }
+
+    @Builder
+    public Friendship(User myself, User follow, FollowStatus status) {
+        this.myself = myself;
+        this.follow = follow;
+        this.status = status;
     }
 
     public String receiveFollowUsername() {
