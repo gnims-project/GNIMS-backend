@@ -1,6 +1,6 @@
 package com.gnims.project.domain.friendship.service;
 
-import com.gnims.project.domain.friendship.dto.FollowResponse;
+import com.gnims.project.domain.friendship.dto.FriendshipResponse;
 import com.gnims.project.domain.friendship.dto.FollowReadResponse;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
@@ -37,11 +37,14 @@ public class FriendshipService {
     public List<FollowReadResponse> readFollower(Long myselfId) {
         List<Friendship> followers = friendshipRepository.readAllFollowerOf(myselfId);
 
+        Friendship dummyFriendship = Friendship.builder().status(INACTIVE).build();
+
         return followers.stream().map(f -> new FollowReadResponse(
                 f.receiveMyselfId(),
                 f.receiveMyselfUsername(),
                 f.receiveMyselfProfile(),
-                f.getStatus())).collect(toList());
+                friendshipRepository.findFriendShip(myselfId, f.receiveMyselfId()).orElseGet(() -> dummyFriendship).getStatus()))
+                .collect(toList());
     }
 
     public List<FollowReadResponse> readFollowingPage(Long myselfId, PageRequest pageRequest) {
@@ -66,7 +69,7 @@ public class FriendshipService {
     }
 
     @Transactional
-    public FollowResponse clickFollowButton(Long myselfId, Long followingId) {
+    public FriendshipResponse makeFriendship(Long myselfId, Long followingId) {
         // 팔로잉 했는지 확인
         Optional<Friendship> optionalFriendship = friendshipRepository.findAllByMyself_IdAndFollow_Id(myselfId, followingId);
 
@@ -75,7 +78,7 @@ public class FriendshipService {
             User user = userRepository.findById(followingId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
             User myself = userRepository.findById(myselfId).get();
             Friendship friendship = friendshipRepository.save(new Friendship(myself, user));
-            return new FollowResponse(friendship.receiveFollowId(), friendship.getStatus());
+            return new FriendshipResponse(friendship.receiveFollowId(), friendship.getStatus());
         }
 
         // 한번이라도 팔로잉 관계를 맺은 적이 있다면
@@ -83,11 +86,11 @@ public class FriendshipService {
 
         if (friendship.isActive()) {
             friendship.changeStatus(INACTIVE);
-            return new FollowResponse(friendship.receiveFollowId(), friendship.getStatus());
+            return new FriendshipResponse(friendship.receiveFollowId(), friendship.getStatus());
         }
 
         friendship.changeStatus(ACTIVE);
-        return new FollowResponse(friendship.receiveFollowId(), friendship.getStatus());
+        return new FriendshipResponse(friendship.receiveFollowId(), friendship.getStatus());
     }
 
     public Integer countFollowing(Long myselfId) {

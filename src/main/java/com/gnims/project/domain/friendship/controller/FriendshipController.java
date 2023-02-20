@@ -72,13 +72,13 @@ public class FriendshipController {
                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         Long myselfId = userDetails.receiveUserId();
-        FollowResponse response = friendshipService.clickFollowButton(myselfId, followingId);
+        FriendshipResponse response = friendshipService.makeFriendship(myselfId, followingId);
 
         if (response.getStatus().equals(INIT)) {
-            return new ResponseEntity<>(new FriendshipResult<>(CREATED.value(), response.receiveFollowStatus(), response), CREATED);
+            return new ResponseEntity<>(new FriendshipResult<>(CREATED.value(), response.receiveStatusMessage(), response), CREATED);
         }
 
-        return new ResponseEntity<>(new FriendshipResult<>(OK.value(), response.receiveFollowStatus(), response), OK);
+        return new ResponseEntity<>(new FriendshipResult<>(OK.value(), response.receiveStatusMessage(), response), OK);
 
     }
 
