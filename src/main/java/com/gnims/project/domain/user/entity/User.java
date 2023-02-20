@@ -52,7 +52,7 @@ public class User {
 //        return nickname.replaceAll("[ㄱ-ㅎ]", "");
 //    }
 
-    public String getEmail() {
+    public String makePureEmail() {
         //여기서 12는 DB의 이메일 앞에 붙은 "Gnims.~~"를 제거 하기 위한 숫자입니다.
         return email.substring(12);
     }

@@ -332,7 +332,7 @@ public class UserService {
 
         Optional<User> user = userRepository.findByNickname(request.getNickname());
 
-        if(user.isEmpty() || !(request.getEmail()).equals(user.get().getEmail())) {
+        if(user.isEmpty() || !(request.getEmail()).equals(user.get().makePureEmail())) {
             throw new IllegalArgumentException(MISMATCH_NICKNAME_OR_EMAIL);
         }
 
