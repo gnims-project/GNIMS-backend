@@ -2,6 +2,7 @@ package com.gnims.project.domain.friendship.service;
 
 import com.gnims.project.domain.friendship.dto.FriendshipResponse;
 import com.gnims.project.domain.friendship.dto.FollowReadResponse;
+import com.gnims.project.domain.friendship.entity.FollowStatus;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.user.entity.User;
@@ -34,8 +35,8 @@ public class FriendshipService {
                 f.getStatus())).collect(toList());
     }
 
-    public List<FollowReadResponse> readFollower(Long myselfId) {
-        List<Friendship> followers = friendshipRepository.readAllFollowerOf(myselfId);
+    public List<FollowReadResponse> readFollowerProto(Long myselfId) {
+        List<Friendship> followers = friendshipRepository.readAllFollowerOfProto(myselfId);
 
         Friendship dummyFriendship = Friendship.builder().status(INACTIVE).build();
 
@@ -46,6 +47,24 @@ public class FriendshipService {
                 friendshipRepository.findFriendShip(myselfId, f.receiveMyselfId()).orElseGet(() -> dummyFriendship).getStatus()))
                 .collect(toList());
     }
+
+    public List<FollowReadResponse> readFollower(Long myselfId) {
+        List<FollowReadResponse> followers = friendshipRepository.readAllFollowerOf(myselfId);
+
+        return followers.stream().map(f -> new FollowReadResponse(
+                        f.getFollowId(),
+                        f.getUsername(),
+                        f.getProfile(),
+                        sendFollowStatus(f.getFollowStatus()))).collect(toList());
+    }
+
+    private FollowStatus sendFollowStatus(FollowStatus status) {
+        if (status == null) {
+            return INACTIVE;
+        }
+        return status;
+    }
+
 
     public List<FollowReadResponse> readFollowingPage(Long myselfId, PageRequest pageRequest) {
         List<Friendship> friendships = friendshipRepository.readAllFollowingPageOf(myselfId, pageRequest);
