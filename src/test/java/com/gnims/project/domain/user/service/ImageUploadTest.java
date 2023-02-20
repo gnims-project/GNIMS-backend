@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
@@ -19,7 +20,11 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import static com.gnims.project.exception.dto.ExceptionMessage.EXTENSION_ERROR_MESSAGE;
+import static com.gnims.project.util.ResponseMessage.PROFILE_UPDATE_SUCCESS_MESSAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -44,6 +49,14 @@ public class ImageUploadTest {
 
     String token = null;
 
+    @Value("${profile.image}")
+    String defaultImage;
+
+    List<String> checkFile = new ArrayList<>(List.of(
+            "gif", "jfif", "pjpeg", "jpeg",
+            "pjp", "jpg", "png", "bmp",
+            "dib", "webp", "svgz", "svg"));
+
     @BeforeEach
     void beforeEach() throws Exception {
 
@@ -63,9 +76,9 @@ public class ImageUploadTest {
     void 기본이미지테스트() throws Exception {
         mvc.perform(multipart(HttpMethod.PATCH, "/users/profile").header("Authorization", token))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("프로필 변경 성공"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(PROFILE_UPDATE_SUCCESS_MESSAGE));
 
-        Assertions.assertThat(userRepository.findByNickname("딸기").get().getProfileImage()).isEqualTo("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png");
+        Assertions.assertThat(userRepository.findByNickname("딸기").get().getProfileImage()).isEqualTo(defaultImage);
     }
 
     @DisplayName("이미지 업데이트 - 상태코드 200, 성공 메세지를 반환, db에 이미지 업데이트")
@@ -95,9 +108,9 @@ public class ImageUploadTest {
                         /*.file(imageFile).characterEncoding("utf-8")*/
                         .header("Authorization", token))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("프로필 변경 성공"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(PROFILE_UPDATE_SUCCESS_MESSAGE));
 
-        Assertions.assertThat(userRepository.findByNickname("딸기").get().getProfileImage()).isEqualTo("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png")/*.isNotEqualTo("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png")*/;
+        Assertions.assertThat(userRepository.findByNickname("딸기").get().getProfileImage()).isEqualTo(defaultImage)/*.isNotEqualTo("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png")*/;
     }
 
     @DisplayName("이미지 업데이트 시 허용하지 않은 확장자 - 상태코드 400, 실패 메세지를 반환, db에 저장 실패")
@@ -124,8 +137,8 @@ public class ImageUploadTest {
                         .file(imageFile).characterEncoding("utf-8")
                         .header("Authorization", token))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("[gif, jfif, pjpeg, jpeg, pjp, jpg, png, bmp, dib, webp, svgz, svg] 확장자의 이미지 파일만 업로드 가능합니다!"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(checkFile + EXTENSION_ERROR_MESSAGE));
 
-        Assertions.assertThat(userRepository.findByNickname("딸기").get().getProfileImage()).isEqualTo("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png");
+        Assertions.assertThat(userRepository.findByNickname("딸기").get().getProfileImage()).isEqualTo(defaultImage);
     }
 }

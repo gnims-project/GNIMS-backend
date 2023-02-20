@@ -1,5 +1,6 @@
 package com.gnims.project.domain.user.service;
 
+import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileInputStream;
 
+import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static com.gnims.project.util.ResponseMessage.SIGNUP_SUCCESS_MESSAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 /**
@@ -66,7 +69,7 @@ public class SocialSignupTest {
         mvc.perform(multipart("/social/signup")
                         .file(signupFile1)/*.file(imageFile)*/.characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, "회원가입 완료").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression, SIGNUP_SUCCESS_MESSAGE).exists());
 
         Assertions.assertThat(userRepository.findByNickname("딸기").get()).isNotNull();
 
@@ -74,7 +77,7 @@ public class SocialSignupTest {
         mvc.perform(multipart("/social/signup")
                         .file(signupFile2).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, "회원가입 완료").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression, SIGNUP_SUCCESS_MESSAGE).exists());
 
         Assertions.assertThat(userRepository.findByNickname("햄버거").get()).isNotNull();
     }
@@ -101,7 +104,7 @@ public class SocialSignupTest {
         mvc.perform(multipart("/social/signup")
                         .file(failFile1).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression1, "이미 등록된 이메일 입니다").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression1, ALREADY_REGISTERED_EMAIL).exists());
 
         Assertions.assertThat(userRepository.findByNickname("김밥")).isEmpty();
 
@@ -109,9 +112,9 @@ public class SocialSignupTest {
         mvc.perform(multipart("/social/signup")
                         .file(failFile2).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression1, "중복된 닉네임 입니다").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression1, DUPLICATE_NICKNAME).exists());
 
-        Assertions.assertThat(userRepository.findByEmail("Gnims.Naver" + "ddalgi2@gmail.com")).isEmpty();
+        Assertions.assertThat(userRepository.findByEmail(SocialCode.NAVER.getValue() + "ddalgi2@gmail.com")).isEmpty();
     }
 
     @DisplayName("소셜가입 시 값이 null 혹은 정규식 불 일치 - 상태코드 400, 에러 메세지를 반환, db에 저장 실패")
@@ -132,9 +135,9 @@ public class SocialSignupTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         expression1,
-                        "닉네임은 필수 입력 값입니다.",
-                        "이름은 필수 입력 값입니다.",
-                        "이메일은 필수 입력 값입니다."
+                        NICKNAME_EMPTY_MESSAGE,
+                        USERNAME_EMPTY_MESSAGE,
+                        EMAIL_EMPTY_MESSAGE
                 ).exists());
         Assertions.assertThat(userRepository.count()).isEqualTo(0);
 
@@ -144,9 +147,9 @@ public class SocialSignupTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         expression1,
-                        "올바른 형식의 이메일 주소여야 합니다",
-                        "특수문자를 제외한 2 ~ 8 자리의 닉네임만 가능합니다.",
-                        "한글, 영어 이름만 가능합니다."
+                        USERNAME_ERROR_MESSAGE,
+                        EMAIL_ERROR_MESSAGE,
+                        NICKNAME_ERROR_MESSAGE
                 ).exists());
         Assertions.assertThat(userRepository.findByNickname("오렌지1234567890")).isEmpty();
     }

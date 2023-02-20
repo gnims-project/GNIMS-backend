@@ -14,6 +14,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.gnims.project.exception.dto.ExceptionMessage.MISMATCH_EMAIL_OR_PASSWORD;
+import static com.gnims.project.util.ResponseMessage.LOGIN_SUCCESS_MESSAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -53,7 +55,7 @@ public class UserLoginTest {
                 .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}"))
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Authorization"))
-                .andExpect(jsonPath("$.message").value("로그인 성공"));
+                .andExpect(jsonPath("$.message").value(LOGIN_SUCCESS_MESSAGE));
     }
 
     @DisplayName("로그인 시 등록된 이메일 없음 - 상태코드 401, 실패 메세지 반환")
@@ -63,7 +65,7 @@ public class UserLoginTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi2@gmail.com\", \"password\": \"123456aA9\"}"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value("이메일 혹은 비밀번호가 일치하지 않습니다."));
+                .andExpect(jsonPath("$.message").value(MISMATCH_EMAIL_OR_PASSWORD));
     }
 
     @DisplayName("로그인 시 등록된 이메일 있음, 비밀번호 틀림 - 상태코드 401, 실패 메세지 반환")
@@ -73,6 +75,6 @@ public class UserLoginTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456a9\"}"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value("이메일 혹은 비밀번호가 일치하지 않습니다."));
+                .andExpect(jsonPath("$.message").value(MISMATCH_EMAIL_OR_PASSWORD));
     }
 }

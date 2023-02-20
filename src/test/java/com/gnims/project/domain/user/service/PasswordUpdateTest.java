@@ -17,6 +17,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static com.gnims.project.util.ResponseMessage.PASSWORD_UPDATE_SUCCESS_MESSAGE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -67,7 +69,7 @@ public class PasswordUpdateTest {
                 .content("{\"oldPassword\": \"123456aA9\", " +
                         "\"newPassword\": \"12345aA789\"}"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.message == '%s')]", "비밀번호 바꾸기 성공").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.message == '%s')]", PASSWORD_UPDATE_SUCCESS_MESSAGE).exists());
 
         Assertions.assertThat(passwordEncoder.matches("12345aA789", userRepository.findByNickname("딸기")
                 .get().getPassword())).isTrue();
@@ -82,7 +84,7 @@ public class PasswordUpdateTest {
                         .content("{\"oldPassword\": \"123456aA9\", " +
                                 "\"newPassword\": \"12345789\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.messages == ['%s'])]", "비밀번호는 영문/숫자를 포함하여 8~16자로 입력해야합니다.").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.messages == ['%s'])]", PASSWORD_ERROR_MESSAGE).exists());
 
         Assertions.assertThat(passwordEncoder.matches("12345789", userRepository.findByNickname("딸기")
                 .get().getPassword())).isFalse();
@@ -97,7 +99,7 @@ public class PasswordUpdateTest {
                         .content("{\"oldPassword\": \"123456aA9\", " +
                                 "\"newPassword\": \"123456aA9\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.message == '%s')]", "기존의 비밀번호와 같은 비밀번호 입니다!").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.message == '%s')]", THE_SAME_PASSWORD_AS_BEFORE).exists());
 
         Assertions.assertThat(passwordEncoder.matches("123456aA9", userRepository.findByNickname("딸기")
                 .get().getPassword())).isTrue();
@@ -112,7 +114,7 @@ public class PasswordUpdateTest {
                         .content("{\"oldPassword\": \"123456aA89\", " +
                                 "\"newPassword\": \"12345aA789\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.message == '%s')]", "현재 비밀번호가 일치하지 않습니다.").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.message == '%s')]", CURRENT_MISMATCHED_PASSWORD).exists());
 
         Assertions.assertThat(passwordEncoder.matches("12345aA789", userRepository.findByNickname("딸기")
                 .get().getPassword())).isFalse();
