@@ -4,7 +4,6 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.gnims.project.domain.friendship.dto.PageDto;
 import com.gnims.project.domain.friendship.entity.FollowStatus;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
@@ -32,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -66,29 +66,29 @@ public class UserService {
         //이메일 / 닉네임 중복체크
         checkDuplicate(email, nickname);
 
-        String search = request.getUsername() + "@" + request.getNickname();
-
-        char[] chars = search.toCharArray();
-
-        String searchNickname = "";
-
-        for(char char1: chars) {
-            searchNickname += char1;
-            if('가' <= char1 && char1 <= '힣') {
-                searchNickname = searchNickname + CHO.get((char1-'가')/28/21);
-            }
-        }
+//        String search = request.getUsername() + "@" + request.getNickname();
+//
+//        char[] chars = search.toCharArray();
+//
+//        String searchNickname = "";
+//
+//        for(char char1: chars) {
+//            searchNickname += char1;
+//            if('가' <= char1 && char1 <= '힣') {
+//                searchNickname = searchNickname + CHO.get((char1-'가')/28/21);
+//            }
+//        }
 
         //비밀번호 암호화
         String password = passwordEncoder.encode(request.getPassword());
 
         if(image == null) {
-            userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, "https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"));
+            userRepository.save(new User(request.getUsername(), request.getNickname(), /* searchNickname,*/ email, password, "https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"));
             return;
         }
         String imageUrl = getImage(image);
 
-        userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, imageUrl));
+        userRepository.save(new User(request.getUsername(), request.getNickname(), /* searchNickname,*/ email, password, imageUrl));
     }
 
     private String getImage(MultipartFile image) throws IOException {
@@ -130,31 +130,31 @@ public class UserService {
         //이메일 / 닉네임 중복체크
         checkDuplicate(email, request.getNickname());
 
-        String nickname = request.getNickname();
-
-        char[] chars = nickname.toCharArray();
-
-        String searchNickname = "";
-
-        for(char char1: chars) {
-            searchNickname += char1;
-            if('가' <= char1 && char1 <= '힣') {
-                searchNickname = searchNickname + CHO.get((char1-'가')/28/21);
-            }
-        }
+//        String nickname = request.getNickname();
+//
+//        char[] chars = nickname.toCharArray();
+//
+//        String searchNickname = "";
+//
+//        for(char char1: chars) {
+//            searchNickname += char1;
+//            if('가' <= char1 && char1 <= '힣') {
+//                searchNickname = searchNickname + CHO.get((char1-'가')/28/21);
+//            }
+//        }
 
         //소셜 회원가입 시 비밀번호 임의 생성
         //비밀번호 암호화
         String password = passwordEncoder.encode(UUID.randomUUID().toString());
 
         if(image == null) {
-            userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, "https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"));
+            userRepository.save(new User(request.getUsername(), request.getNickname(), /*, searchNickname,*/ email, password, "https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"));
             return;
         }
 
         String imageUrl = getImage(image);
 
-        userRepository.save(new User(request.getUsername(), nickname, searchNickname, email, password, imageUrl));
+        userRepository.save(new User(request.getUsername(), request.getNickname(), /*, searchNickname,*/ email, password, imageUrl));
     }
 
     private void checkDuplicate(String email, String nickname) {
@@ -251,55 +251,57 @@ public class UserService {
     //본인 제외
 
     //현재 정렬 ID 내림차순
-    public List<SearchResponseDto> search(String nickname, PageRequest pageRequest, User user) {
+    public List<SearchResponseDto> search(String username, PageRequest pageRequest, User user) {
 
-        System.out.println("nickname2 = " + user.getNickname());
+//        System.out.println("nickname2 = " + user.getNickname());
+//
+//        if(nickname == null || "".equals(nickname) || nickname.length()>8) {
+//            throw new IllegalArgumentException("8자리 이하의 닉네임을 검색해 주세요!");
+//        }
+//
+//        nickname = nickname.trim();
+//
+//        //공백 제거
+//        String nickname2 = nickname.replace(" ", "");
+//
+//        char[] chars = nickname2.toCharArray();
+//
+//        nickname2 = "@?";
+//
+//        for(char char1: chars) {
+//            nickname2 = nickname2 + "[a-zA-Z0-9ㄱ-ㅎ가-힣]*";
+//            String checkChar = "" + char1;
+//            if(checkChar.matches("^[가-힣]$")) {
+//                nickname2 = nickname2 + char1;
+//                nickname2 = nickname2 + CHO.get((char1-'가')/28/21);
+//                continue;
+//            }
+//            nickname2 += char1;
+//        };
+//
+//        nickname2.replaceFirst("[a-zA-Z0-9ㄱ-ㅎ가-힣]*", "");
+//
+//        System.out.println("searchNickname = " + nickname2);
 
-        if(nickname == null || "".equals(nickname) || nickname.length()>8) {
-            throw new IllegalArgumentException("8자리 이하의 닉네임을 검색해 주세요!");
-        }
+//        Page<User> users = userRepository.searchByRegExpKeyword(nickname2 + "@?", pageRequest);
+//        PageDto page = new PageDto(users);
 
-        nickname = nickname.trim();
+        Page<User> users = userRepository.findAllByUsernameLike("%" + username + "%", pageRequest);
 
-        //공백 제거
-        String nickname2 = nickname.replace(" ", "");
+        List<SearchResponseDto> data = users.stream()
+                .map(u -> new SearchResponseDto(u, !check(u, user)))
+                .collect(Collectors.toList());
 
-        char[] chars = nickname2.toCharArray();
 
-        nickname2 = "@?";
-
-        for(char char1: chars) {
-            nickname2 = nickname2 + "[a-zA-Z0-9ㄱ-ㅎ가-힣]*";
-            String checkChar = "" + char1;
-            if(checkChar.matches("^[가-힣]$")) {
-                nickname2 = nickname2 + char1;
-                nickname2 = nickname2 + CHO.get((char1-'가')/28/21);
-                continue;
-            }
-            nickname2 += char1;
-        };
-
-        nickname2.replaceFirst("[a-zA-Z0-9ㄱ-ㅎ가-힣]*", "");
-
-        System.out.println("searchNickname = " + nickname2);
-
-        Page<User> users = userRepository.searchByRegExpKeyword(nickname2 + "@?", pageRequest);
-        PageDto page = new PageDto(users);
-
-//        List<SearchResponseDto> data = users.stream()
-//                .map(u -> new SearchResponseDto(u, !check(u, user)))
-//                .collect(Collectors.toList());
-
-        List<SearchResponseDto> data = new ArrayList<>();
-
-        for(User u: users) {
-            if (u.getId().equals(user.getId())) {
-                continue;
-            }
-
-            data.add(new SearchResponseDto(u, !check(u, user)));
-        }
-
+//        List<SearchResponseDto> data = new ArrayList<>();
+//
+//        for(User u: users) {
+//            if (u.getId().equals(user.getId())) {
+//                continue;
+//            }
+//
+//            data.add(new SearchResponseDto(u, !check(u, user)));
+//        }
 
         return data;
     }

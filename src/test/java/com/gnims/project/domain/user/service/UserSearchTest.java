@@ -77,37 +77,47 @@ public class UserSearchTest {
     @DisplayName("단어 검색 시 문자 순서 맞는 유저 리스트 조회 - 상태코드 200, 유저 리스트와 성공 메세지를 반환")
     @Test
     void 일반단어성공테스트() throws Exception {
-        String expression2 = "$.[?(@.data[*].nickname)]";
 
         mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
-                        .param("nickname", "하얀가을").param("number", "0"))
+                        .param("username", "정땡땡").param("page", "0").param("size", "5"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("유저 검색 성공"))
-                .andExpect(MockMvcResultMatchers.jsonPath(expression2, "하a얀c가1을", "하얀가을abc", "abc하얀가을", "하a얀1가3을", "5하얀가을").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.data[*].username)]", "정땡땡").exists());
     }
 
-    @DisplayName("초성 단어 검색 시 문자 순서 맞는 유저 리스트 조회 - 상태코드 200, 유저 리스트와 성공 메세지를 반환")
+    @DisplayName("단어 검색 시 문자 순서 맞는 유저 리스트 조회 - 상태코드 200, 유저 리스트와 성공 메세지를 반환")
     @Test
-    void 초성단어성공테스트() throws Exception {
-        String expression2 = "$.[?(@.data[*].nickname)]";
+    void 일반단어성공테스트결과여러개() throws Exception {
 
         mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
-                        .param("nickname", "ㅎㅇㄱㅇ").param("number", "0"))
+                        .param("username", "땡땡").param("page", "0").param("size", "5"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("유저 검색 성공"))
-                .andExpect(MockMvcResultMatchers.jsonPath(expression2, "하a얀c가1을", "하얀가을abc", "abc하얀가을", "하a얀1가3을", "5하얀가을").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.data[*].username)]", "하땡땡", "성땡땡", "황땡땡", "신땡땡", "유땡땡").exists());
     }
 
-    @DisplayName("문자 + 초성 단어 검색 시 문자 순서 맞는 유저 리스트 조회 - 상태코드 200, 유저 리스트와 성공 메세지를 반환")
-    @Test
-    void 혼합단어성공테스트() throws Exception {
-        String expression2 = "$.[?(@.data[*].nickname)]";
-
-        mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
-                        .param("nickname", "하cㅇ").param("number", "0"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("유저 검색 성공"))
-                .andExpect(MockMvcResultMatchers.jsonPath(expression2, "하a얀c가1을").exists());
-    }
+//    @DisplayName("초성 단어 검색 시 문자 순서 맞는 유저 리스트 조회 - 상태코드 200, 유저 리스트와 성공 메세지를 반환")
+//    @Test
+//    void 초성단어성공테스트() throws Exception {
+//        String expression2 = "$.[?(@.data[*].nickname)]";
+//
+//        mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
+//                        .param("nickname", "ㅎㅇㄱㅇ").param("number", "0"))
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("유저 검색 성공"))
+//                .andExpect(MockMvcResultMatchers.jsonPath(expression2, "하a얀c가1을", "하얀가을abc", "abc하얀가을", "하a얀1가3을", "5하얀가을").exists());
+//    }
+//
+//    @DisplayName("문자 + 초성 단어 검색 시 문자 순서 맞는 유저 리스트 조회 - 상태코드 200, 유저 리스트와 성공 메세지를 반환")
+//    @Test
+//    void 혼합단어성공테스트() throws Exception {
+//        String expression2 = "$.[?(@.data[*].nickname)]";
+//
+//        mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
+//                        .param("nickname", "하cㅇ").param("number", "0"))
+//                .andExpect(MockMvcResultMatchers.status().isOk())
+//                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("유저 검색 성공"))
+//                .andExpect(MockMvcResultMatchers.jsonPath(expression2, "하a얀c가1을").exists());
+//    }
 
 }

@@ -92,12 +92,13 @@ public class UserController {
 //    }
 
     @GetMapping("/users/search")
-    public ResponseEntity<ReadScheduleResult> search(@RequestParam(value = "nickname") String nickname,
-                                                     @RequestParam Integer number,
+    public ResponseEntity<ReadScheduleResult> search(@RequestParam(value = "username") String username,
+                                                     @RequestParam(value = "page") Integer page,
+                                                     @RequestParam(value = "size") Integer size,
                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        PageRequest pageRequest = PageRequest.of(number, 5);
-        List<SearchResponseDto> response = userService.search(nickname, pageRequest, userDetails.getUser());
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<SearchResponseDto> response = userService.search(username, pageRequest, userDetails.getUser());
 
         return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), "유저 검색 성공", response), OK);
     }

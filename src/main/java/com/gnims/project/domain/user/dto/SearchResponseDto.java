@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SearchResponseDto {
     private Long userId;
-    private String nickname;
+    private String username;
     private String profileImage;
     private Boolean isFollowed;
 
     public SearchResponseDto(User user, Boolean isFollowed) {
         this.userId = user.getId();
-        this.nickname = user.getNickname();
+        this.username = user.getUsername();
         this.profileImage = user.getProfileImage();
         this.isFollowed = isFollowed;
     }
