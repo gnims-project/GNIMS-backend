@@ -46,6 +46,15 @@ public class FriendshipController {
     }
 
     //팔로워 조회(나를 등록한 친구)
+    @GetMapping("/proto/friendship/followers")
+    public ResponseEntity<FriendshipResult> readFollowerProto(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long myselfId = userDetails.receiveUserId();
+        List<FollowReadResponse> followers = friendshipService.readFollowerProto(myselfId);
+
+        return new ResponseEntity<>(new FriendshipResult(OK.value(), "팔로워 조회 완료", followers), OK);
+    }
+
+    //팔로워 조회(나를 등록한 친구) - 테스트 코드 작성 후 proto 타입 지울 예정
     @GetMapping("/friendship/followers")
     public ResponseEntity<FriendshipResult> readFollower(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long myselfId = userDetails.receiveUserId();
