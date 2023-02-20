@@ -1,4 +1,4 @@
-package com.gnims.project.domain.user;
+package com.gnims.project.domain.user.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

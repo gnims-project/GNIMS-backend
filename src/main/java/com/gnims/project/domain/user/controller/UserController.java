@@ -1,7 +1,6 @@
 package com.gnims.project.domain.user.controller;
 
 import com.gnims.project.domain.schedule.dto.ReadScheduleResult;
-import com.gnims.project.domain.user.NicknameEmailDto;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
 import com.gnims.project.security.service.UserDetailsImpl;
@@ -20,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+import static com.gnims.project.util.ResponseMessage.*;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -34,7 +34,7 @@ public class UserController {
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
         userService.signup(request, image);
-        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "회원가입 완료"), CREATED);
+        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), SIGNUP_SUCCESS_MESSAGE), CREATED);
     }
 
     @PostMapping("/social/signup")
@@ -43,7 +43,7 @@ public class UserController {
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
         userService.socialSignup(request, image);
-        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), "회원가입 완료"), CREATED);
+        return new ResponseEntity<>(new SimpleMessageResult(CREATED.value(), SIGNUP_SUCCESS_MESSAGE), CREATED);
     }
 
     @PostMapping("/auth/nickname")
@@ -67,14 +67,14 @@ public class UserController {
                                              @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
         userService.updateProfile(image, userDetails.getUser());
-        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), "프로필 변경 성공"), OK);
+        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), PROFILE_UPDATE_SUCCESS_MESSAGE), OK);
     }
 
     @PostMapping("/auth/login")
     public ResponseEntity<UserResult> login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
 
         LoginResponseDto result = userService.login(request, response);
-        return new ResponseEntity<>(new UserResult<>(OK.value(), "로그인 성공", result), OK);
+        return new ResponseEntity<>(new UserResult<>(OK.value(), LOGIN_SUCCESS_MESSAGE, result), OK);
     }
 
 //    @GetMapping("/users/search")
@@ -100,7 +100,7 @@ public class UserController {
         PageRequest pageRequest = PageRequest.of(page, size);
         List<SearchResponseDto> response = userService.search(username, pageRequest, userDetails.getUser());
 
-        return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), "유저 검색 성공", response), OK);
+        return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), USER_SEARCH_SUCCESS_MESSAGE, response), OK);
     }
 
     //이메일 인증을 날릴 api
@@ -116,7 +116,7 @@ public class UserController {
 
         userService.updatePassword(request, userDetails.getUser());
 
-        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), "비밀번호 바꾸기 성공"), OK);
+        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), PASSWORD_UPDATE_SUCCESS_MESSAGE), OK);
     }
 }
 

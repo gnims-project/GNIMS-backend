@@ -18,6 +18,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+
+import static com.gnims.project.exception.dto.ExceptionMessage.*;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -70,13 +73,13 @@ public class JwtUtil {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
+            log.info(INVALID_TOKEN_ERROR);
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT token, 만료된 JWT token 입니다.");
+            log.info(EXPIRED_TOKEN_ERROR);
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
+            log.info(UNSUPPORTED_TOKEN_ERROR);
         } catch (IllegalArgumentException e) {
-            log.info("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
+            log.info(WRONG_TOKEN_ERROR);
         }
         return false;
     }

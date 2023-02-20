@@ -1,5 +1,6 @@
 package com.gnims.project.domain.user.service;
 
+import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileInputStream;
 
+import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static com.gnims.project.util.ResponseMessage.SIGNUP_SUCCESS_MESSAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 /**
@@ -66,14 +69,14 @@ public class UserSignupTest {
         mvc.perform(multipart("/auth/signup")
                 .file(signupFile1)/*.file(imageFile)*/.characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, "회원가입 완료").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression, SIGNUP_SUCCESS_MESSAGE).exists());
         Assertions.assertThat(userRepository.findByNickname("딸기").get()).isNotNull();
 
         //이미지 없을 때
         mvc.perform(multipart("/auth/signup")
                         .file(signupFile2).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, "회원가입 완료").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression, SIGNUP_SUCCESS_MESSAGE).exists());
 
         Assertions.assertThat(userRepository.findByNickname("햄버거").get()).isNotNull();
     }
@@ -100,7 +103,7 @@ public class UserSignupTest {
         mvc.perform(multipart("/auth/signup")
                         .file(failFile1).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression1, "이미 등록된 이메일 입니다").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression1, ALREADY_REGISTERED_EMAIL).exists());
 
         Assertions.assertThat(userRepository.findByNickname("김밥")).isEmpty();
 
@@ -108,9 +111,9 @@ public class UserSignupTest {
         mvc.perform(multipart("/auth/signup")
                         .file(failFile2).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression1, "중복된 닉네임 입니다").exists());
+                .andExpect(MockMvcResultMatchers.jsonPath(expression1, DUPLICATE_NICKNAME).exists());
 
-        Assertions.assertThat(userRepository.findByEmail("Gnims.Auth." + "ddalgi2@gmail.com")).isEmpty();
+        Assertions.assertThat(userRepository.findByEmail(SocialCode.EMAIL.getValue() + "ddalgi2@gmail.com")).isEmpty();
     }
 
     @DisplayName("회원가입 시 값이 null 혹은 정규식 불 일치 - 상태코드 400, 에러 메세지를 반환, db에 저장 실패")
@@ -131,10 +134,10 @@ public class UserSignupTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         expression2,
-                        "닉네임은 필수 입력 값입니다.",
-                        "비밀번호는 필수 입력 값입니다.",
-                        "이름은 필수 입력 값입니다.",
-                        "이메일은 필수 입력 값입니다."
+                        NICKNAME_EMPTY_MESSAGE,
+                        PASSWORD_EMPTY_MESSAGE,
+                        USERNAME_EMPTY_MESSAGE,
+                        EMAIL_EMPTY_MESSAGE
                 ).exists());
         Assertions.assertThat(userRepository.count()).isEqualTo(0);
 
@@ -144,10 +147,10 @@ public class UserSignupTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         expression2,
-                        "12자 이내의 한글, 영어 이름만 가능합니다.",
-                        "비밀번호는 영문/숫자를 포함하여 8~16자로 입력해야합니다.",
-                        "올바른 형식의 이메일 주소여야 합니다",
-                        "특수문자를 제외한 2 ~ 8 자리의 닉네임만 가능합니다."
+                        USERNAME_ERROR_MESSAGE,
+                        PASSWORD_ERROR_MESSAGE,
+                        EMAIL_ERROR_MESSAGE,
+                        NICKNAME_ERROR_MESSAGE
                 ).exists());
         Assertions.assertThat(userRepository.findByNickname("오렌지1234567890")).isEmpty();
     }

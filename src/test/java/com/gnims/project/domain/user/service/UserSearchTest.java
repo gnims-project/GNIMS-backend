@@ -17,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.gnims.project.util.ResponseMessage.USER_SEARCH_SUCCESS_MESSAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -81,7 +82,7 @@ public class UserSearchTest {
         mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
                         .param("username", "정땡땡").param("page", "0").param("size", "5"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("유저 검색 성공"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(USER_SEARCH_SUCCESS_MESSAGE))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.data[*].username)]", "정땡땡").exists());
     }
 
@@ -92,7 +93,7 @@ public class UserSearchTest {
         mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
                         .param("username", "땡땡").param("page", "0").param("size", "5"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("유저 검색 성공"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(USER_SEARCH_SUCCESS_MESSAGE))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.data[*].username)]", "하땡땡", "성땡땡", "황땡땡", "신땡땡", "유땡땡").exists());
     }
 

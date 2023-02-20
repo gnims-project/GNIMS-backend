@@ -7,7 +7,6 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.gnims.project.domain.friendship.entity.FollowStatus;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
-import com.gnims.project.domain.user.NicknameEmailDto;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.entity.User;
@@ -33,6 +32,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static com.gnims.project.util.ResponseMessage.CHECK_EMAIL_MESSAGE;
+import static com.gnims.project.util.ResponseMessage.CHECK_NICKNAME_MESSAGE;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -45,6 +48,9 @@ public class UserService {
 
     @Value("${cloud.aws.s3.bucket}")
     private String S3Bucket;
+
+    @Value("${profile.image}")
+    private String defaultImage;
 
     private final AmazonS3Client amazonS3Client;
 
@@ -83,7 +89,7 @@ public class UserService {
         String password = passwordEncoder.encode(request.getPassword());
 
         if(image == null) {
-            userRepository.save(new User(request.getUsername(), request.getNickname(), /* searchNickname,*/ email, password, "https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"));
+            userRepository.save(new User(request.getUsername(), request.getNickname(), /* searchNickname,*/ email, password, defaultImage));
             return;
         }
         String imageUrl = getImage(image);
@@ -105,7 +111,7 @@ public class UserService {
 
         //확장자 체크
         if(!checkFile.contains(extension)) {
-            throw new IllegalArgumentException(checkFile + " 확장자의 이미지 파일만 업로드 가능합니다!");
+            throw new IllegalArgumentException(checkFile + EXTENSION_ERROR_MESSAGE);
         }
 
         String originName = UUID.randomUUID().toString();
@@ -148,7 +154,7 @@ public class UserService {
         String password = passwordEncoder.encode(UUID.randomUUID().toString());
 
         if(image == null) {
-            userRepository.save(new User(request.getUsername(), request.getNickname(), /*, searchNickname,*/ email, password, "https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"));
+            userRepository.save(new User(request.getUsername(), request.getNickname(), /*, searchNickname,*/ email, password, defaultImage));
             return;
         }
 
@@ -160,41 +166,41 @@ public class UserService {
     private void checkDuplicate(String email, String nickname) {
         //이메일 중복 체크
         if(userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("이미 등록된 이메일 입니다");
+            throw new IllegalArgumentException(ALREADY_REGISTERED_EMAIL);
         }
 
         //닉네임 중복 체크
         if(userRepository.findByNickname(nickname).isPresent()) {
-            throw new IllegalArgumentException("중복된 닉네임 입니다");
+            throw new IllegalArgumentException(DUPLICATE_NICKNAME);
         }
     }
 
     public SimpleMessageResult checkNickname(NicknameDto request) {
 
         if (userRepository.findByNickname(request.getNickname()).isPresent()) {
-            return new SimpleMessageResult(400, "중복된 닉네임 입니다.");
+            return new SimpleMessageResult(400, DUPLICATE_NICKNAME);
         }
-        return new SimpleMessageResult(200, "사용 가능한 닉네임 입니다.");
+        return new SimpleMessageResult(200, CHECK_NICKNAME_MESSAGE);
     }
 
     public SimpleMessageResult checkEmail(EmailDto request) {
 
         //이메일 중복 체크는 일반 회원가입에서만 사용 됨
         if (userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).isPresent()) {
-            return new SimpleMessageResult(400, "이미 등록된 이메일 입니다.");
+            return new SimpleMessageResult(400, ALREADY_REGISTERED_EMAIL);
         }
-        return new SimpleMessageResult(200, "사용 가능한 이메일 입니다.");
+        return new SimpleMessageResult(200, CHECK_EMAIL_MESSAGE);
     }
 
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
 
         User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
-                () -> new BadCredentialsException("이메일 혹은 비밀번호가 일치하지 않습니다.")
+                () -> new BadCredentialsException(MISMATCH_EMAIL_OR_PASSWORD)
         );
 
         //암호화 된 비밀번호를 비교
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("이메일 혹은 비밀번호가 일치하지 않습니다.");
+            throw new BadCredentialsException(MISMATCH_EMAIL_OR_PASSWORD);
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getNickname()));
@@ -206,7 +212,7 @@ public class UserService {
     public void updateProfile(MultipartFile image, User user) throws IOException {
 
         if(image == null) {
-            userRepository.findById(user.getId()).get().updateProfile("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png");
+            userRepository.findById(user.getId()).get().updateProfile(defaultImage);
             return;
         }
 
@@ -327,7 +333,7 @@ public class UserService {
         Optional<User> user = userRepository.findByNickname(request.getNickname());
 
         if(user.isEmpty() || !(request.getEmail()).equals(user.get().getEmail())) {
-            throw new IllegalArgumentException("닉네임 혹은 이메일이 일치하지 않습니다.");
+            throw new IllegalArgumentException(MISMATCH_NICKNAME_OR_EMAIL);
         }
 
         emailServiceImpl.sendSimpleMessage(request.getNickname(), request.getEmail());
@@ -337,11 +343,11 @@ public class UserService {
     public void updatePassword(PasswordDto request, User user) {
 
         if(request.getOldPassword().equals(request.getNewPassword())) {
-            throw new IllegalArgumentException("기존의 비밀번호와 같은 비밀번호 입니다!");
+            throw new IllegalArgumentException(THE_SAME_PASSWORD_AS_BEFORE);
         }
 
         if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+            throw new IllegalArgumentException(CURRENT_MISMATCHED_PASSWORD);
         }
 
         String newPassword = passwordEncoder.encode(request.getNewPassword());
