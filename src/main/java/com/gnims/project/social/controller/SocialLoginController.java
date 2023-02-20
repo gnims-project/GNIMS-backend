@@ -3,6 +3,7 @@ package com.gnims.project.social.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gnims.project.social.dto.SocialCodeDto;
 import com.gnims.project.social.dto.SocialResult;
+import com.gnims.project.social.dto.SocialTokenDto;
 import com.gnims.project.social.sevice.KakaoService;
 import com.gnims.project.social.sevice.NaverService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
@@ -29,13 +29,14 @@ public class SocialLoginController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
-    @PostMapping  ("/naver/login")
-    public ResponseEntity<SocialResult> naverLogin(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+    @PostMapping ("/naver/login")
+    public ResponseEntity<SocialResult> naverLogin(@RequestBody SocialTokenDto tokenDto, HttpServletResponse response) throws JsonProcessingException {
 
-        System.out.println("________________________________________token: " + request.getHeader("token"));
+//        System.out.println("________________________________________token: " + request.getHeader("token"));
+        System.out.println("________________________________________token: " + tokenDto.getToken());
 
         // 프론트에서 naver token 을 받아옴
-        SocialResult result = naverService.naverLogin(request.getHeader("token"), response);
+        SocialResult result = naverService.naverLogin(tokenDto.getToken(), response);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 }
