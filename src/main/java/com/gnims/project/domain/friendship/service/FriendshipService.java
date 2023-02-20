@@ -1,10 +1,7 @@
 package com.gnims.project.domain.friendship.service;
 
 import com.gnims.project.domain.friendship.dto.FollowResponse;
-import com.gnims.project.domain.friendship.dto.FollowingResponse;
-import com.gnims.project.domain.friendship.dto.PagingDataResponse;
-import com.gnims.project.domain.friendship.dto.PageDto;
-import com.gnims.project.domain.friendship.entity.FollowStatus;
+import com.gnims.project.domain.friendship.dto.FollowReadResponse;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.user.entity.User;
@@ -29,16 +26,26 @@ public class FriendshipService {
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
 
-    public List<FollowingResponse> readFollowing(Long myselfId) {
-        List<Friendship> follows = friendshipRepository.findAllByMyself_IdAndStatusNot(myselfId, INACTIVE);
-        return follows.stream().map(follow -> new FollowingResponse(follow.getFollowing().getId(), follow.receiveFollowingUsername()))
-                               .collect(toList());
+    public List<FollowReadResponse> readFollowing(Long myselfId) {
+        List<Friendship> follows = friendshipRepository.readAllFollowingOf(myselfId);
+        return follows.stream().map(f -> new FollowReadResponse(
+                f.receiveFollowId(),
+                f.receiveFollowUsername(),
+                f.receiveFollowProfile())).collect(toList());
+    }
+    public List<FollowReadResponse> readFollower(Long myselfId) {
+        List<Friendship> followers = friendshipRepository.readAllFollowerOf(myselfId);
+
+        return followers.stream().map(f -> new FollowReadResponse(
+                f.receiveMyselfId(),
+                f.receiveMyselfUsername(),
+                f.receiveMyselfProfile())).collect(toList());
     }
 
     @Transactional
     public FollowResponse clickFollowButton(Long myselfId, Long followingId) {
         // 팔로잉 했는지 확인
-        Optional<Friendship> optionalFriendship = friendshipRepository.findAllByMyself_IdAndFollowing_Id(myselfId, followingId);
+        Optional<Friendship> optionalFriendship = friendshipRepository.findAllByMyself_IdAndFollow_Id(myselfId, followingId);
 
         // 한 번도 팔로잉을 한적이 없다면
         if (optionalFriendship.isEmpty()) {
@@ -60,31 +67,13 @@ public class FriendshipService {
         return new FollowResponse(friendship.receiveFollowId(), friendship.getStatus());
     }
 
-    // 프로토 타입 - 리스트 조회 최적화 필요.
-    public List<FollowingResponse> readFollower(Long myId) {
-        List<Friendship> followers = friendshipRepository.findAllByFollowing_Id(myId);
-
-        return followers.stream().map(f -> new FollowingResponse(f.receiveMyselfId(), f.receiveMyselfUsername()))
-                .collect(toList());
-    }
-
-    public PagingDataResponse readFollowingV2(Long myselfId, PageRequest pageRequest) {
-        Page<Friendship> friendships = friendshipRepository.findAllByMyself_IdAndStatusNot(myselfId, INACTIVE, pageRequest);
-        PageDto page = new PageDto(friendships);
-
-        List<FollowingResponse> data = friendships.stream()
-                .map(f -> new FollowingResponse(f.receiveFollowId(), f.receiveFollowingUsername()))
-                .collect(Collectors.toList());
-        return new PagingDataResponse(page, data);
-    }
-
     public Integer countFollowing(Long myselfId) {
         return friendshipRepository.countAllByMyself_IdAndStatusNot(myselfId, INACTIVE);
 
     }
 
     public Integer countFollower(Long myselfId) {
-        return friendshipRepository.countAllByFollowing_IdAndStatusNot(myselfId, INACTIVE);
+        return friendshipRepository.countAllByFollow_IdAndStatusNot(myselfId, INACTIVE);
 
     }
 }

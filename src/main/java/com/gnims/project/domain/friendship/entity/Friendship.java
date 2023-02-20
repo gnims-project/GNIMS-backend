@@ -27,19 +27,27 @@ public class Friendship extends TimeStamped {
     //팔로우 등록할 친구
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "following_id")
-    private User following;
+    private User follow;
 
     @Enumerated(value = EnumType.STRING)
     private FollowStatus status;
 
     public Friendship(User myself, User following) {
         this.myself = myself;
-        this.following = following;
+        this.follow = following;
         this.status = INIT;
     }
 
-    public String receiveFollowingUsername() {
-        return this.following.getUsername();
+    public String receiveFollowUsername() {
+        return this.follow.getUsername();
+    }
+
+    public Long receiveFollowId() {
+        return this.follow.getId();
+    }
+
+    public String receiveFollowProfile() {
+        return this.follow.getProfileImage();
     }
 
     public String receiveMyselfUsername() {
@@ -48,6 +56,10 @@ public class Friendship extends TimeStamped {
 
     public Long receiveMyselfId() {
         return this.myself.getId();
+    }
+
+    public String receiveMyselfProfile() {
+        return this.myself.getProfileImage();
     }
 
     public boolean isActive() {
@@ -61,9 +73,4 @@ public class Friendship extends TimeStamped {
     public void changeStatus(FollowStatus status) {
         this.status = status;
     }
-
-    public Long receiveFollowId() {
-        return this.following.getId();
-    }
-
 }
