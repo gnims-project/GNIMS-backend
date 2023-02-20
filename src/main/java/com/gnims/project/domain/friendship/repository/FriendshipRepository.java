@@ -1,5 +1,6 @@
 package com.gnims.project.domain.friendship.repository;
 
+import com.gnims.project.domain.friendship.dto.FollowReadResponse;
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.entity.FollowStatus;
 import org.springframework.data.domain.PageRequest;
