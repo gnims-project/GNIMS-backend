@@ -8,7 +8,6 @@ import com.gnims.project.social.sevice.NaverService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +29,7 @@ public class SocialLoginController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
-    @GetMapping  ("/naver/login")
+    @PostMapping  ("/naver/login")
     public ResponseEntity<SocialResult> naverLogin(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
 
         System.out.println("________________________________________token: " + request.getHeader("token"));
