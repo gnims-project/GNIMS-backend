@@ -104,7 +104,7 @@ public class UserController {
     }
 
     //이메일 인증을 날릴 api
-    @GetMapping("/auth/password")
+    @PostMapping("/auth/password")
     public void authPassword(@RequestBody NicknameEmailDto request) throws Exception {
 
         userService.authPassword(request);

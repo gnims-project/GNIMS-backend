@@ -52,6 +52,11 @@ public class User {
 //        return nickname.replaceAll("[ㄱ-ㅎ]", "");
 //    }
 
+
+    public String getEmail() {
+        return email.substring(12);
+    }
+
     public void updateProfile(String profileImage) {
         this.profileImage = profileImage;
     }
