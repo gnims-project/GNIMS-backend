@@ -20,8 +20,8 @@ public class User {
     @Column(nullable = false)
     private String nickname;
 
-    @Column(nullable = false)
-    private String searchNickname;
+//    @Column(nullable = false)
+//    private String searchNickname;
 
     @Column(nullable = false)
     private String email;
@@ -39,10 +39,10 @@ public class User {
 //    @Column
 //    private String socialId;
 
-    public User(String username, String nickname, String searchNickname, String email, String password, String imageUrl) {
+    public User(String username, String nickname,/* String searchNickname,*/ String email, String password, String imageUrl) {
         this.username = username;
         this.nickname = nickname;
-        this.searchNickname = searchNickname;
+//        this.searchNickname = searchNickname;
         this.email = email;
         this.password = password;
         this.profileImage = imageUrl;

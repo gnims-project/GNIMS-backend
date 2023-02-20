@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> searchByRegExpKeyword(@Param("searchKeyword") String searchKeyword, @Param("pageRequest") Pageable pageable);
 
 //    Page<User> searchByRegExpKeyword(String searchKeyword, Pageable pageable);
+
+    Page<User> findAllByUsernameLike(String username, Pageable pageable);
 }
