@@ -14,7 +14,7 @@ public class LoginResponseDto {
     public LoginResponseDto(User user) {
         this.userId = user.getId();
         this.nickname = user.getNickname();
-        this.email = user.getEmail().substring(12);
+        this.email = user.makePureEmail();
         this.profileImage = user.getProfileImage();
     }
 }
