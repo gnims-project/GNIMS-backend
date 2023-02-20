@@ -240,7 +240,7 @@ public class UserService {
 
     public boolean check(User searchedUser, User user) {
         Optional<Friendship> friend = friendshipRepository
-                .findAllByMyself_IdAndFollowing_Id(user.getId(), searchedUser.getId());
+                .findAllByMyself_IdAndFollow_Id(user.getId(), searchedUser.getId());
 
         return friend.isEmpty() || FollowStatus.INACTIVE.equals(friend.get().getStatus());
     }
