@@ -18,4 +18,11 @@ public class ExceptionMessage {
     public static final String USERNAME_EMPTY_MESSAGE = "이름은 필수 입력 값입니다.";
     public static final String EMAIL_EMPTY_MESSAGE = "이메일은 필수 입력 값입니다.";
     public static final String PASSWORD_EMPTY_MESSAGE = "비밀번호는 필수 입력 값입니다.";
+
+    //Jwt 토큰
+    public static final String INVALID_TOKEN_ERROR = "Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.";
+    public static final String EXPIRED_TOKEN_ERROR = "Expired JWT token, 만료된 JWT token 입니다.";
+    public static final String UNSUPPORTED_TOKEN_ERROR = "Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.";
+    public static final String WRONG_TOKEN_ERROR = "JWT claims is empty, 잘못된 JWT 토큰 입니다.";
+    public static final String TOKEN_ERROR = "Token Error";
 }

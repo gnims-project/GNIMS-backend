@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.gnims.project.exception.dto.ExceptionMessage.TOKEN_ERROR;
+
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -28,7 +30,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if(token != null) {
             if(!jwtUtil.validateToken(token)){
-                jwtExceptionHandler(response, "Token Error", HttpStatus.UNAUTHORIZED.value());
+                jwtExceptionHandler(response, TOKEN_ERROR, HttpStatus.UNAUTHORIZED.value());
                 return;
             }
             Claims info = jwtUtil.getUserInfoFromToken(token);
