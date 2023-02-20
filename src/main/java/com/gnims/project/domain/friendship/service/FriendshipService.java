@@ -30,7 +30,8 @@ public class FriendshipService {
         return follows.stream().map(f -> new FollowReadResponse(
                 f.receiveFollowId(),
                 f.receiveFollowUsername(),
-                f.receiveFollowProfile())).collect(toList());
+                f.receiveFollowProfile(),
+                f.getStatus())).collect(toList());
     }
 
     public List<FollowReadResponse> readFollower(Long myselfId) {
@@ -39,7 +40,8 @@ public class FriendshipService {
         return followers.stream().map(f -> new FollowReadResponse(
                 f.receiveMyselfId(),
                 f.receiveMyselfUsername(),
-                f.receiveMyselfProfile())).collect(toList());
+                f.receiveMyselfProfile(),
+                f.getStatus())).collect(toList());
     }
 
     public List<FollowReadResponse> readFollowingPage(Long myselfId, PageRequest pageRequest) {
@@ -48,7 +50,8 @@ public class FriendshipService {
         return friendships.stream().map(f -> new FollowReadResponse(
                 f.receiveFollowId(),
                 f.receiveFollowUsername(),
-                f.receiveFollowProfile())).collect(Collectors.toList());
+                f.receiveFollowProfile(),
+                f.getStatus())).collect(Collectors.toList());
 
     }
 
@@ -58,7 +61,8 @@ public class FriendshipService {
         return followers.stream().map(f -> new FollowReadResponse(
                 f.receiveMyselfId(),
                 f.receiveMyselfUsername(),
-                f.receiveMyselfProfile())).collect(toList());
+                f.receiveMyselfProfile(),
+                f.getStatus())).collect(toList());
     }
 
     @Transactional
