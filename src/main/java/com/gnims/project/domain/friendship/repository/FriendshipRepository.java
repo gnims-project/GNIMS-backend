@@ -2,8 +2,7 @@ package com.gnims.project.domain.friendship.repository;
 
 import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.entity.FollowStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -27,5 +26,17 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
             "where f.follow.id =:userId " +
             "and not f.status = com.gnims.project.domain.friendship.entity.FollowStatus.INACTIVE")
     List<Friendship> readAllFollowerOf(Long userId);
+
+    // 페이징 최적화 필요
+    @Query(value = "select f from Friendship f " +
+            "where f.follow.id =:userId " +
+            "and not f.status = com.gnims.project.domain.friendship.entity.FollowStatus.INACTIVE")
+    List<Friendship> readAllFollowerPageOf(Long userId, PageRequest pageRequest);
+
+    // 페이징 최적화 필요
+    @Query(value = "select f from Friendship f " +
+            "where f.myself.id =:userId " +
+            "and not f.status = com.gnims.project.domain.friendship.entity.FollowStatus.INACTIVE")
+    List<Friendship> readAllFollowingPageOf(Long userId, PageRequest pageRequest);
 
 }

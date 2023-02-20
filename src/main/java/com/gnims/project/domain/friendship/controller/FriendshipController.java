@@ -33,15 +33,16 @@ public class FriendshipController {
 
         return new ResponseEntity<>(new FriendshipResult<>(OK.value(), "팔로잉 조회 완료", followings), OK);
     }
-    // 팔로잉 조회 - 페이징 처리 - 프로토타입
-    @GetMapping("/v2/friendship/followings")
-    public ResponseEntity<FriendshipPageableResult> readFollowingV2(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                    @RequestBody PageRequestDto pageRequestDto) {
-        Long myselfId = userDetails.getUser().getId();
-        PageRequest pageRequest = PageRequest.of(pageRequestDto.getPageNumber(), 5);
-        PagingDataResponse response = friendshipService.readFollowingV2(myselfId, pageRequest);
+    // 팔로잉 조회 - 페이징 처리
+    @GetMapping("/v2-page/friendship/followings")
+    public ResponseEntity<FriendshipResult> readFollowingPage(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                      @RequestParam Integer page,
+                                                                      @RequestParam Integer size) {
+        Long myselfId = userDetails.receiveUserId();
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<FollowReadResponse> followings = friendshipService.readFollowingPage(myselfId, pageRequest);
 
-        return new ResponseEntity<>(new FriendshipPageableResult<>(OK.value(), "팔로잉 조회 완료", response), OK);
+        return new ResponseEntity<>(new FriendshipResult<>(OK.value(), "팔로잉 조회 완료", followings), OK);
     }
 
     //팔로워 조회(나를 등록한 친구)
@@ -52,6 +53,19 @@ public class FriendshipController {
 
         return new ResponseEntity<>(new FriendshipResult(OK.value(), "팔로워 조회 완료", followers), OK);
     }
+
+    // 팔로워 조회 - 페이징 처리
+    @GetMapping("/v2-page/friendship/followers")
+    public ResponseEntity<FriendshipResult> readFollowerPage(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                             @RequestParam Integer page,
+                                                             @RequestParam Integer size) {
+        Long myselfId = userDetails.receiveUserId();
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<FollowReadResponse> followers = friendshipService.readFollowerPage(myselfId, pageRequest);
+
+        return new ResponseEntity<>(new FriendshipResult<>(OK.value(), "팔로워 조회 완료", followers), OK);
+    }
+
     // 팔로잉 하기/취소
     @PostMapping("/friendship/followings/{followings-id}")
     public ResponseEntity<FriendshipResult> presFollowButton(@PathVariable("followings-id") Long followingId,

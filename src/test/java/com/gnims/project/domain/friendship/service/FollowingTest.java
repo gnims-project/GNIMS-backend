@@ -1,5 +1,6 @@
 package com.gnims.project.domain.friendship.service;
 
+import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -106,7 +107,7 @@ public class FollowingTest {
                 .andExpect(MockMvcResultMatchers.jsonPath(expression, followingNickname).exists());
     }
 
-    @DisplayName("팔로우 상태(INACTIVE)일 시 - 상태 코드 200, 'username' : {팔로잉 이름} 이 존재하지 않아야 한다.")
+    @DisplayName("언팔로우 상태(INACTIVE)일 시 - 상태 코드 200, 'username' : {팔로잉 이름} 이 존재하지 않아야 한다.")
     @Test
     void test2() throws Exception {
         status = transactionManager.getTransaction(new DefaultTransactionDefinition());

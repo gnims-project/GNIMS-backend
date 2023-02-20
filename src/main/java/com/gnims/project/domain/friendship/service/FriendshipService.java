@@ -7,7 +7,6 @@ import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +32,28 @@ public class FriendshipService {
                 f.receiveFollowUsername(),
                 f.receiveFollowProfile())).collect(toList());
     }
+
     public List<FollowReadResponse> readFollower(Long myselfId) {
         List<Friendship> followers = friendshipRepository.readAllFollowerOf(myselfId);
+
+        return followers.stream().map(f -> new FollowReadResponse(
+                f.receiveMyselfId(),
+                f.receiveMyselfUsername(),
+                f.receiveMyselfProfile())).collect(toList());
+    }
+
+    public List<FollowReadResponse> readFollowingPage(Long myselfId, PageRequest pageRequest) {
+        List<Friendship> friendships = friendshipRepository.readAllFollowingPageOf(myselfId, pageRequest);
+
+        return friendships.stream().map(f -> new FollowReadResponse(
+                f.receiveFollowId(),
+                f.receiveFollowUsername(),
+                f.receiveFollowProfile())).collect(Collectors.toList());
+
+    }
+
+    public List<FollowReadResponse> readFollowerPage(Long myId, PageRequest pageRequest) {
+        List<Friendship> followers = friendshipRepository.readAllFollowerPageOf(myId, pageRequest);
 
         return followers.stream().map(f -> new FollowReadResponse(
                 f.receiveMyselfId(),
