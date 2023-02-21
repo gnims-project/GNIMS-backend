@@ -53,7 +53,9 @@ public class NotificationController {
             try {
                 log.info("이벤트 리스너 {}, {}", scheduleForm.getSubject(), scheduleForm.getParticipantsId());
                 sseEmitter.send(scheduleForm, MediaType.APPLICATION_JSON);
-                sseEmitter.send(scheduleForm.getSubject() + "에 초대하셨습니다.", MediaType.APPLICATION_JSON);
+                sseEmitter.send(SseEmitter.event()
+                        .name("connect")
+                        .data(scheduleForm.getSubject() + "에 초대하셨습니다."));
 
             } catch (IOException e) {
                 log.info("IO exception");
