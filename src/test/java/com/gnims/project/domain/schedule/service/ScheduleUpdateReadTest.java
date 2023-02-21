@@ -4,6 +4,8 @@ import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
+import com.gnims.project.exception.dto.ExceptionMessage;
+import com.gnims.project.util.ResponseMessage;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +23,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static com.gnims.project.util.ResponseMessage.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -82,7 +86,7 @@ public class ScheduleUpdateReadTest {
     }
 
     @DisplayName("주최자가 일정을 수정하는 경우" +
-            "상태 코드 200, message : {스케줄을 수정합니다.} 반환 " +
+            "상태 코드 200, message : {UPDATE_SCHEDULE_MESSAGE} 반환 " +
             "수정한 내역이 event 엔티티에 반영")
     @Test
     void 스케줄_수정_성공_케이스() throws Exception {
@@ -100,7 +104,7 @@ public class ScheduleUpdateReadTest {
                                 "\"subject\":\"자바스크립트 스터디\"," +
                                 "\"content\":\"비동기 처리를 공부합니다.\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("스케줄을 수정합니다."));
+                .andExpect(jsonPath("$.message").value(UPDATE_SCHEDULE_MESSAGE));
 
         Event updateEvent = eventRepository.findById(event.getId()).get();
 
@@ -157,7 +161,7 @@ public class ScheduleUpdateReadTest {
                                 "\"subject\":\"자바 스터디\"," +
                                 "\"content\":\"람다, 스트림을 공부합니다.\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("스케줄을 수정합니다."));
+                .andExpect(jsonPath("$.message").value(UPDATE_SCHEDULE_MESSAGE));
 
         Event updateEvent = eventRepository.findById(event.getId()).get();
 
@@ -166,7 +170,7 @@ public class ScheduleUpdateReadTest {
     }
 
     @DisplayName("주최자가 아닌 유저가 스케줄을 수정하려는 경우 " +
-            "상태 코드 403, message : {수정 권한이 없습니다.} 반환" +
+            "상태 코드 403, message : {ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE} 반환" +
             "event 엔티티의 내용은 수정 전과 동일해야 한다.")
     @Test
     void 스케줄_수정_실패_케이스() throws Exception {
@@ -184,7 +188,7 @@ public class ScheduleUpdateReadTest {
                         "\"subject\":\"자바스크립트 스터디\"," +
                         "\"content\":\"비동기 처리를 공부합니다.\"}"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value("이미 요청이 처리되었거나 수정 권한이 없습니다."));
+                .andExpect(jsonPath("$.message").value(ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE));
 
         Event updateEvent = eventRepository.findBySubject("자바 스터디").get();
         Assertions.assertThat(updateEvent.getModifiedAt()).isEqualTo(originalEvent.getModifiedAt());
@@ -216,7 +220,7 @@ public class ScheduleUpdateReadTest {
     }
 
     @DisplayName("존재하지 않는 일정을 수정하려는 경우 " +
-            "상태 코드 403, message : {수정 권한이 없습니다.} 반환")
+            "상태 코드 403, message : {ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE} 반환")
     @Test
     void 스케줄_수정_실패_케이스3() throws Exception {
         //given
@@ -232,7 +236,7 @@ public class ScheduleUpdateReadTest {
                                 "\"subject\":\"자바스크립트 스터디\"," +
                                 "\"content\":\"비동기 처리를 공부합니다.\"}"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value("이미 요청이 처리되었거나 수정 권한이 없습니다."));
+                .andExpect(jsonPath("$.message").value(ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE));
     }
 
     private MvcResult getLoginResult() throws Exception {
