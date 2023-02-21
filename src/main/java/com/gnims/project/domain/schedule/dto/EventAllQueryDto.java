@@ -26,4 +26,8 @@ public class EventAllQueryDto {
         this.username = username;
         this.profile = profile;
     }
+
+    public boolean isSameEventId(Long eventId) {
+        return this.eventId.equals(eventId);
+    }
 }
