@@ -28,7 +28,6 @@ public class ResponseMessage {
     public static final String DELETE_SCHEDULE_MESSAGE = "스케줄 삭제 완료";
     public static final String UPDATE_SCHEDULE_MESSAGE = "스케줄 수정 완료";
 
-
     //email
     public static final String SUCCESS_AUTH_EMAIL_MESSAGE = "이메일 인증 성공";
 }
