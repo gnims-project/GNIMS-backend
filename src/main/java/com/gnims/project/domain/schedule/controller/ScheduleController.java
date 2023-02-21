@@ -41,11 +41,12 @@ public class ScheduleController {
     //스케줄 전체 조회 최적화 진행중 - Paging, dto 버전 **한방쿼리**
     @GetMapping("/v2-page/users/{user-id}/events")
     public ResponseEntity<PageableReadScheduleResult> readAllSchedulePageV3(@PathVariable("user-id") Long followId,
-                                                                  @RequestParam Integer page,
-                                                                  @RequestParam Integer size) {
+                                                                            @RequestParam Integer page,
+                                                                            @RequestParam Integer size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        TempResponse tempResponse = scheduleService.readAllSchedulePage(followId, pageRequest);
-        return new ResponseEntity<>(new PageableReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, tempResponse.getSize(),tempResponse.getData()), OK);
+        PageableReadResponse response = scheduleService.readAllSchedulePage(followId, pageRequest);
+        return new ResponseEntity<>(new PageableReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE,
+                response.getSize(), response.getData()), OK);
     }
 
     //스케줄 단건 조회 - 기본 버전

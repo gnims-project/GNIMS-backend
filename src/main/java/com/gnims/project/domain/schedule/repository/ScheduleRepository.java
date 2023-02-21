@@ -1,7 +1,7 @@
 package com.gnims.project.domain.schedule.repository;
 
-import com.gnims.project.domain.schedule.dto.EventAllQueryDto;
-import com.gnims.project.domain.schedule.dto.EventOneQueryDto;
+import com.gnims.project.domain.schedule.dto.ReadAllScheduleDto;
+import com.gnims.project.domain.schedule.dto.ReadOneScheduleDto;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.domain.schedule.entity.ScheduleStatus;
 import org.springframework.data.domain.Page;
@@ -25,40 +25,40 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      * subquery = 자신이 참여하는 EVENT_ID SELECT
      */
 
-    @Query(value = "select new com.gnims.project.domain.schedule.dto.EventAllQueryDto" +
+    @Query(value = "select new com.gnims.project.domain.schedule.dto.ReadAllScheduleDto" +
             "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.dDay, u.username, u.profileImage) from Schedule s " +
             "join s.event e " +
             "join s.user u " +
             "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false and e.dDay >= 0")
-    List<EventAllQueryDto> readAllSchedule(Long userId);
+    List<ReadAllScheduleDto> readAllSchedule(Long userId);
 
     /**
      * 전체 조회 페이징 처리
      * user 는 5명 제한이기 때문에 패치 조인 처리
      */
 
-    @Query(value = "select new com.gnims.project.domain.schedule.dto.EventAllQueryDto" +
+    @Query(value = "select new com.gnims.project.domain.schedule.dto.ReadAllScheduleDto" +
             "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.dDay, u.username, u.profileImage) from Schedule s " +
             "join s.event e " +
             "join s.user u " +
             "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false and e.dDay >= 0")
-    Page<EventAllQueryDto> readAllSchedulePage(Long userId, PageRequest pageRequest);
+    Page<ReadAllScheduleDto> readAllSchedulePage(Long userId, PageRequest pageRequest);
 
     /**
      * 단건 조회 최적화
      */
-    @Query(value = "select new com.gnims.project.domain.schedule.dto.EventOneQueryDto" +
+    @Query(value = "select new com.gnims.project.domain.schedule.dto.ReadOneScheduleDto" +
             "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.content, e.dDay, u.username) from Event e " +
             "join e.schedule s " +
             "join s.user u " +
             "where e.id = :eventId " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false")
-    List<EventOneQueryDto> readOneSchedule(Long eventId);
+    List<ReadOneScheduleDto> readOneSchedule(Long eventId);
 
     //수락 및 거절을 대기중인 스케줄 조회
     @Query(value = "select s from Schedule s " +
@@ -67,7 +67,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "and s.event.isDeleted = false")
     Optional<Schedule> readOnePendingSchedule(Long userId, Long eventId);
 
-    @Query(value = "select new com.gnims.project.domain.schedule.dto.EventAllQueryDto" +
+    @Query(value = "select new com.gnims.project.domain.schedule.dto.ReadAllScheduleDto" +
             "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.dDay, u.username, u.profileImage) from Schedule s " +
             "join s.event e " +
             "join s.user u " +
@@ -75,6 +75,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false and e.dDay < 0 order by e.appointment.date desc ")
-    List<EventAllQueryDto> readPastSchedule(Long userId);
+    List<ReadAllScheduleDto> readPastSchedule(Long userId);
 
 }

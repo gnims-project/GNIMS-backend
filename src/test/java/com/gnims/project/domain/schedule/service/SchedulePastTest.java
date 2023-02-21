@@ -1,7 +1,7 @@
 package com.gnims.project.domain.schedule.service;
 
 import com.gnims.project.domain.event.repository.EventRepository;
-import com.gnims.project.domain.schedule.dto.EventAllQueryDto;
+import com.gnims.project.domain.schedule.dto.ReadAllScheduleDto;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
@@ -17,7 +17,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -105,7 +104,7 @@ public class SchedulePastTest {
         }
 
 
-        List<EventAllQueryDto> eventAllQueries = scheduleRepository.readPastSchedule(hostId);
+        List<ReadAllScheduleDto> eventAllQueries = scheduleRepository.readPastSchedule(hostId);
         LocalDate firstScheduleDate = eventAllQueries.get(0).getDate();
         LocalDate secondScheduleDate = eventAllQueries.get(1).getDate();
         LocalDate thirdScheduleDate = eventAllQueries.get(2).getDate();
