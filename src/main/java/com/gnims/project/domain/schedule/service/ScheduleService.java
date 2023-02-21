@@ -89,8 +89,8 @@ public class ScheduleService {
                 e.getDDay(),
                 eventQueries.stream().filter(eq -> eq.getEventId().equals(e.getEventId()))
                         .map(eq -> new ReadAllUserDto(eq.getUsername(),eq.getProfile()))
-                        .collect(Collectors.toList())
-        )).collect(Collectors.toList());
+                        .collect(Collectors.toList())))
+                .collect(Collectors.toList());
 
     }
 
@@ -112,8 +112,8 @@ public class ScheduleService {
                 e.getDDay(),
                 eventAllQueries.stream().filter(eq -> eq.getEventId().equals(e.getEventId()))
                         .map(eq -> new ReadAllUserDto(eq.getUsername(),eq.getProfile()))
-                        .collect(Collectors.toList())
-        )).collect(Collectors.toList());
+                        .collect(Collectors.toList())))
+                .collect(Collectors.toList());
     }
 
     public ReadOneResponse readOneScheduleProto(Long eventId) {
@@ -185,6 +185,28 @@ public class ScheduleService {
                 s.getEvent().getCardColor(),
                 s.getEvent().getSubject(),
                 s.findInvitees())).collect(Collectors.toList());
+    }
+
+    public List<ReadAllResponse> readPastScheduleV2(Long userId) {
+        List<EventAllQueryDto> eventQueries = scheduleRepository.readPastSchedule(userId);
+
+        HashSet<Long> set = new HashSet<>(eventQueries.size());
+
+        List<EventAllQueryDto> event = eventQueries.stream()
+                .filter(e -> set.add(e.getEventId()))
+                .collect(Collectors.toList());
+
+        return event.stream().map(e -> new ReadAllResponse(
+                e.getEventId(),
+                e.getDate(),
+                e.getTime(),
+                e.getCardColor(),
+                e.getSubject(),
+                e.getDDay(),
+                eventQueries.stream().filter(eq -> eq.getEventId().equals(e.getEventId()))
+                        .map(eq -> new ReadAllUserDto(eq.getUsername(),eq.getProfile()))
+                        .collect(Collectors.toList())))
+                .collect(Collectors.toList());
     }
 
     @Transactional

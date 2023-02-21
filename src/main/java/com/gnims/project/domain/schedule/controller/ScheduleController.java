@@ -71,9 +71,9 @@ public class ScheduleController {
 
     // 과거 스케줄 조회
     @GetMapping("/events/past")
-    public ResponseEntity<ReadScheduleResult> readPastSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ReadScheduleResult> readPastScheduleV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
-        List<ReadPastAllResponse> responses = scheduleService.readPastSchedule(userId);
+        List<ReadAllResponse> responses = scheduleService.readPastScheduleV2(userId);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PAST_SCHEDULE_MESSAGE, responses), OK);
     }
 

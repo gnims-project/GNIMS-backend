@@ -66,4 +66,14 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "and s.event.isDeleted = false")
     Optional<Schedule> readOnePendingSchedule(Long userId, Long eventId);
 
+    @Query(value = "select new com.gnims.project.domain.schedule.dto.EventAllQueryDto" +
+            "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.dDay, u.username, u.profileImage) from Schedule s " +
+            "join s.event e " +
+            "join s.user u " +
+            "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId " +
+            "and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
+            "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
+            "and e.isDeleted = false and e.dDay < 0 order by e.appointment.date desc ")
+    List<EventAllQueryDto> readPastSchedule(Long userId);
+
 }
