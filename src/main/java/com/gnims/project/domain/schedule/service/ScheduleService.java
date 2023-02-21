@@ -9,8 +9,10 @@ import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.util.embedded.Appointment;
 import io.jsonwebtoken.security.SecurityException;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,26 +96,40 @@ public class ScheduleService {
 
     }
 
-    public List<ReadAllResponse> readAllSchedulePage(Long userId, PageRequest pageRequest) {
-        List<EventAllQueryDto> eventAllQueries = scheduleRepository.readAllSchedulePage(userId, pageRequest);
+    public TempResponse readAllSchedulePage(Long userId, PageRequest pageRequest) {
+        Page<EventAllQueryDto> eventAllQueries = scheduleRepository.readAllSchedulePage(userId, pageRequest);
+        Long totalElements = eventAllQueries.getTotalElements();
+        int eventSize = totalElements.intValue();
 
         // 이벤트는 중복될 수 있음으로 set으로 중복 처리
-        HashSet<Long> set = new HashSet<>(eventAllQueries.size());
+        HashSet<Long> set = new HashSet<>(eventSize);
         List<EventAllQueryDto> event = eventAllQueries.stream()
                 .filter(e -> set.add(e.getEventId()))
                 .collect(Collectors.toList());
 
-        return event.stream().map(e -> new ReadAllResponse(
+        List<ReadAllResponse> responses = event.stream().map(e -> new ReadAllResponse(
                 e.getEventId(),
                 e.getDate(),
                 e.getTime(),
                 e.getCardColor(),
                 e.getSubject(),
                 e.getDDay(),
-                eventAllQueries.stream().filter(eq -> eq.getEventId().equals(e.getEventId()))
-                        .map(eq -> new ReadAllUserDto(eq.getUsername(),eq.getProfile()))
-                        .collect(Collectors.toList())))
-                .collect(Collectors.toList());
+                eventAllQueries.stream().filter(eq -> eq.isSameEventId(e.getEventId()))
+                        .map(eq -> new ReadAllUserDto(eq.getUsername(), eq.getProfile()))
+                        .collect(Collectors.toList()))).collect(Collectors.toList());
+
+        return new TempResponse(eventAllQueries.getTotalPages(), responses);
+    }
+
+    @Getter
+    public static class TempResponse<T> {
+        private Integer size;
+        private T data;
+
+        public TempResponse(Integer size, T data) {
+            this.size = size;
+            this.data = data;
+        }
     }
 
     public ReadOneResponse readOneScheduleProto(Long eventId) {

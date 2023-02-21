@@ -4,6 +4,7 @@ import com.gnims.project.domain.schedule.dto.EventAllQueryDto;
 import com.gnims.project.domain.schedule.dto.EventOneQueryDto;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.domain.schedule.entity.ScheduleStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -45,7 +46,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false and e.dDay >= 0")
-    List<EventAllQueryDto> readAllSchedulePage(Long userId, PageRequest pageRequest);
+    Page<EventAllQueryDto> readAllSchedulePage(Long userId, PageRequest pageRequest);
 
     /**
      * 단건 조회 최적화
