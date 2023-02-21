@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
+import static com.gnims.project.exception.dto.ExceptionMessage.NOT_EXISTED_USER;
 import static java.util.stream.Collectors.*;
 
 @Service
@@ -94,7 +95,7 @@ public class FriendshipService {
 
         // 한 번도 팔로잉을 한적이 없다면
         if (optionalFriendship.isEmpty()) {
-            User user = userRepository.findById(followingId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+            User user = userRepository.findById(followingId).orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_USER));
             User myself = userRepository.findById(myselfId).get();
             Friendship friendship = friendshipRepository.save(new Friendship(myself, user));
             return new FriendshipResponse(friendship.receiveFollowId(), friendship.getStatus());
