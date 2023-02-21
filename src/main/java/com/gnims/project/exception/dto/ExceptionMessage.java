@@ -4,7 +4,7 @@ public class ExceptionMessage {
 
     //User 에서 사용
     public static final String MISMATCH_EMAIL_OR_PASSWORD = "이메일 혹은 비밀번호가 일치하지 않습니다.";
-    public static final String MISMATCH_NICKNAME_OR_EMAIL = "닉네임 혹은 이메일이 일치하지 않습니다.";
+    public static final String NON_EXISTED_EMAIL = "등록되지 않은 이메일 입니다.";
     public static final String ALREADY_REGISTERED_EMAIL = "이미 등록된 이메일 입니다.";
     public static final String DUPLICATE_NICKNAME = "중복된 닉네임 입니다.";
     public static final String EXTENSION_ERROR_MESSAGE = " 확장자의 이미지 파일만 업로드 가능합니다.";
@@ -36,4 +36,9 @@ public class ExceptionMessage {
 
     public static final String ALREADY_DELETED_EVENT = "이미 삭제된 일정입니다.";
 
+
+    //email
+    public static final String INVALID_CODE_ERROR = "인증 실패 / 인증 코드가 유효하지 않습니다.";
+    public static final String UNAUTHENTICATED_EMAIL_ERROR = "이메일 인증을 해주세요";
+    public static final String POSTING_EMAIL_ERROR = "이메일 발송 오류입니다.";
 }

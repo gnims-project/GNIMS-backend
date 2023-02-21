@@ -2,6 +2,7 @@ package com.gnims.project.util;
 
 public class ResponseMessage {
 
+    //user
     public static final String SIGNUP_SUCCESS_MESSAGE = "회원가입 완료";
     public static final String PROFILE_UPDATE_SUCCESS_MESSAGE = "프로필 변경 성공";
     public static final String LOGIN_SUCCESS_MESSAGE = "로그인 성공";
@@ -27,4 +28,7 @@ public class ResponseMessage {
     public static final String DELETE_SCHEDULE_MESSAGE = "스케줄 삭제 완료";
     public static final String UPDATE_SCHEDULE_MESSAGE = "스케줄 수정 완료";
 
+
+    //email
+    public static final String SUCCESS_AUTH_EMAIL_MESSAGE = "이메일 인증 성공";
 }
