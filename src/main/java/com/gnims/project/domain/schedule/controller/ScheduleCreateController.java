@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import static com.gnims.project.util.ResponseMessage.CREATE_SCHEDULE_MESSAGE;
+
 @RestController
 @RequiredArgsConstructor
 public class ScheduleCreateController {
@@ -30,6 +32,6 @@ public class ScheduleCreateController {
         scheduleService.makeSchedule(scheduleForm, userId);
 
         applicationEventPublisher.publishEvent(scheduleForm);
-        return new ResponseEntity<>(new SimpleScheduleResult(201, "스케줄 생성 완료"), HttpStatus.CREATED);
+        return new ResponseEntity<>(new SimpleScheduleResult(201, CREATE_SCHEDULE_MESSAGE), HttpStatus.CREATED);
     }
 }

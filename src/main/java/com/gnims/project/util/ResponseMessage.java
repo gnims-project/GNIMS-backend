@@ -9,4 +9,22 @@ public class ResponseMessage {
     public static final String PASSWORD_UPDATE_SUCCESS_MESSAGE = "비밀번호 변경 성공";
     public static final String CHECK_NICKNAME_MESSAGE = "사용 가능한 닉네임 입니다.";
     public static final String CHECK_EMAIL_MESSAGE = "사용 가능한 이메일 입니다.";
+
+    //friendshipController
+    public static final String READ_FOLLOWINGS_MESSAGE = "팔로잉 조회 완료";
+    public static final String READ_FOLLOWERS_MESSAGE = "팔로워 조회 완료";
+    public static final String COUNT_FOLLOWINGS_MESSAGE = "팔로잉 수 조회 완료";
+    public static final String COUNT_FOLLOWERS_MESSAGE = "팔로워 수 조회 완료";
+
+    //ScheduleController
+    public static final String CREATE_SCHEDULE_MESSAGE = "스케줄 생성 완료";
+    public static final String READ_ALL_SCHEDULE_MESSAGE = "스케줄 전체 조회 완료";
+    public static final String READ_ONE_SCHEDULE_MESSAGE = "스케줄 상세 조회 완료";
+    public static final String READ_PENDING_SCHEDULE_MESSAGE = "수락 대기중인 스케줄 조회 완료";
+    public static final String READ_PAST_SCHEDULE_MESSAGE = "과거 스케줄 조회 완료";
+    public static final String ACCEPT_SCHEDULE_MESSAGE = "스케줄 수락 완료";
+    public static final String REJECT_SCHEDULE_MESSAGE = "스케줄 거절 완료";
+    public static final String DELETE_SCHEDULE_MESSAGE = "스케줄 삭제 완료";
+    public static final String UPDATE_SCHEDULE_MESSAGE = "스케줄 수정 완료";
+
 }

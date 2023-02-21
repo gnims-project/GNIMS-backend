@@ -25,4 +25,15 @@ public class ExceptionMessage {
     public static final String UNSUPPORTED_TOKEN_ERROR = "Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.";
     public static final String WRONG_TOKEN_ERROR = "JWT claims is empty, 잘못된 JWT 토큰 입니다.";
     public static final String TOKEN_ERROR = "Token Error";
+
+    // User
+    public static final String NOT_EXISTED_USER = "존재하지 않는 유저입니다.";
+    public static final String NOT_EXISTED_SCHEDULE = "존재하지 않는 유저입니다.";
+
+    // Schedule
+    public static final String ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE = "이미 요청이 처리되었거나 존재하지 않는 일정입니다.";
+    public static final String ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE = "이미 요청이 처리되었거나 권한이 없습니다.";
+
+    public static final String ALREADY_DELETED_EVENT = "이미 삭제된 일정입니다.";
+
 }

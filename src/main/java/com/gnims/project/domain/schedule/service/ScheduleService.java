@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
+import static com.gnims.project.exception.dto.ExceptionMessage.*;
 
 @Slf4j
 @Service
@@ -37,7 +38,7 @@ public class ScheduleService {
         Event event = eventRepository.save(new Event(new Appointment(form), form));
         //주최자 스케줄 처리 -> 주최자는 자동 일정에 자동 참여
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                () -> new IllegalArgumentException(NOT_EXISTED_USER));
         Schedule hostSchedule = new Schedule(user, event);
         hostSchedule.decideScheduleStatus(ACCEPT);
         //개인 스케줄일 경우
@@ -141,7 +142,7 @@ public class ScheduleService {
     public ReadOneResponse readOneSchedule(Long eventId) {
         List<EventOneQueryDto> events = scheduleRepository.readOneSchedule(eventId);
         if (events.isEmpty()) {
-            throw new IllegalArgumentException("존재하지 않는 일정입니다.");
+            throw new IllegalArgumentException(NOT_EXISTED_SCHEDULE);
         }
 
         EventOneQueryDto event = events.get(0);
@@ -189,7 +190,7 @@ public class ScheduleService {
     @Transactional
     public void acceptSchedule(Long userId, Long eventId) {
         Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
-                .orElseThrow(() -> new IllegalArgumentException("이미 요청이 처리되었거나 존재하지 않는 일정입니다."));
+                .orElseThrow(() -> new IllegalArgumentException(ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE));
 
         schedule.decideScheduleStatus(ACCEPT);
         scheduleRepository.save(schedule);
@@ -198,7 +199,7 @@ public class ScheduleService {
     @Transactional
     public void rejectSchedule(Long userId, Long eventId) {
         Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
-                .orElseThrow(() -> new IllegalArgumentException("이미 요청이 처리되었거나 존재하지 않는 일정입니다."));
+                .orElseThrow(() -> new IllegalArgumentException(ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE));
 
         schedule.decideScheduleStatus(REJECT);
         scheduleRepository.save(schedule);
@@ -207,7 +208,7 @@ public class ScheduleService {
     @Transactional
     public void softDeleteSchedule(Long userId, Long eventId) {
         Event event = eventRepository.findByCreateByAndId(userId, eventId)
-                .orElseThrow(() -> new SecurityException("이미 요청이 처리되었거나 삭제 권한이 없습니다."));
+                .orElseThrow(() -> new SecurityException(ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE));
 
         checkIsDeleted(event);
 
@@ -218,7 +219,7 @@ public class ScheduleService {
     @Transactional
     public void updateSchedule(Long userId, UpdateForm updateForm, Long eventId) {
         Event event = eventRepository.findByCreateByAndId(userId, eventId).orElseThrow(
-                () -> new SecurityException("이미 요청이 처리되었거나 수정 권한이 없습니다."));
+                () -> new SecurityException(ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE));
 
         checkIsDeleted(event);
 
@@ -228,7 +229,7 @@ public class ScheduleService {
 
     private static void checkIsDeleted(Event event) {
         if (event.getIsDeleted().equals(true)) {
-            throw new IllegalArgumentException("이미 삭제된 일정입니다.");
+            throw new IllegalArgumentException(ALREADY_DELETED_EVENT);
         }
     }
 
