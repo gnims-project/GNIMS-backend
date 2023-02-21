@@ -17,14 +17,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
 import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static java.util.stream.Collectors.*;
 
 @Slf4j
 @Service
@@ -55,11 +53,12 @@ public class ScheduleService {
         List<Schedule> schedules = users.stream()
                 //자기 자신이 participants 목록에 들어갈 경우 필터링
                 .filter(u -> !userId.equals(u.getId()))
-                .map(u -> new Schedule(u, event)).collect(Collectors.toList());
+                .map(u -> new Schedule(u, event)).collect(toList());
         schedules.add(hostSchedule);
         scheduleRepository.saveAll(schedules);
     }
 
+    @Deprecated
     public List<ReadAllResponse> readAllScheduleProto(Long userId) {
         List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndScheduleStatusIsAndEvent_IsDeletedIs(userId, ACCEPT, false);
 
@@ -71,7 +70,7 @@ public class ScheduleService {
                 s.getEvent().getSubject(),
                 s.getEvent().getDDay(),
                 s.findInvitees()
-        )).collect(Collectors.toList());
+        )).collect(toList());
     }
 
     public List<ReadAllResponse> readAllSchedule(Long userId) {
@@ -80,7 +79,7 @@ public class ScheduleService {
 
         List<EventAllQueryDto> event = eventQueries.stream()
                 .filter(e -> set.add(e.getEventId()))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return event.stream().map(e -> new ReadAllResponse(
                 e.getEventId(),
@@ -91,8 +90,8 @@ public class ScheduleService {
                 e.getDDay(),
                 eventQueries.stream().filter(eq -> eq.getEventId().equals(e.getEventId()))
                         .map(eq -> new ReadAllUserDto(eq.getUsername(),eq.getProfile()))
-                        .collect(Collectors.toList())))
-                .collect(Collectors.toList());
+                        .collect(toList())))
+                .collect(toList());
 
     }
 
@@ -103,9 +102,7 @@ public class ScheduleService {
 
         // 이벤트는 중복될 수 있음으로 set으로 중복 처리
         HashSet<Long> set = new HashSet<>(eventSize);
-        List<EventAllQueryDto> event = eventAllQueries.stream()
-                .filter(e -> set.add(e.getEventId()))
-                .collect(Collectors.toList());
+        List<EventAllQueryDto> event = eventAllQueries.stream().filter(e -> set.add(e.getEventId())).collect(toList());
 
         List<ReadAllResponse> responses = event.stream().map(e -> new ReadAllResponse(
                 e.getEventId(),
@@ -116,7 +113,7 @@ public class ScheduleService {
                 e.getDDay(),
                 eventAllQueries.stream().filter(eq -> eq.isSameEventId(e.getEventId()))
                         .map(eq -> new ReadAllUserDto(eq.getUsername(), eq.getProfile()))
-                        .collect(Collectors.toList()))).collect(Collectors.toList());
+                        .collect(toList()))).collect(toList());
 
         return new TempResponse(eventAllQueries.getTotalPages(), responses);
     }
@@ -132,6 +129,7 @@ public class ScheduleService {
         }
     }
 
+    @Deprecated
     public ReadOneResponse readOneScheduleProto(Long eventId) {
         List<Schedule> schedules = scheduleRepository.findByEvent_IdAndScheduleStatusIs(eventId, ACCEPT);
 
@@ -142,7 +140,7 @@ public class ScheduleService {
         List<ReadOneUserDto> invitees = schedules.stream()
                 .filter(s -> s.isAccepted())
                 .map(s -> new ReadOneUserDto(s.getUser().getUsername()))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return new ReadOneResponse(
                 event.getId(),
@@ -170,10 +168,13 @@ public class ScheduleService {
                 event.getSubject(),
                 event.getContent(),
                 event.getDDay(),
-                events.stream().map(e -> new ReadOneUserDto(e.getUsername())).collect(Collectors.toList())
+                events.stream().map(e -> new ReadOneUserDto(e.getUsername())).collect(toList())
         );
     }
 
+    /**
+     * 최적화 필요
+     */
     public List<ReadPastAllResponse> readPendingSchedule(Long userId) {
         List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndScheduleStatusIs(userId, PENDING);
 
@@ -185,32 +186,17 @@ public class ScheduleService {
                 s.getEvent().receiveTime(),
                 s.getEvent().getCardColor(),
                 s.getEvent().getSubject(),
-                s.findInvitees())).collect(Collectors.toList());
+                s.findInvitees())).collect(toList());
     }
 
-    public List<ReadPastAllResponse> readPastSchedule(Long userId) {
-        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndScheduleStatusIs(userId, ACCEPT);
-        List<Schedule> pastSchedules = schedules.stream().filter(s -> s.isDeletedEvent())
-                .filter(s -> ChronoUnit.DAYS.between(LocalDate.now(), s.getEvent().receiveDate()) < 0)
-                .collect(Collectors.toList());
-
-        return pastSchedules.stream().map(s -> new ReadPastAllResponse(
-                s.getEvent().getId(),
-                s.getEvent().receiveDate(),
-                s.getEvent().receiveTime(),
-                s.getEvent().getCardColor(),
-                s.getEvent().getSubject(),
-                s.findInvitees())).collect(Collectors.toList());
-    }
-
-    public List<ReadAllResponse> readPastScheduleV2(Long userId) {
+    public List<ReadAllResponse> readPastSchedule(Long userId) {
         List<EventAllQueryDto> eventQueries = scheduleRepository.readPastSchedule(userId);
 
         HashSet<Long> set = new HashSet<>(eventQueries.size());
 
         List<EventAllQueryDto> event = eventQueries.stream()
                 .filter(e -> set.add(e.getEventId()))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return event.stream().map(e -> new ReadAllResponse(
                 e.getEventId(),
@@ -221,8 +207,8 @@ public class ScheduleService {
                 e.getDDay(),
                 eventQueries.stream().filter(eq -> eq.getEventId().equals(e.getEventId()))
                         .map(eq -> new ReadAllUserDto(eq.getUsername(),eq.getProfile()))
-                        .collect(Collectors.toList())))
-                .collect(Collectors.toList());
+                        .collect(toList())))
+                .collect(toList());
     }
 
     @Transactional
@@ -274,7 +260,7 @@ public class ScheduleService {
     private static List<Schedule> filterDeletedSchedules(List<Schedule> schedules) {
         List<Schedule> liveSchedules = schedules.stream()
                 .filter(s -> s.isDeletedEvent())
-                .collect(Collectors.toList());
+                .collect(toList());
         return liveSchedules;
     }
 

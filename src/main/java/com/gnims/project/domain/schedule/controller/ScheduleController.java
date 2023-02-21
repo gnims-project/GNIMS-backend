@@ -74,7 +74,7 @@ public class ScheduleController {
     @GetMapping("/events/past")
     public ResponseEntity<ReadScheduleResult> readPastScheduleV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
-        List<ReadAllResponse> responses = scheduleService.readPastScheduleV2(userId);
+        List<ReadAllResponse> responses = scheduleService.readPastSchedule(userId);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PAST_SCHEDULE_MESSAGE, responses), OK);
     }
 
