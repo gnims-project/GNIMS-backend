@@ -2,6 +2,7 @@ package com.gnims.project.domain.schedule.repository;
 
 import com.gnims.project.domain.schedule.dto.ReadAllScheduleDto;
 import com.gnims.project.domain.schedule.dto.ReadOneScheduleDto;
+import com.gnims.project.domain.schedule.dto.ReadPendingDto;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.domain.schedule.entity.ScheduleStatus;
 import org.springframework.data.domain.Page;
@@ -29,10 +30,19 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.dDay, u.username, u.profileImage) from Schedule s " +
             "join s.event e " +
             "join s.user u " +
-            "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
+            "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId " +
+            "and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false and e.dDay >= 0")
     List<ReadAllScheduleDto> readAllSchedule(Long userId);
+
+
+    @Query(value = "select u2.username, e.event_id, e.date, e.time, e.card_color, e.subject from schedule s " +
+            "join users u on s.user_id = u.id " +
+            "join event e on s.event_id = e.event_id " +
+            "join users u2 on u2.id = e.create_by " +
+            "where u.id = 2 and s.schedule_status ='PENDING';",nativeQuery = true)
+    List<ReadPendingDto> readAllPendingSchedule(Long userId);
 
     /**
      * 전체 조회 페이징 처리

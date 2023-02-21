@@ -163,9 +163,6 @@ public class ScheduleService {
         );
     }
 
-    /**
-     * 최적화 필요
-     */
     public List<ReadPastAllResponse> readPendingSchedule(Long userId) {
         List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndScheduleStatusIs(userId, PENDING);
 
@@ -178,6 +175,10 @@ public class ScheduleService {
                 s.getEvent().getCardColor(),
                 s.getEvent().getSubject(),
                 s.findInvitees())).collect(toList());
+    }
+
+    public List<ReadPendingDto> readPendingScheduleV2(Long userId) {
+        return scheduleRepository.readAllPendingSchedule(userId);
     }
 
     public List<ReadAllResponse> readPastSchedule(Long userId) {

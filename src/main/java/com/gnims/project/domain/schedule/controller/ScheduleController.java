@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.gnims.project.domain.schedule.service.ScheduleService.*;
 import static com.gnims.project.util.ResponseMessage.*;
 import static org.springframework.http.HttpStatus.*;
 
@@ -68,6 +67,13 @@ public class ScheduleController {
     public ResponseEntity<ReadScheduleResult> readPendingSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
         List<ReadPastAllResponse> responses = scheduleService.readPendingSchedule(userId);
+        return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PENDING_SCHEDULE_MESSAGE, responses), OK);
+    }
+
+    @GetMapping("/v2/events/pending")
+    public ResponseEntity<ReadScheduleResult> readPendingScheduleV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long userId = userDetails.receiveUserId();
+        List<ReadPendingDto> responses = scheduleService.readPendingScheduleV2(userId);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PENDING_SCHEDULE_MESSAGE, responses), OK);
     }
 
