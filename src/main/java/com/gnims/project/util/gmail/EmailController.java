@@ -1,8 +1,10 @@
 package com.gnims.project.util.gmail;
 
 import com.gnims.project.domain.user.dto.SimpleMessageResult;
+import com.gnims.project.util.validation.ValidationSequence;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +19,7 @@ public class EmailController {
     private final EmailServiceImpl emailServiceImpl;
 
     @PatchMapping("/email/password")
-    public ResponseEntity<SimpleMessageResult> updatePassword(@RequestBody EmailPasswordDto request)  throws Exception {
+    public ResponseEntity<SimpleMessageResult> updatePassword(@Validated(ValidationSequence.class) @RequestBody EmailPasswordDto request)  throws Exception {
 
         emailServiceImpl.updatePassword(request);
 
