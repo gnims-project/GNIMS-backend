@@ -18,6 +18,8 @@ public class ExceptionMessage {
     public static final String USERNAME_EMPTY_MESSAGE = "이름은 필수 입력 값입니다.";
     public static final String EMAIL_EMPTY_MESSAGE = "이메일은 필수 입력 값입니다.";
     public static final String PASSWORD_EMPTY_MESSAGE = "비밀번호는 필수 입력 값입니다.";
+    public static final String OLD_PASSWORD_EMPTY_MESSAGE = "현재 비밀번호는 필수 입력 값입니다.";
+    public static final String NEW_PASSWORD_EMPTY_MESSAGE = "새 비밀번호는 필수 입력 값입니다.";
 
     //Jwt 토큰
     public static final String INVALID_TOKEN_ERROR = "Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.";
