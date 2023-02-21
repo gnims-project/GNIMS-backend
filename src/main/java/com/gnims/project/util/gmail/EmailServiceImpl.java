@@ -4,8 +4,7 @@ import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.mail.MailException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +15,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
+
+import static com.gnims.project.exception.dto.ExceptionMessage.*;
 
 @Slf4j
 @Service
@@ -30,32 +32,34 @@ public class EmailServiceImpl{
     private final EmailRepository emailRepository;
     private final UserRepository userRepository;
 
+    @Value("${AdminMail.id}")
+    private String hostEmail;
+
     @Transactional
     public void updatePassword(EmailPasswordDto request) {
 
-        log.info("이메일 링크 확인 중");
-
-        //인증 정보가 존재하지 않음
-        EmailValidation emailValidation = emailRepository.findByLink(request.getCode()).orElseThrow(
-                () -> new IllegalArgumentException("인증 실패 / 인증 코드가 유효하지 않습니다.")
+        //해당 이메일의 인증 정보가 없을 때
+        EmailValidation emailValidation = emailRepository.findByEmail(request.getEmail()).orElseThrow(
+                () -> new IllegalArgumentException(INVALID_CODE_ERROR)
         );
 
-        //이메일 존재 유무 확인
+        //인증 상태가 false 일때
+        if(!emailValidation.getIsChecked()) {
+            throw new IllegalArgumentException(UNAUTHENTICATED_EMAIL_ERROR);
+        }
+
+        //DB에 해당 이메일이 없을 때
         userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
-                () -> new IllegalArgumentException("해당 이메일의 유저가 존재하지 않습니다.")
+                () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
         )
         //암호화 후 저장
         .updatePassword(passwordEncoder.encode(request.getPassword()));
 
-        emailRepository.delete(emailValidation);
-
-        log.info("이메일 인증 완료");
+        emailRepository.deleteByEmail(request.getEmail());
     }
 
     private MimeMessage createMessage(String to, String link, String email)throws Exception{
 
-        System.out.println("보내는 대상 : " + to);
-        System.out.println("인증 번호 : " + link);
         MimeMessage  message = emailSender.createMimeMessage();
 
         message.addRecipients(RecipientType.TO, email);//보내는 대상
@@ -78,7 +82,7 @@ public class EmailServiceImpl{
 //        msgg+= "인증코드 : ";                           //프론트에서 받고 다시 백엔드로 link, email 이랑 재설정한 비밀번호를 넘김
         msgg+= "</div>";                                                            //백에서 link 로 인증유저임을 확인하고(이 로직이 없을경우 임의의유저가 인증없이 비밀번호를 바꾸는 가능성이생김)
         message.setText(msgg, "utf-8", "html");//내용
-        message.setFrom(new InternetAddress("ymwoo1023@gmail.com","그님스"));//보내는 사람
+        message.setFrom(new InternetAddress(hostEmail,"그님스"));//보내는 사람
 
         return message;
     }
@@ -128,20 +132,46 @@ public class EmailServiceImpl{
     public String sendSimpleMessage(String to, String email) throws Exception {
 
         // TODO Auto-generated method stub
-        String link = createLink(email);
-        MimeMessage message = createMessage(to, link, email);
+        String code = createLink(email);
+        MimeMessage message = createMessage(to, code, email);
         try{//예외처리
-            EmailValidation emailValidation = new EmailValidation(link);
-            emailRepository.save(emailValidation);
+            Optional<EmailValidation> byEmail = emailRepository.findByEmail(email);
+
+            if(byEmail.isPresent()) {
+                byEmail.get().isCheckedFalse();
+            }
+
+            else {
+                EmailValidation emailValidation = new EmailValidation(code, email);
+                emailRepository.save(emailValidation);
+            }
             emailSender.send(message);
-        }catch(MailException es){
+        }/*catch(MailException es){
             es.printStackTrace();
-            throw new IllegalArgumentException("이메일 발송 오류입니다.");
+            throw new IllegalArgumentException(POSTING_EMAIL_ERROR);
         } catch(DataIntegrityViolationException es) {
             throw new IllegalArgumentException("이미 존재하는 이메일 입니다.");
+        }*/
+        catch (Exception es) {
+            es.printStackTrace();
+            throw new IllegalArgumentException(POSTING_EMAIL_ERROR);
         }
-        return link;
+        return code;
     }
 
+    @Transactional
+    public void checkCode(AuthCodeDto request) {
+
+        EmailValidation emailValidation = emailRepository.findByEmail(request.getEmail()).orElseThrow(
+                () -> new IllegalArgumentException(INVALID_CODE_ERROR)
+        );
+
+        if(!emailValidation.getCode().equals(request.getCode())) {
+            throw new IllegalArgumentException(INVALID_CODE_ERROR);
+        }
+
+        //인증 상태를 true로 바꿈
+        emailValidation.isCheckedTrue();
+    }
 }
 

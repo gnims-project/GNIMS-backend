@@ -6,13 +6,16 @@ import lombok.Getter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+import static com.gnims.project.exception.dto.ExceptionMessage.NICKNAME_EMPTY_MESSAGE;
+import static com.gnims.project.exception.dto.ExceptionMessage.NICKNAME_ERROR_MESSAGE;
+
 @Getter
 public class NicknameDto {
 
-    @NotBlank(message = "닉네임을 적어 주세요",
+    @NotBlank(message = NICKNAME_EMPTY_MESSAGE,
             groups = ValidationGroups.NotNullGroup.class)
     @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,8}$",
             groups = ValidationGroups.PatternCheckGroup.class,
-            message = "특수문자를 제외한 2 ~ 8 자리의 닉네임만 가능합니다.")
+            message = NICKNAME_ERROR_MESSAGE)
     private String nickname;
 }

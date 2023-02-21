@@ -328,15 +328,13 @@ public class UserService {
 //    }
 
     @Transactional
-    public void authPassword(NicknameEmailDto request) throws Exception {
+    public void authPassword(AuthEmailDto request) throws Exception {
 
-        Optional<User> user = userRepository.findByNickname(request.getNickname());
+        User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
+                () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
+        );
 
-        if(user.isEmpty() || !(request.getEmail()).equals(user.get().makePureEmail())) {
-            throw new IllegalArgumentException(MISMATCH_NICKNAME_OR_EMAIL);
-        }
-
-        emailServiceImpl.sendSimpleMessage(request.getNickname(), request.getEmail());
+        emailServiceImpl.sendSimpleMessage(user.getNickname(), request.getEmail());
     }
 
     @Transactional
