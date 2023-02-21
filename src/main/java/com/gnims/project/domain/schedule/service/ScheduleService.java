@@ -177,8 +177,16 @@ public class ScheduleService {
                 s.findInvitees())).collect(toList());
     }
 
-    public List<ReadPendingDto> readPendingScheduleV2(Long userId) {
-        return scheduleRepository.readAllPendingSchedule(userId);
+    public List<ReadPendingResponse> readPendingScheduleV2(Long userId) {
+        List<ReadPendingDto> schedules = scheduleRepository.readAllPendingSchedule(userId);
+
+        return schedules.stream().map(s -> new ReadPendingResponse(
+                s.getEvent_Id(),
+                s.getUsername(),
+                s.getDate(),
+                s.getTime(),
+                s.getCard_Color(),
+                s.getSubject())).collect(toList());
     }
 
     public List<ReadAllResponse> readPastSchedule(Long userId) {

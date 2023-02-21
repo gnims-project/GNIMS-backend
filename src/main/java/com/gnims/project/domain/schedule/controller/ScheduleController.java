@@ -73,7 +73,7 @@ public class ScheduleController {
     @GetMapping("/v2/events/pending")
     public ResponseEntity<ReadScheduleResult> readPendingScheduleV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
-        List<ReadPendingDto> responses = scheduleService.readPendingScheduleV2(userId);
+        List<ReadPendingResponse> responses = scheduleService.readPendingScheduleV2(userId);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PENDING_SCHEDULE_MESSAGE, responses), OK);
     }
 
