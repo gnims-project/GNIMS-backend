@@ -3,6 +3,7 @@ package com.gnims.project.domain.user.service;
 import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,11 @@ public class SocialSignupTest {
     PlatformTransactionManager transactionManager;
 
     TransactionStatus status = null;
+
+    @BeforeEach
+    void beforeEach() throws Exception {
+        userRepository.deleteAll();
+    }
 
     @DisplayName("소셜가입 성공 - 상태코드 201, 성공 메세지를 반환, db에 저장")
     @Test
