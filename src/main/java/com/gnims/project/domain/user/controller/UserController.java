@@ -120,7 +120,7 @@ public class UserController {
     }
 
     //최적화 v1 검색
-    @GetMapping("/user/search")
+    @GetMapping("/users/search")
     public ResponseEntity<ReadScheduleResult> search(@RequestParam(value = "username") String username,
                                                      @RequestParam(value = "page") Integer page,
                                                      @RequestParam(value = "size") Integer size,
