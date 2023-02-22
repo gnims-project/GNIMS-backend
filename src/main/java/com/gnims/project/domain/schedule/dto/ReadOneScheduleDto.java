@@ -6,28 +6,24 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Getter
-public class EventAllQueryDto {
+public class ReadOneScheduleDto {
     private Long eventId;
     private LocalDate date;
     private LocalTime time;
     private String cardColor;
     private String subject;
+    private String content;
     private Long dDay;
     private String username;
-    private String profile;
 
-    public EventAllQueryDto(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, Long dDay, String username, String profile) {
+    public ReadOneScheduleDto(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, String content, Long dDay, String username) {
         this.eventId = eventId;
         this.date = date;
         this.time = time;
         this.cardColor = cardColor;
         this.subject = subject;
+        this.content = content;
         this.dDay = dDay;
         this.username = username;
-        this.profile = profile;
-    }
-
-    public boolean isSameEventId(Long eventId) {
-        return this.eventId.equals(eventId);
     }
 }

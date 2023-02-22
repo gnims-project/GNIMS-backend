@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.gnims.project.domain.schedule.service.ScheduleService.*;
 import static com.gnims.project.util.ResponseMessage.*;
 import static org.springframework.http.HttpStatus.*;
 
@@ -41,11 +40,12 @@ public class ScheduleController {
     //스케줄 전체 조회 최적화 진행중 - Paging, dto 버전 **한방쿼리**
     @GetMapping("/v2-page/users/{user-id}/events")
     public ResponseEntity<PageableReadScheduleResult> readAllSchedulePageV3(@PathVariable("user-id") Long followId,
-                                                                  @RequestParam Integer page,
-                                                                  @RequestParam Integer size) {
+                                                                            @RequestParam Integer page,
+                                                                            @RequestParam Integer size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        TempResponse tempResponse = scheduleService.readAllSchedulePage(followId, pageRequest);
-        return new ResponseEntity<>(new PageableReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, tempResponse.getSize(),tempResponse.getData()), OK);
+        PageableReadResponse response = scheduleService.readAllSchedulePage(followId, pageRequest);
+        return new ResponseEntity<>(new PageableReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE,
+                response.getSize(), response.getData()), OK);
     }
 
     //스케줄 단건 조회 - 기본 버전
@@ -70,11 +70,18 @@ public class ScheduleController {
         return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PENDING_SCHEDULE_MESSAGE, responses), OK);
     }
 
+    @GetMapping("/v2/events/pending")
+    public ResponseEntity<ReadScheduleResult> readPendingScheduleV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long userId = userDetails.receiveUserId();
+        List<ReadPendingResponse> responses = scheduleService.readPendingScheduleV2(userId);
+        return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PENDING_SCHEDULE_MESSAGE, responses), OK);
+    }
+
     // 과거 스케줄 조회
     @GetMapping("/events/past")
     public ResponseEntity<ReadScheduleResult> readPastScheduleV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
-        List<ReadAllResponse> responses = scheduleService.readPastScheduleV2(userId);
+        List<ReadAllResponse> responses = scheduleService.readPastSchedule(userId);
         return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PAST_SCHEDULE_MESSAGE, responses), OK);
     }
 
