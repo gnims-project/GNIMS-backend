@@ -15,6 +15,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.gnims.project.exception.dto.ExceptionMessage.*;
@@ -35,8 +36,7 @@ public class EmailServiceImpl{
     @Value("${AdminMail.id}")
     private String hostEmail;
 
-    @Transactional
-    public void updatePassword(EmailPasswordDto request) {
+   public void updatePassword(EmailPasswordDto request) {
 
         //해당 이메일의 인증 정보가 없을 때
         EmailValidation emailValidation = emailRepository.findByEmail(request.getEmail()).orElseThrow(
@@ -48,14 +48,21 @@ public class EmailServiceImpl{
             throw new IllegalArgumentException(UNAUTHENTICATED_EMAIL_ERROR);
         }
 
+       //인증 후 3 시간 이상 지날 시 인증 실패, 인증 메일 삭제
+       if(emailValidation.getModifiedAt().isBefore(LocalDateTime.now().minusHours(3))) {
+           emailRepository.delete(emailValidation);
+           throw new IllegalArgumentException(INVALID_CODE_ERROR);
+       }
+
         //DB에 해당 이메일이 없을 때
         userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
         )
         //암호화 후 저장
         .updatePassword(passwordEncoder.encode(request.getPassword()));
+        emailRepository.flush();
 
-        emailRepository.deleteByEmail(request.getEmail());
+        emailRepository.delete(emailValidation);
     }
 
     private MimeMessage createMessage(String to, String link, String email)throws Exception{
@@ -69,7 +76,8 @@ public class EmailServiceImpl{
         msgg+= "<div style='margin:100px;'>";
         msgg+= "<h1> 안녕하세요 그님스입니다. </h1>";
         msgg+= "<br>";
-        msgg+= "<p>>" + to + " 님의 메일 인증을 위해 아래 코드를 사용해주세요.<p>";
+        msgg+= "<p><" + to + "> 님의 그님스 인증을 위해 아래 코드를 사용해주세요.<p>";
+        msgg+= "<p>인증 후 3 시간 이내에 비밀번호를 재설정 해주세요.<p>";
         msgg+= "<br>";
         msgg+= "<p>감사합니다!<p>";
         msgg+= "<br>";
@@ -166,7 +174,14 @@ public class EmailServiceImpl{
                 () -> new IllegalArgumentException(INVALID_CODE_ERROR)
         );
 
+        //인증 코드가 일치하지 않을 때
         if(!emailValidation.getCode().equals(request.getCode())) {
+            throw new IllegalArgumentException(INVALID_CODE_ERROR);
+        }
+
+        //3분이 지낫을 시 인증 실패, DB에서 인증정보 삭제
+        if(emailValidation.getCreateAt().isBefore(LocalDateTime.now().minusMinutes(3))) {
+            emailRepository.delete(emailValidation);
             throw new IllegalArgumentException(INVALID_CODE_ERROR);
         }
 
