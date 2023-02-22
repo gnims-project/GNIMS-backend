@@ -1,4 +1,4 @@
-package com.gnims.project.util.gmail;
+package com.gnims.project.share.gmail;
 
 import lombok.Getter;
 

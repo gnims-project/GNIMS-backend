@@ -4,7 +4,7 @@ import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.schedule.dto.ReadAllUserDto;
 import com.gnims.project.domain.user.entity.User;
 
-import com.gnims.project.util.TimeStamped;
+import com.gnims.project.share.persistence.superclass.TimeStamped;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

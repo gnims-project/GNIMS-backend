@@ -1,13 +1,13 @@
-package com.gnims.project.util.gmail;
+package com.gnims.project.share.gmail;
 
-import com.gnims.project.util.validation.ValidationGroups;
+import com.gnims.project.share.validation.ValidationGroups;
 import lombok.Getter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
-import static com.gnims.project.exception.dto.ExceptionMessage.PASSWORD_EMPTY_MESSAGE;
-import static com.gnims.project.exception.dto.ExceptionMessage.PASSWORD_ERROR_MESSAGE;
+import static com.gnims.project.share.message.ExceptionMessage.PASSWORD_EMPTY_MESSAGE;
+import static com.gnims.project.share.message.ExceptionMessage.PASSWORD_ERROR_MESSAGE;
 
 @Getter
 public class EmailPasswordDto {

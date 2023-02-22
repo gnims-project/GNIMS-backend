@@ -1,4 +1,4 @@
-package com.gnims.project.util.validation;
+package com.gnims.project.share.validation;
 
 public class ValidationGroups {
     public interface NotNullGroup {};

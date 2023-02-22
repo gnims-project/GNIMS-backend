@@ -1,7 +1,7 @@
 package com.gnims.project.scheduler;
 
 import com.gnims.project.domain.event.repository.EventRepository;
-import com.gnims.project.util.gmail.EmailRepository;
+import com.gnims.project.share.gmail.EmailRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

@@ -23,8 +23,8 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gnims.project.exception.dto.ExceptionMessage.EXTENSION_ERROR_MESSAGE;
-import static com.gnims.project.util.ResponseMessage.PROFILE_UPDATE_SUCCESS_MESSAGE;
+import static com.gnims.project.share.message.ExceptionMessage.EXTENSION_ERROR_MESSAGE;
+import static com.gnims.project.share.message.ResponseMessage.PROFILE_UPDATE_SUCCESS_MESSAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 

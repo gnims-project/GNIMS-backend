@@ -1,4 +1,4 @@
-package com.gnims.project.util;
+package com.gnims.project.share.message;
 
 public class ResponseMessage {
 

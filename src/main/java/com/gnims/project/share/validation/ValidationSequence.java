@@ -1,7 +1,7 @@
-package com.gnims.project.util.validation;
+package com.gnims.project.share.validation;
 
-import com.gnims.project.util.validation.ValidationGroups.NotNullGroup;
-import com.gnims.project.util.validation.ValidationGroups.PatternCheckGroup;
+import com.gnims.project.share.validation.ValidationGroups.NotNullGroup;
+import com.gnims.project.share.validation.ValidationGroups.PatternCheckGroup;
 
 import javax.validation.GroupSequence;
 

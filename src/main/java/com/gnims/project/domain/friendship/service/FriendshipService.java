@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
-import static com.gnims.project.exception.dto.ExceptionMessage.NOT_EXISTED_USER;
+import static com.gnims.project.share.message.ExceptionMessage.NOT_EXISTED_USER;
 import static java.util.stream.Collectors.*;
 
 @Service

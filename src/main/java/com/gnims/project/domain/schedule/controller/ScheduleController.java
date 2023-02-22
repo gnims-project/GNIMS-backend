@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-import static com.gnims.project.util.ResponseMessage.*;
+import static com.gnims.project.share.message.ResponseMessage.*;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController

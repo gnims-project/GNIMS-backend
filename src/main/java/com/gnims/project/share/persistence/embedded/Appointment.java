@@ -1,4 +1,4 @@
-package com.gnims.project.util.embedded;
+package com.gnims.project.share.persistence.embedded;
 
 import com.gnims.project.domain.schedule.dto.ScheduleForm;
 import com.gnims.project.domain.schedule.dto.ScheduleServiceForm;
