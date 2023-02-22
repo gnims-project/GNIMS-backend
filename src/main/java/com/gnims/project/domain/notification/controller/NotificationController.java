@@ -56,14 +56,11 @@ public class NotificationController {
             SseEmitter sseEmitter = sseEmitters.get(participantsId);
             try {
                 log.info("이벤트 리스너 {}, {}", form.getSubject(), form.getParticipantsId());
-//                sseEmitter.send(SseEmitter.event()
-//                        .name("connect")
-//                        .data(form, MediaType.APPLICATION_JSON));
 
                 String message = form.getUsername() + "님께서 " + form.getSubject() + " 일정에 초대하셨습니다.";
 
                 sseEmitter.send(SseEmitter.event()
-                        .name("connect")
+                        .name("invite")
                         .data(message,
                                 MediaType.APPLICATION_JSON));
                 notificationService.create(form.getId(), participantsId, message);
