@@ -1,6 +1,7 @@
 package com.gnims.project.util.embedded;
 
 import com.gnims.project.domain.schedule.dto.ScheduleForm;
+import com.gnims.project.domain.schedule.dto.ScheduleServiceForm;
 import com.gnims.project.domain.schedule.dto.UpdateForm;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,11 @@ public class Appointment {
     }
 
     public Appointment(UpdateForm form) {
+        this.date = form.getDate();
+        this.time = form.getTime();
+    }
+
+    public Appointment(ScheduleServiceForm form) {
         this.date = form.getDate();
         this.time = form.getTime();
     }

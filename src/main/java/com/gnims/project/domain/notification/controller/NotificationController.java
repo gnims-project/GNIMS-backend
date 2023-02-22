@@ -1,7 +1,8 @@
 package com.gnims.project.domain.notification.controller;
 
-import com.gnims.project.domain.schedule.dto.ScheduleForm;
+import com.gnims.project.domain.notification.service.NotificationService;
 import com.gnims.project.domain.notification.repository.SseEmitterManager;
+import com.gnims.project.domain.schedule.dto.ScheduleServiceForm;
 import com.gnims.project.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -21,9 +23,11 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Transactional
 public class NotificationController {
 
     private final SseEmitterManager sseEmitterManager;
+    private final NotificationService notificationService;
 
     @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter connect(@AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -38,24 +42,31 @@ public class NotificationController {
      */
     @Async
     @EventListener
-    public void helloPush(ScheduleForm scheduleForm) {
+    public void helloPush(ScheduleServiceForm form) {
         log.info("이벤트 리스너의 살기 감지!");
-        List<Long> participantsIds = scheduleForm.getParticipantsId();
-        sendAlarm(scheduleForm, participantsIds);
+        List<Long> participantsIds = form.getParticipantsId();
+        sendScheduleAlarm(form, participantsIds);
     }
 
 
-    private void sendAlarm(ScheduleForm scheduleForm, List<Long> participantsIds) {
+    private void sendScheduleAlarm(ScheduleServiceForm form, List<Long> participantsIds) {
 
         for (Long participantsId : participantsIds) {
             Map<Long, SseEmitter> sseEmitters = sseEmitterManager.getSseEmitters();
             SseEmitter sseEmitter = sseEmitters.get(participantsId);
             try {
-                log.info("이벤트 리스너 {}, {}", scheduleForm.getSubject(), scheduleForm.getParticipantsId());
-                sseEmitter.send(scheduleForm, MediaType.APPLICATION_JSON);
+                log.info("이벤트 리스너 {}, {}", form.getSubject(), form.getParticipantsId());
+//                sseEmitter.send(SseEmitter.event()
+//                        .name("connect")
+//                        .data(form, MediaType.APPLICATION_JSON));
+
+                String message = form.getUsername() + "님께서 " + form.getSubject() + " 일정에 초대하셨습니다.";
+
                 sseEmitter.send(SseEmitter.event()
                         .name("connect")
-                        .data(scheduleForm.getSubject() + "에 초대하셨습니다."));
+                        .data(message,
+                                MediaType.APPLICATION_JSON));
+                notificationService.create(form.getId(), participantsId, message);
 
             } catch (IOException e) {
                 log.info("IO exception");
