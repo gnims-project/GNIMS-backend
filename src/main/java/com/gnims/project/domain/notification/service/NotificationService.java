@@ -14,9 +14,9 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
 
-    public void create(Long accepterId, Long senderId, String message) {
+    public Notification create(Long accepterId, Long senderId, String message) {
         User accepter = userRepository.findById(accepterId).get();
         Notification notification = new Notification(accepter.getUsername(), message, senderId);
-        notificationRepository.save(notification);
+        return notificationRepository.save(notification);
     }
 }
