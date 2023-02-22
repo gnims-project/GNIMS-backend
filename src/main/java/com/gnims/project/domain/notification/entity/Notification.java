@@ -1,5 +1,6 @@
 package com.gnims.project.domain.notification.entity;
 
+import com.gnims.project.util.TimeStamped;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import javax.persistence.*;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Notification {
+public class Notification extends TimeStamped {
 
     @Id
     @Column(name = "notification_id")
