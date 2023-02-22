@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.gnims.project.exception.dto.ExceptionMessage.TOKEN_ERROR;
+import static com.gnims.project.share.message.ExceptionMessage.TOKEN_ERROR;
 
 @Slf4j
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package com.gnims.project.util.gmail;
+package com.gnims.project.share.gmail;
 
 import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -18,7 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static com.gnims.project.share.message.ExceptionMessage.*;
 
 @Slf4j
 @Service

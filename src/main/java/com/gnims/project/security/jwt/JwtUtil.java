@@ -19,7 +19,7 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
-import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static com.gnims.project.share.message.ExceptionMessage.*;
 
 @Slf4j
 @Component

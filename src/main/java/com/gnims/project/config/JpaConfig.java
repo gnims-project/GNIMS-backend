@@ -1,6 +1,6 @@
 package com.gnims.project.config;
 
-import com.gnims.project.util.Auditor;
+import com.gnims.project.share.persistence.superclass.Auditor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;

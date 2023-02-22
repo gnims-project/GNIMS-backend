@@ -7,7 +7,7 @@ import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
-import com.gnims.project.util.embedded.Appointment;
+import com.gnims.project.share.persistence.embedded.Appointment;
 import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
-import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static com.gnims.project.share.message.ExceptionMessage.*;
 import static java.util.stream.Collectors.*;
 
 @Slf4j
@@ -35,6 +35,32 @@ public class ScheduleService {
 
     public void makeSchedule(ScheduleForm form, Long userId) {
         //이벤트 엔티티 생성 및 저장
+        Event event = eventRepository.save(new Event(new Appointment(form), form));
+        //주최자 스케줄 처리 -> 주최자는 자동 일정에 자동 참여
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException(NOT_EXISTED_USER));
+        Schedule hostSchedule = new Schedule(user, event);
+        hostSchedule.decideScheduleStatus(ACCEPT);
+        //개인 스케줄일 경우
+        if (isPersonalSchedule(form, userId)) {
+            scheduleRepository.save(hostSchedule);
+            return;
+        }
+        //초대된 사용자 목록
+        List<User> users = userRepository.findAllById(form.getParticipantsId());
+        //User 들이 팔로우 인지 확인할 필요성 있음 (개선 버전에서 추가)
+        //스케쥴 엔티티 생성 및 저장
+        List<Schedule> schedules = users.stream()
+                //자기 자신이 participants 목록에 들어갈 경우 필터링
+                .filter(u -> !userId.equals(u.getId()))
+                .map(u -> new Schedule(u, event)).collect(toList());
+        schedules.add(hostSchedule);
+        scheduleRepository.saveAll(schedules);
+    }
+
+    public void makeScheduleV2(ScheduleServiceForm form) {
+        //이벤트 엔티티 생성 및 저장
+        Long userId = form.getId();
         Event event = eventRepository.save(new Event(new Appointment(form), form));
         //주최자 스케줄 처리 -> 주최자는 자동 일정에 자동 참여
         User user = userRepository.findById(userId).orElseThrow(
@@ -260,6 +286,11 @@ public class ScheduleService {
     }
 
     private static boolean isPersonalSchedule(ScheduleForm form, Long userId) {
+        return form.getParticipantsId().isEmpty() ||
+                (form.getParticipantsId().size() == 1 && form.getParticipantsId().get(0).equals(userId));
+    }
+
+    private static boolean isPersonalSchedule(ScheduleServiceForm form, Long userId) {
         return form.getParticipantsId().isEmpty() ||
                 (form.getParticipantsId().size() == 1 && form.getParticipantsId().get(0).equals(userId));
     }

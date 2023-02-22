@@ -5,7 +5,7 @@ import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
 import com.gnims.project.security.service.UserDetailsImpl;
 import com.gnims.project.social.dto.SocialSignupDto;
-import com.gnims.project.util.validation.ValidationSequence;
+import com.gnims.project.share.validation.ValidationSequence;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-import static com.gnims.project.util.ResponseMessage.*;
+import static com.gnims.project.share.message.ResponseMessage.*;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 

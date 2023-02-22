@@ -1,7 +1,7 @@
 package com.gnims.project.domain.friendship.entity;
 
 import com.gnims.project.domain.user.entity.User;
-import com.gnims.project.util.TimeStamped;
+import com.gnims.project.share.persistence.superclass.TimeStamped;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

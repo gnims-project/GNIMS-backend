@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileInputStream;
 
-import static com.gnims.project.exception.dto.ExceptionMessage.*;
-import static com.gnims.project.util.ResponseMessage.SIGNUP_SUCCESS_MESSAGE;
+import static com.gnims.project.share.message.ExceptionMessage.*;
+import static com.gnims.project.share.message.ResponseMessage.SIGNUP_SUCCESS_MESSAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 /**

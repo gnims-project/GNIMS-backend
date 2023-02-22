@@ -13,7 +13,7 @@ import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
 import com.gnims.project.social.dto.SocialSignupDto;
-import com.gnims.project.util.gmail.EmailServiceImpl;
+import com.gnims.project.share.gmail.EmailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.gnims.project.exception.dto.ExceptionMessage.*;
-import static com.gnims.project.util.ResponseMessage.CHECK_EMAIL_MESSAGE;
-import static com.gnims.project.util.ResponseMessage.CHECK_NICKNAME_MESSAGE;
+import static com.gnims.project.share.message.ExceptionMessage.*;
+import static com.gnims.project.share.message.ResponseMessage.CHECK_EMAIL_MESSAGE;
+import static com.gnims.project.share.message.ResponseMessage.CHECK_NICKNAME_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
