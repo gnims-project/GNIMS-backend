@@ -17,8 +17,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.gnims.project.exception.dto.ExceptionMessage.*;
-import static com.gnims.project.util.ResponseMessage.PASSWORD_UPDATE_SUCCESS_MESSAGE;
+import static com.gnims.project.share.message.ExceptionMessage.*;
+import static com.gnims.project.share.message.ResponseMessage.PASSWORD_UPDATE_SUCCESS_MESSAGE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 

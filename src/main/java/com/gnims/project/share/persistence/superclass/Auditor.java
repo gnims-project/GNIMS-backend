@@ -1,4 +1,4 @@
-package com.gnims.project.util;
+package com.gnims.project.share.persistence.superclass;
 
 import com.gnims.project.security.service.UserDetailsImpl;
 import lombok.extern.slf4j.Slf4j;

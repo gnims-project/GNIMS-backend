@@ -14,8 +14,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.gnims.project.exception.dto.ExceptionMessage.MISMATCH_EMAIL_OR_PASSWORD;
-import static com.gnims.project.util.ResponseMessage.LOGIN_SUCCESS_MESSAGE;
+import static com.gnims.project.share.message.ExceptionMessage.MISMATCH_EMAIL_OR_PASSWORD;
+import static com.gnims.project.share.message.ResponseMessage.LOGIN_SUCCESS_MESSAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

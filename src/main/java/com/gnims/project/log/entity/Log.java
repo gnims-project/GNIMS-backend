@@ -1,6 +1,6 @@
-package com.gnims.project.util.log.entity;
+package com.gnims.project.log.entity;
 
-import com.gnims.project.util.BaseEntity;
+import com.gnims.project.share.persistence.superclass.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

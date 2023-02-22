@@ -7,7 +7,7 @@ import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
-import com.gnims.project.util.embedded.Appointment;
+import com.gnims.project.share.persistence.embedded.Appointment;
 import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
-import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static com.gnims.project.share.message.ExceptionMessage.*;
 import static java.util.stream.Collectors.*;
 
 @Slf4j

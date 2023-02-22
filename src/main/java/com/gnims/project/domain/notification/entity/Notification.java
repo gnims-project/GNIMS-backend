@@ -1,6 +1,6 @@
 package com.gnims.project.domain.notification.entity;
 
-import com.gnims.project.util.TimeStamped;
+import com.gnims.project.share.persistence.superclass.TimeStamped;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

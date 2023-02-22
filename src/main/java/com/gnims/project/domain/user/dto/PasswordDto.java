@@ -1,13 +1,13 @@
 package com.gnims.project.domain.user.dto;
 
-import com.gnims.project.util.validation.ValidationGroups;
+import com.gnims.project.share.validation.ValidationGroups;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
-import static com.gnims.project.exception.dto.ExceptionMessage.*;
+import static com.gnims.project.share.message.ExceptionMessage.*;
 
 @Getter
 @NoArgsConstructor

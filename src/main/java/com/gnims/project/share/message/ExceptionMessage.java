@@ -1,4 +1,4 @@
-package com.gnims.project.exception.dto;
+package com.gnims.project.share.message;
 
 public class ExceptionMessage {
 

@@ -1,7 +1,7 @@
-package com.gnims.project.util.log.advice;
+package com.gnims.project.log.advice;
 
-import com.gnims.project.util.log.entity.Log;
-import com.gnims.project.util.log.repository.LogRepository;
+import com.gnims.project.log.entity.Log;
+import com.gnims.project.log.repository.LogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;

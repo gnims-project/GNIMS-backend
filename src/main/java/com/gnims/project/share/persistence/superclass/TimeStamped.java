@@ -1,4 +1,4 @@
-package com.gnims.project.util;
+package com.gnims.project.share.persistence.superclass;
 
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;

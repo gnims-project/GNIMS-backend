@@ -1,6 +1,6 @@
-package com.gnims.project.util.gmail;
+package com.gnims.project.share.gmail;
 
-import com.gnims.project.util.TimeStamped;
+import com.gnims.project.share.persistence.superclass.TimeStamped;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

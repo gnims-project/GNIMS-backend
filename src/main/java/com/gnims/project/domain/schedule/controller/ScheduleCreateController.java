@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-import static com.gnims.project.util.ResponseMessage.CREATE_SCHEDULE_MESSAGE;
+import static com.gnims.project.share.message.ResponseMessage.CREATE_SCHEDULE_MESSAGE;
 
 @RestController
 @RequiredArgsConstructor
