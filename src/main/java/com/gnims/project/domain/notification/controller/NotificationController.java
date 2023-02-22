@@ -1,5 +1,6 @@
 package com.gnims.project.domain.notification.controller;
 
+import com.gnims.project.domain.notification.entity.Notification;
 import com.gnims.project.domain.notification.service.NotificationService;
 import com.gnims.project.domain.notification.repository.SseEmitterManager;
 import com.gnims.project.domain.schedule.dto.ScheduleServiceForm;
@@ -59,11 +60,11 @@ public class NotificationController {
 
                 String message = form.getUsername() + "님께서 " + form.getSubject() + " 일정에 초대하셨습니다.";
 
+                Notification notification = notificationService.create(form.getId(), participantsId, message);
+
                 sseEmitter.send(SseEmitter.event()
                         .name("invite")
-                        .data(message,
-                                MediaType.APPLICATION_JSON));
-                notificationService.create(form.getId(), participantsId, message);
+                        .data(notification, MediaType.APPLICATION_JSON));
 
             } catch (IOException e) {
                 log.info("IO exception");
