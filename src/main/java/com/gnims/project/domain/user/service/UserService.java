@@ -16,7 +16,6 @@ import com.gnims.project.social.dto.SocialSignupDto;
 import com.gnims.project.util.gmail.EmailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.gnims.project.exception.dto.ExceptionMessage.*;
 import static com.gnims.project.util.ResponseMessage.CHECK_EMAIL_MESSAGE;
@@ -255,61 +253,66 @@ public class UserService {
     * 검색 업그레이드 v2
     * */
     //본인 제외
+//
+//    //현재 정렬 ID 내림차순
+//    public List<SearchResponseDto> search(String username, PageRequest pageRequest, User user) {
+//
+////        System.out.println("nickname2 = " + user.getNickname());
+////
+////        if(nickname == null || "".equals(nickname) || nickname.length()>8) {
+////            throw new IllegalArgumentException("8자리 이하의 닉네임을 검색해 주세요!");
+////        }
+////
+////        nickname = nickname.trim();
+////
+////        //공백 제거
+////        String nickname2 = nickname.replace(" ", "");
+////
+////        char[] chars = nickname2.toCharArray();
+////
+////        nickname2 = "@?";
+////
+////        for(char char1: chars) {
+////            nickname2 = nickname2 + "[a-zA-Z0-9ㄱ-ㅎ가-힣]*";
+////            String checkChar = "" + char1;
+////            if(checkChar.matches("^[가-힣]$")) {
+////                nickname2 = nickname2 + char1;
+////                nickname2 = nickname2 + CHO.get((char1-'가')/28/21);
+////                continue;
+////            }
+////            nickname2 += char1;
+////        };
+////
+////        nickname2.replaceFirst("[a-zA-Z0-9ㄱ-ㅎ가-힣]*", "");
+////
+////        System.out.println("searchNickname = " + nickname2);
+//
+////        Page<User> users = userRepository.searchByRegExpKeyword(nickname2 + "@?", pageRequest);
+////        PageDto page = new PageDto(users);
+//
+//        Page<User> users = userRepository.findAllByUsernameLike("%" + username + "%", pageRequest);
+//
+//        List<SearchResponseDto> data = users.stream()
+//                .map(u -> new SearchResponseDto(u, !check(u, user)))
+//                .collect(Collectors.toList());
+//
+//
+////        List<SearchResponseDto> data = new ArrayList<>();
+////
+////        for(User u: users) {
+////            if (u.getId().equals(user.getId())) {
+////                continue;
+////            }
+////
+////            data.add(new SearchResponseDto(u, !check(u, user)));
+////        }
+//
+//        return data;
+//    }
 
-    //현재 정렬 ID 내림차순
-    public List<SearchResponseDto> search(String username, PageRequest pageRequest, User user) {
+    public List<SearchAllQueryDto> search(String username, User user, PageRequest pageRequest) {
 
-//        System.out.println("nickname2 = " + user.getNickname());
-//
-//        if(nickname == null || "".equals(nickname) || nickname.length()>8) {
-//            throw new IllegalArgumentException("8자리 이하의 닉네임을 검색해 주세요!");
-//        }
-//
-//        nickname = nickname.trim();
-//
-//        //공백 제거
-//        String nickname2 = nickname.replace(" ", "");
-//
-//        char[] chars = nickname2.toCharArray();
-//
-//        nickname2 = "@?";
-//
-//        for(char char1: chars) {
-//            nickname2 = nickname2 + "[a-zA-Z0-9ㄱ-ㅎ가-힣]*";
-//            String checkChar = "" + char1;
-//            if(checkChar.matches("^[가-힣]$")) {
-//                nickname2 = nickname2 + char1;
-//                nickname2 = nickname2 + CHO.get((char1-'가')/28/21);
-//                continue;
-//            }
-//            nickname2 += char1;
-//        };
-//
-//        nickname2.replaceFirst("[a-zA-Z0-9ㄱ-ㅎ가-힣]*", "");
-//
-//        System.out.println("searchNickname = " + nickname2);
-
-//        Page<User> users = userRepository.searchByRegExpKeyword(nickname2 + "@?", pageRequest);
-//        PageDto page = new PageDto(users);
-
-        Page<User> users = userRepository.findAllByUsernameLike("%" + username + "%", pageRequest);
-
-        List<SearchResponseDto> data = users.stream()
-                .map(u -> new SearchResponseDto(u, !check(u, user)))
-                .collect(Collectors.toList());
-
-
-//        List<SearchResponseDto> data = new ArrayList<>();
-//
-//        for(User u: users) {
-//            if (u.getId().equals(user.getId())) {
-//                continue;
-//            }
-//
-//            data.add(new SearchResponseDto(u, !check(u, user)));
-//        }
-
-        return data;
+        return userRepository.testsearch1("%" + username + "%", user.getUsername(), user.getId(), pageRequest);
     }
 
     /*

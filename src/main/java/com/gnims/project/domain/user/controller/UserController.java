@@ -91,17 +91,17 @@ public class UserController {
 //        return userService.testSearch(nickname/*, userDetails.getUser()*/);
 //    }
 
-    @GetMapping("/users/search")
-    public ResponseEntity<ReadScheduleResult> search(@RequestParam(value = "username") String username,
-                                                     @RequestParam(value = "page") Integer page,
-                                                     @RequestParam(value = "size") Integer size,
-                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        PageRequest pageRequest = PageRequest.of(page, size);
-        List<SearchResponseDto> response = userService.search(username, pageRequest, userDetails.getUser());
-
-        return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), USER_SEARCH_SUCCESS_MESSAGE, response), OK);
-    }
+//    @GetMapping("/users/search")
+//    public ResponseEntity<ReadScheduleResult> search(@RequestParam(value = "username") String username,
+//                                                     @RequestParam(value = "page") Integer page,
+//                                                     @RequestParam(value = "size") Integer size,
+//                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//
+//        PageRequest pageRequest = PageRequest.of(page, size);
+//        List<SearchResponseDto> response = userService.search(username, pageRequest, userDetails.getUser());
+//
+//        return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), USER_SEARCH_SUCCESS_MESSAGE, response), OK);
+//    }
 
     //이메일 인증을 날릴 api
     @PostMapping("/auth/password")
@@ -117,6 +117,19 @@ public class UserController {
         userService.updatePassword(request, userDetails.getUser());
 
         return new ResponseEntity<>(new SimpleMessageResult(OK.value(), PASSWORD_UPDATE_SUCCESS_MESSAGE), OK);
+    }
+
+    //최적화 v1 검색
+    @GetMapping("/users/search")
+    public ResponseEntity<ReadScheduleResult> search(@RequestParam(value = "username") String username,
+                                                     @RequestParam(value = "page") Integer page,
+                                                     @RequestParam(value = "size") Integer size,
+                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<SearchAllQueryDto> testsearch = userService.search(username, userDetails.getUser(), pageRequest);
+
+        return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), USER_SEARCH_SUCCESS_MESSAGE, testsearch), OK);
     }
 }
 
