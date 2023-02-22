@@ -24,10 +24,10 @@ public class EventScheduler {
 
     /**
      * 매일 0시에 d-day 작업
-     * DB 메일 테이블 비우기
      */
     @Scheduled(cron = "0 0 0 * * *")
     private void updateEventDDay() {
+
         try {
             eventRepository.updateDDay();
         }
@@ -36,6 +36,13 @@ public class EventScheduler {
             throw new RuntimeException("디디에 처리 오류 발생");
         }
         log.info("[디데이 처리가 완료되었습니다]");
+    }
+
+    /**
+     * DB 메일 테이블 비우기
+     */
+    @Scheduled(cron = "0 0 0 * * *")
+    private void deleteAuthMail() {
 
         try {
             emailRepository.deleteByCreateAtBefore(LocalDateTime.now().minusMinutes(183));
