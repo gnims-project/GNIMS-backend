@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false and e.dDay >= 0")
-    List<ReadAllScheduleDto> readAllSchedule(Long userId);
+    List<ReadAllScheduleDto> readAllSchedule(@Param("userId") Long userId);
 
 
     @Query(value = "select u2.username, e.event_id, e.date, e.time, e.card_color, e.subject from schedule s " +
@@ -42,7 +43,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "join event e on s.event_id = e.event_id " +
             "join users u2 on u2.id = e.create_by " +
             "where u.id = 2 and s.schedule_status ='PENDING';",nativeQuery = true)
-    List<ReadPendingDto> readAllPendingSchedule(Long userId);
+    List<ReadPendingDto> readAllPendingSchedule(@Param("userId") Long userId);
 
     /**
      * 전체 조회 페이징 처리
@@ -56,7 +57,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false and e.dDay >= 0")
-    Page<ReadAllScheduleDto> readAllSchedulePage(Long userId, PageRequest pageRequest);
+    Page<ReadAllScheduleDto> readAllSchedulePage(@Param("userId") Long userId, PageRequest pageRequest);
 
     /**
      * 단건 조회 최적화
@@ -68,14 +69,14 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "where e.id = :eventId " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false")
-    List<ReadOneScheduleDto> readOneSchedule(Long eventId);
+    List<ReadOneScheduleDto> readOneSchedule(@Param("eventId") Long eventId);
 
     //수락 및 거절을 대기중인 스케줄 조회
     @Query(value = "select s from Schedule s " +
             "where s.user.id = :userId and s.event.id = :eventId " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.PENDING " +
             "and s.event.isDeleted = false")
-    Optional<Schedule> readOnePendingSchedule(Long userId, Long eventId);
+    Optional<Schedule> readOnePendingSchedule(@Param("userId") Long userId, @Param("eventId") Long eventId);
 
     @Query(value = "select new com.gnims.project.domain.schedule.dto.ReadAllScheduleDto" +
             "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.dDay, u.username, u.profileImage) from Schedule s " +
@@ -85,6 +86,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false and e.dDay < 0 order by e.appointment.date desc ")
-    List<ReadAllScheduleDto> readPastSchedule(Long userId);
+    List<ReadAllScheduleDto> readPastSchedule(@Param("userId") Long userId);
 
 }
