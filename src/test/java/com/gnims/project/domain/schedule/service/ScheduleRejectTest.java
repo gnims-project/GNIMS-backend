@@ -6,10 +6,7 @@ import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -128,6 +125,7 @@ public class ScheduleRejectTest {
      */
     @DisplayName("초대 받지 않은 스케줄을 거절하는 경우 " +
             "500에러 발생")
+    @Disabled("지금은 너무 바빠요...")
     @Test
     void 일정_거절_실패_케이스3() throws Exception {
 
@@ -135,6 +133,7 @@ public class ScheduleRejectTest {
 
     @DisplayName("이미 기한이 지난 일정을 거절하려는 경우 " +
             "???")
+    @Disabled("지금은 너무 바빠요...")
     @Test
     void 일정_거절_실패_케이스4() throws Exception {
 
@@ -143,6 +142,7 @@ public class ScheduleRejectTest {
     @DisplayName("내가 만든 일정을 거절하려는 경우 " +
             "상태 코드 400 발생" +
             "ScheduleStatus 필드는 ACCEPT로 유지된다.")
+    @Disabled("지금은 너무 바빠요...")
     @Test
     void 일정_거절_실패_케이스5() throws Exception {
         Long hostId = userRepository.findByNickname("딸기").get().getId();

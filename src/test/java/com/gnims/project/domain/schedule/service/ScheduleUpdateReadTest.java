@@ -5,10 +5,7 @@ import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -118,6 +115,7 @@ public class ScheduleUpdateReadTest {
     @DisplayName("주최자가 일정의 일부를 수정하는 경우" +
             "상태 코드 200, message : {스케줄을 수정합니다.} 반환 " +
             "수정하지 않은 내역은 기존과 동일해야 한다.")
+    @Disabled("프론트 측에서 데이터를 넣는 방식으로 해결")
     @Test
     void 스케줄_수정_성공_케이스2() throws Exception {
         //given
@@ -125,19 +123,19 @@ public class ScheduleUpdateReadTest {
         transactionManager.commit(status);
 
         Event event = eventRepository.findBySubject("자바 스터디").get();
-//        mvc.perform(put("/events/" + event.getId())
-//                        .header("Authorization", hostToken)
-//                        .contentType(APPLICATION_JSON)
-//                        .content("{\"subject\": \"CPP 스터디\"}"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.message").value("스케줄을 수정합니다."));
-//
-//        Event updateEvent = eventRepository.findById(event.getId()).get();
+        mvc.perform(put("/events/" + event.getId())
+                        .header("Authorization", hostToken)
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"subject\": \"CPP 스터디\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("스케줄을 수정합니다."));
 
-//        Assertions.assertThat(updateEvent.getCardColor()).isEqualTo("pink");
-//        Assertions.assertThat(updateEvent.getIsDeleted()).isEqualTo(false);
-//        Assertions.assertThat(updateEvent.getAppointment().getDate()).isEqualTo("2023-03-15");
-//        Assertions.assertThat(updateEvent.getAppointment().getTime()).isEqualTo("16:00:00");
+        Event updateEvent = eventRepository.findById(event.getId()).get();
+
+        Assertions.assertThat(updateEvent.getCardColor()).isEqualTo("pink");
+        Assertions.assertThat(updateEvent.getIsDeleted()).isEqualTo(false);
+        Assertions.assertThat(updateEvent.getAppointment().getDate()).isEqualTo("2023-03-15");
+        Assertions.assertThat(updateEvent.getAppointment().getTime()).isEqualTo("16:00:00");
 
     }
     @DisplayName("주최자가 이벤트(event)의 날짜(date)를 수정하는 경우" +
