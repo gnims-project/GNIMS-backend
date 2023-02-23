@@ -10,7 +10,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 import static com.gnims.project.share.message.ResponseMessage.*;
@@ -23,14 +22,7 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    //스케줄 전체 조회 기본 버전 - user-id 붙인 이유는 타인의 일정도 볼 수 있어야 하기 때문에
-    @GetMapping("/proto/users/{user-id}/events")
-    public ResponseEntity<ReadScheduleResult> readAllScheduleProto(@PathVariable("user-id") Long followId) {
-        List<ReadAllResponse> responses = scheduleService.readAllScheduleProto(followId);
-        return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, responses), OK);
-    }
-
-    //스케줄 전체 조회  DTO **한방쿼리**
+    //스케줄 전체 조회  DTO **한방쿼리** user-id 붙인 이유는 타인의 일정도 볼 수 있어야 하기 때문에
     @GetMapping("/users/{user-id}/events")
     public ResponseEntity<ReadScheduleResult> readAllSchedule(@PathVariable("user-id") Long followId) {
         List<ReadAllResponse> responses = scheduleService.readAllSchedule(followId);
@@ -48,13 +40,6 @@ public class ScheduleController {
                 response.getSize(), response.getData()), OK);
     }
 
-    //스케줄 단건 조회 - 기본 버전
-    @GetMapping("/proto/events/{event-id}")
-    public ResponseEntity<ReadScheduleResult> readOneScheduleProto(@PathVariable("event-id") Long eventId) {
-        ReadOneResponse response = scheduleService.readOneScheduleProto(eventId);
-        return new ResponseEntity<>(new ReadScheduleResult(200, READ_ONE_SCHEDULE_MESSAGE, response), OK);
-    }
-
     //스케줄 단건 조회 - 쿼리 최적화 DTO **한방쿼리**
     @GetMapping("/events/{event-id}")
     public ResponseEntity<ReadScheduleResult> readOneSchedule(@PathVariable("event-id") Long eventId) {
@@ -63,6 +48,7 @@ public class ScheduleController {
     }
 
     // 수락 대기중인 스케줄 조회
+    @Deprecated
     @GetMapping("/events/pending")
     public ResponseEntity<ReadScheduleResult> readPendingSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
@@ -101,25 +87,5 @@ public class ScheduleController {
 
         scheduleService.rejectSchedule(userDetails.receiveUserId(), eventId);
         return new ResponseEntity<>(new SimpleScheduleResult(200, REJECT_SCHEDULE_MESSAGE), OK);
-    }
-
-
-    //스케줄 삭제
-    @DeleteMapping("/events/{event-id}")
-    public ResponseEntity<SimpleScheduleResult> deleteSchedule(@PathVariable("event-id") Long eventId,
-                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        scheduleService.softDeleteSchedule(userDetails.receiveUserId(), eventId);
-        return new ResponseEntity<>(new SimpleScheduleResult(200, DELETE_SCHEDULE_MESSAGE), OK);
-    }
-
-    //스케줄 수정
-    @PutMapping("/events/{event-id}")
-    public ResponseEntity<SimpleScheduleResult> updateSchedule(@PathVariable("event-id") Long eventId,
-                                                               @RequestBody @Valid UpdateForm updateForm,
-                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        scheduleService.updateSchedule(userDetails.receiveUserId(), updateForm, eventId);
-        return new ResponseEntity<>(new SimpleScheduleResult(200, UPDATE_SCHEDULE_MESSAGE), OK);
     }
 }

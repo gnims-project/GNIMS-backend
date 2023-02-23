@@ -39,15 +39,6 @@ public class Event extends BaseEntity {
 
     private Long dDay;
 
-    public Event(Appointment appointment, ScheduleForm form) {
-        this.appointment = appointment;
-        this.subject = form.getSubject();
-        this.content = form.getContent();
-        this.cardColor = form.getCardColor();
-        this.isDeleted = false;
-        this.dDay = calculateDDay();
-    }
-
     public Event(Appointment appointment, ScheduleServiceForm form) {
         this.appointment = appointment;
         this.subject = form.getSubject();

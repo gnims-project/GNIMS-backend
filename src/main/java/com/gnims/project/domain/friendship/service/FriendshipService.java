@@ -36,19 +36,6 @@ public class FriendshipService {
                 f.getStatus())).collect(toList());
     }
 
-    public List<FollowReadResponse> readFollowerProto(Long myselfId) {
-        List<Friendship> followers = friendshipRepository.readAllFollowerOfProto(myselfId);
-
-        Friendship dummyFriendship = Friendship.builder().status(INACTIVE).build();
-
-        return followers.stream().map(f -> new FollowReadResponse(
-                f.receiveMyselfId(),
-                f.receiveMyselfUsername(),
-                f.receiveMyselfProfile(),
-                friendshipRepository.findFriendShip(myselfId, f.receiveMyselfId()).orElseGet(() -> dummyFriendship).getStatus()))
-                .collect(toList());
-    }
-
     public List<FollowReadResponse> readFollower(Long myselfId) {
         List<FollowReadResponse> followers = friendshipRepository.readAllFollowerOf(myselfId);
 
@@ -65,7 +52,6 @@ public class FriendshipService {
         }
         return status;
     }
-
 
     public List<FollowReadResponse> readFollowingPage(Long myselfId, PageRequest pageRequest) {
         List<Friendship> friendships = friendshipRepository.readAllFollowingPageOf(myselfId, pageRequest);
