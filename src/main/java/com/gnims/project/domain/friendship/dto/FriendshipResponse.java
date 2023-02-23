@@ -21,4 +21,8 @@ public class FriendshipResponse {
     public boolean isStatus(FollowStatus followStatus) {
         return this.status.equals(followStatus);
     }
+
+    public FriendShipServiceResponse convertServiceResponse(String senderName) {
+        return new FriendShipServiceResponse(senderName, this);
+    }
 }

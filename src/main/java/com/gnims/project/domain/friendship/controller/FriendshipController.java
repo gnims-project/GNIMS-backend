@@ -4,6 +4,7 @@ import com.gnims.project.domain.friendship.dto.*;
 import com.gnims.project.domain.friendship.service.FriendshipService;
 import com.gnims.project.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +25,7 @@ import static org.springframework.http.HttpStatus.OK;
 public class FriendshipController {
 
     private final FriendshipService friendshipService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     // 팔로잉 조회(내가 등록한 친구)
     @GetMapping("/friendship/followings")
@@ -91,6 +93,23 @@ public class FriendshipController {
         return new ResponseEntity<>(new FriendshipResult<>(OK.value(), response.receiveStatusMessage(), response), OK);
 
     }
+
+    @PostMapping("/v2/friendship/followings/{followings-id}")
+    public ResponseEntity<FriendshipResult> presFollowButtonV2(@PathVariable("followings-id") Long followingId,
+                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Long myselfId = userDetails.receiveUserId();
+        FriendshipResponse response = friendshipService.makeFriendship(myselfId, followingId);
+        FriendShipServiceResponse serviceResponse = response.convertServiceResponse(userDetails.getUser().getUsername());
+        if (response.getStatus().equals(INIT)) {
+            applicationEventPublisher.publishEvent(serviceResponse);
+            return new ResponseEntity<>(new FriendshipResult<>(CREATED.value(), response.receiveStatusMessage(), response), CREATED);
+        }
+
+        return new ResponseEntity<>(new FriendshipResult<>(OK.value(), response.receiveStatusMessage(), response), OK);
+
+    }
+
 
     //팔로잉 수
     @GetMapping("/friendship/followings/counting")
