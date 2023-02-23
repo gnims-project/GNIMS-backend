@@ -5,11 +5,7 @@ import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,7 +43,7 @@ public class ScheduleReadTest {
     PlatformTransactionManager transactionManager;
 
     TransactionStatus status = null;
-    String token = null;
+    String hostToken = null;
 
     @BeforeEach
     void beforeEach() throws Exception {
@@ -79,14 +75,14 @@ public class ScheduleReadTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\",\"socialCode\": \"AUTH\" }")).andReturn();
 
-        token = result.getResponse().getHeader("Authorization");
+        hostToken = result.getResponse().getHeader("Authorization");
 
-        Long id1 = userRepository.findByNickname("딸기").get().getId();
-        Long id2 = userRepository.findByNickname("당근").get().getId();
+        Long hostId = userRepository.findByNickname("딸기").get().getId();
+        Long inviteeId = userRepository.findByNickname("당근").get().getId();
 
 
         //when
-        mvc.perform(post("/events").header("Authorization", token)
+        mvc.perform(post("/events").header("Authorization", hostToken)
                 .contentType(APPLICATION_JSON)
                 .content("{\"date\": \"2023-03-15\", " +
                         "\"time\":\"16:00:00\"," +
@@ -94,7 +90,7 @@ public class ScheduleReadTest {
                         "\"content\":\"람다, 스트림에 대해 공부합니다.\", " +
                         "\"cardColor\": \"pink\"," +
                         "\"participantsId\": " +
-                        "[" + id1 + "," + id2 + "]}"));
+                        "[" + hostId + "," + inviteeId + "]}"));
     }
 
     @AfterEach
@@ -120,7 +116,7 @@ public class ScheduleReadTest {
         Long eventId = event.getId();
 
         mvc.perform(MockMvcRequestBuilders.get("/events/" + eventId)
-                .header("Authorization", token)
+                .header("Authorization", hostToken)
                 .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data[?(@.subject == '%s')]","자바 스터디").exists())
                 .andExpect(jsonPath("$.data[?(@.content == '%s')]","람다, 스트림에 대해 공부합니다.").exists())
@@ -145,7 +141,7 @@ public class ScheduleReadTest {
         User user = userRepository.findByUsername("이땡땡").get();
 
         mvc.perform(MockMvcRequestBuilders.get("/users/" + user.getId() + "/events")
-                        .header("Authorization", token)
+                        .header("Authorization", hostToken)
                         .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data[?(@.subject == '%s')]","자바 스터디").exists())
                 .andExpect(jsonPath("$.data[?(@.cardColor == '%s')]","pink").exists())
@@ -167,7 +163,7 @@ public class ScheduleReadTest {
         User user = userRepository.findByNickname("딸기").get();
         Long userId = user.getId();
 
-        mvc.perform(post("/events").header("Authorization", token)
+        mvc.perform(post("/events").header("Authorization", hostToken)
                 .contentType(APPLICATION_JSON)
                 .content("{\"date\": \"2023-03-15\", " +
                         "\"time\":\"16:00:00\"," +
@@ -178,9 +174,30 @@ public class ScheduleReadTest {
                         "[" + userId + "]}"));
 
         mvc.perform(MockMvcRequestBuilders.get( "/users/" + user.getId() + "/events")
-                        .header("Authorization", token)
+                        .header("Authorization", hostToken)
                         .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data.size()").value(2));
+
+    }
+
+    @DisplayName("상세 조회 시 응답 값에는" +
+            "이벤트를 생성한 사람(hostId)의 ID가 포함된다.")
+    @Test
+    void test4() throws Exception {
+        //given
+        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+        transactionManager.commit(status);
+
+        // 이벤트 생성자 ID
+        Long hostId = userRepository.findByNickname("딸기").get().getId();
+
+        Event event = eventRepository.findBySubject("자바 스터디").get();
+        Long eventId = event.getId();
+
+        //then
+        mvc.perform(MockMvcRequestBuilders.get("/events/" + eventId)
+                .header("Authorization", hostToken))
+                .andExpect(jsonPath("$..hostId").value(hostId.intValue()));
 
     }
 }

@@ -184,6 +184,7 @@ public class ScheduleService {
                 event.getCardColor(),
                 event.getSubject(),
                 event.getContent(),
+                event.getHostId(),
                 event.getDDay(),
                 events.stream().map(e -> new ReadOneUserDto(e.getUsername())).collect(toList())
         );

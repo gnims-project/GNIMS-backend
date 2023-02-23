@@ -63,7 +63,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      * 단건 조회 최적화
      */
     @Query(value = "select new com.gnims.project.domain.schedule.dto.ReadOneScheduleDto" +
-            "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.content, e.dDay, u.username) from Event e " +
+            "(e.id, e.appointment.date, e.appointment.time, e.cardColor, e.subject, e.content, e.createBy, e.dDay, u.username) from Event e " +
             "join e.schedule s " +
             "join s.user u " +
             "where e.id = :eventId " +
