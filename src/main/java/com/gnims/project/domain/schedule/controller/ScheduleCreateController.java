@@ -25,24 +25,14 @@ public class ScheduleCreateController {
     private final ScheduleService scheduleService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    //스케줄 등록
+    // 스케줄 등록 알람 버전
     @PostMapping("/events")
     public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody @Valid ScheduleForm scheduleForm,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
-        scheduleService.makeSchedule(scheduleForm, userId);
-
-        applicationEventPublisher.publishEvent(scheduleForm);
-        return new ResponseEntity<>(new SimpleScheduleResult(201, CREATE_SCHEDULE_MESSAGE), HttpStatus.CREATED);
-    }
-    // 알람 버전
-    @PostMapping("/v2/events")
-    public ResponseEntity<SimpleScheduleResult> createScheduleV2(@RequestBody @Valid ScheduleForm scheduleForm,
-                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long userId = userDetails.receiveUserId();
         String username = userDetails.getUser().getUsername();
         ScheduleServiceForm serviceForm = scheduleForm.convertServiceForm(userId, username);
-        scheduleService.makeScheduleV2(serviceForm);
+        scheduleService.makeSchedule(serviceForm);
 
         applicationEventPublisher.publishEvent(serviceForm);
         return new ResponseEntity<>(new SimpleScheduleResult(201, CREATE_SCHEDULE_MESSAGE), HttpStatus.CREATED);

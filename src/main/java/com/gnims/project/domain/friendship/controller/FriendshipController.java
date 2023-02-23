@@ -49,15 +49,6 @@ public class FriendshipController {
     }
 
     //팔로워 조회(나를 등록한 친구)
-    @GetMapping("/proto/friendship/followers")
-    public ResponseEntity<FriendshipResult> readFollowerProto(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long myselfId = userDetails.receiveUserId();
-        List<FollowReadResponse> followers = friendshipService.readFollowerProto(myselfId);
-
-        return new ResponseEntity<>(new FriendshipResult(OK.value(), "팔로워 조회 완료", followers), OK);
-    }
-
-    //팔로워 조회(나를 등록한 친구) - 테스트 코드 작성 후 proto 타입 지울 예정
     @GetMapping("/friendship/followers")
     public ResponseEntity<FriendshipResult> readFollower(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long myselfId = userDetails.receiveUserId();
@@ -80,27 +71,13 @@ public class FriendshipController {
 
     // 팔로잉 하기/취소
     @PostMapping("/friendship/followings/{followings-id}")
-    public ResponseEntity<FriendshipResult> presFollowButton(@PathVariable("followings-id") Long followingId,
-                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        Long myselfId = userDetails.receiveUserId();
-        FriendshipResponse response = friendshipService.makeFriendship(myselfId, followingId);
-
-        if (response.getStatus().equals(INIT)) {
-            return new ResponseEntity<>(new FriendshipResult<>(CREATED.value(), response.receiveStatusMessage(), response), CREATED);
-        }
-
-        return new ResponseEntity<>(new FriendshipResult<>(OK.value(), response.receiveStatusMessage(), response), OK);
-
-    }
-
-    @PostMapping("/v2/friendship/followings/{followings-id}")
-    public ResponseEntity<FriendshipResult> presFollowButtonV2(@PathVariable("followings-id") Long followingId,
-                                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<FriendshipResult> pressFollowButton(@PathVariable("followings-id") Long followingId,
+                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         Long myselfId = userDetails.receiveUserId();
         FriendshipResponse response = friendshipService.makeFriendship(myselfId, followingId);
         FriendShipServiceResponse serviceResponse = response.convertServiceResponse(userDetails.getUser().getUsername());
+
         if (response.getStatus().equals(INIT)) {
             applicationEventPublisher.publishEvent(serviceResponse);
             return new ResponseEntity<>(new FriendshipResult<>(CREATED.value(), response.receiveStatusMessage(), response), CREATED);
@@ -109,7 +86,6 @@ public class FriendshipController {
         return new ResponseEntity<>(new FriendshipResult<>(OK.value(), response.receiveStatusMessage(), response), OK);
 
     }
-
 
     //팔로잉 수
     @GetMapping("/friendship/followings/counting")
