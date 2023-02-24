@@ -322,7 +322,7 @@ public class UserService {
         List<SearchAllQueryDto> response = new ArrayList<>();
 
         for(User user2: users) {
-            response.add(new SearchAllQueryDto(user2.getId(), user2.getUsername(), user2.getProfileImage(), check(user2, user)));
+            response.add(new SearchAllQueryDto(user2.getId(), user2.getUsername(), user2.getProfileImage(), !check(user2, user)));
         }
 
         return response;
