@@ -4,8 +4,8 @@ import com.gnims.project.domain.schedule.dto.ReadScheduleResult;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
 import com.gnims.project.security.service.UserDetailsImpl;
-import com.gnims.project.social.dto.SocialSignupDto;
 import com.gnims.project.share.validation.ValidationSequence;
+import com.gnims.project.social.dto.SocialSignupDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -119,15 +119,27 @@ public class UserController {
         return new ResponseEntity<>(new SimpleMessageResult(OK.value(), PASSWORD_UPDATE_SUCCESS_MESSAGE), OK);
     }
 
+//    @GetMapping("/users/search")
+//    public ResponseEntity<ReadScheduleResult> search(@RequestParam(value = "username") String username,
+//                                                     @RequestParam(value = "page") Integer page,
+//                                                     @RequestParam(value = "size") Integer size,
+//                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//
+//        PageRequest pageRequest = PageRequest.of(page, size);
+//        List<SearchAllQueryDto> testsearch = userService.search(username, userDetails.getUser(), pageRequest);
+//
+//        return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), USER_SEARCH_SUCCESS_MESSAGE, testsearch), OK);
+//    }
+
     //최적화 v1 검색
     @GetMapping("/users/search")
-    public ResponseEntity<ReadScheduleResult> search(@RequestParam(value = "username") String username,
-                                                     @RequestParam(value = "page") Integer page,
-                                                     @RequestParam(value = "size") Integer size,
-                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ReadScheduleResult> testSearch(@RequestParam(value = "username") String username,
+                                                         @RequestParam(value = "page") Integer page,
+                                                         @RequestParam(value = "size") Integer size,
+                                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
-        List<SearchAllQueryDto> testsearch = userService.search(username, userDetails.getUser(), pageRequest);
+        List<SearchAllQueryDto> testsearch = userService.testSearch(username, userDetails.getUser(), pageRequest);
 
         return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), USER_SEARCH_SUCCESS_MESSAGE, testsearch), OK);
     }
