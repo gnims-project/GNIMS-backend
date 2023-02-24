@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 //    Page<User> searchByRegExpKeyword(String searchKeyword, Pageable pageable);
 
-    Page<User> findAllByUsernameLike(String username, Pageable pageable);
+    Optional<List<User>> findAllByUsernameLikeAndUsernameIsNot(String username, String myName, Pageable pageable);
 
     @Query(value = "select new com.gnims.project.domain.user.dto.SearchAllQueryDto" +
             "(u.id, u.username, u.profileImage, (case when f.status is null or f.status = 'INACTIVE' then false else true end)) from users u " +

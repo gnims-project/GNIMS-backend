@@ -12,8 +12,8 @@ import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
-import com.gnims.project.social.dto.SocialSignupDto;
 import com.gnims.project.share.gmail.EmailServiceImpl;
+import com.gnims.project.social.dto.SocialSignupDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -313,6 +313,19 @@ public class UserService {
     public List<SearchAllQueryDto> search(String username, User user, PageRequest pageRequest) {
 
         return userRepository.testsearch1("%" + username + "%", user.getUsername(), user.getId(), pageRequest);
+    }
+
+    public List<SearchAllQueryDto> testSearch(String username, User user, PageRequest pageRequest) {
+
+        List<User> users = userRepository.findAllByUsernameLikeAndUsernameIsNot("%" + username + "%", user.getUsername(),pageRequest).orElse(new ArrayList<>());
+
+        List<SearchAllQueryDto> response = new ArrayList<>();
+
+        for(User user2: users) {
+            response.add(new SearchAllQueryDto(user2.getId(), user2.getUsername(), user2.getProfileImage(), check(user2, user)));
+        }
+
+        return response;
     }
 
     /*
