@@ -207,17 +207,18 @@ public class UserService {
     }
 
     @Transactional
-    public void updateProfile(MultipartFile image, User user) throws IOException {
+    public ProfileImageDto updateProfile(MultipartFile image, User user) throws IOException {
 
         if(image == null) {
             userRepository.findById(user.getId()).get().updateProfile(defaultImage);
-            return;
+            return new ProfileImageDto(defaultImage);
         }
 
         String imageUrl = getImage(image);
 
-        userRepository.findById(user.getId())
-                .get().updateProfile(imageUrl);
+        userRepository.findById(user.getId()).get().updateProfile(imageUrl);
+
+        return new ProfileImageDto(imageUrl);
     }
 
     /*
@@ -322,7 +323,7 @@ public class UserService {
         List<SearchAllQueryDto> response = new ArrayList<>();
 
         for(User user2: users) {
-            response.add(new SearchAllQueryDto(user2.getId(), user2.getUsername(), user2.getProfileImage(), !check(user2, user)));
+            response.add(new SearchAllQueryDto(user2.getId(), user2.getUsername(), user2.getProfileImage(), check(user2, user)));
         }
 
         return response;

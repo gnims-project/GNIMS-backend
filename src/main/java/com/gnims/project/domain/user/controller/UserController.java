@@ -63,11 +63,11 @@ public class UserController {
     }
 
     @PatchMapping("/users/profile")
-    public ResponseEntity<SimpleMessageResult> updateProfile(@RequestPart(value = "image", required = false) MultipartFile image,
+    public ResponseEntity<UserResult> updateProfile(@RequestPart(value = "image", required = false) MultipartFile image,
                                              @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
-        userService.updateProfile(image, userDetails.getUser());
-        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), PROFILE_UPDATE_SUCCESS_MESSAGE), OK);
+        ProfileImageDto result = userService.updateProfile(image, userDetails.getUser());
+        return new ResponseEntity<>(new UserResult<>(OK.value(), PROFILE_UPDATE_SUCCESS_MESSAGE, result), OK);
     }
 
     @PostMapping("/auth/login")
