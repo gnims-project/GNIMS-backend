@@ -10,7 +10,6 @@ import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.share.persistence.embedded.Appointment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,16 +76,17 @@ public class ScheduleService {
 
     }
 
-    public PageableReadResponse readAllSchedulePage(Long userId, PageRequest pageRequest) {
-        Page<ReadAllScheduleDto> schedules = scheduleRepository.readAllSchedulePage(userId, pageRequest);
-        Long totalElements = schedules.getTotalElements();
-        int eventSize = totalElements.intValue();
+    public PageableReadResponse readAllSchedulePage(Long userId, PageRequest pageRequest, Integer pageSize) {
+        List<ReadAllScheduleDto> schedules = scheduleRepository.readAllSchedulePage(userId, pageRequest);
 
         // 이벤트는 중복될 수 있음으로 set으로 중복 처리
-        HashSet<Long> set = new HashSet<>(eventSize);
-        List<ReadAllScheduleDto> distinctSchedules = schedules.stream().filter(e -> set.add(e.getEventId())).collect(toList());
+        HashSet<Long> set = new HashSet<>(schedules.size());
+        List<ReadAllScheduleDto> notDuplicatedScheduleDto = schedules.stream().filter(e -> set.add(e.getEventId())).collect(toList());
 
-        List<ReadAllResponse> responses = distinctSchedules.stream().map(ds -> new ReadAllResponse(
+        // 토탈 페이지 계산
+        Integer totalPage = calculateTotalPage(pageSize, notDuplicatedScheduleDto);
+
+        List<ReadAllResponse> responses = notDuplicatedScheduleDto.stream().map(ds -> new ReadAllResponse(
                 ds.getEventId(),
                 ds.getDate(),
                 ds.getTime(),
@@ -95,7 +95,32 @@ public class ScheduleService {
                 ds.getDDay(),
                 receiveInvitees(schedules.stream(), ds))).collect(toList());
 
-        return new PageableReadResponse(schedules.getTotalPages(), responses);
+        return new PageableReadResponse(totalPage, responses);
+    }
+
+    /**
+     * Page 객체를 사용하면 토탈 페이지를 쉽게 구할 수 있으나 쿼리가 한 번 더 나가게 됩니다.
+     * 그래서 총 페이지 수를 직접 계산합니다. 총 페이지는 List<ReadAllScheduleDto> 길이, pageSize 나눗셈으로 계산 가능합니다.
+     * List<ReadAllScheduleDto> 조회 가능한 사용자의 전체 스케줄 갯수, pageSize 는 한 페이지에 보여줄 스케줄 갯수입니다.
+     * 계산 식의 경우 두 가지 경우의 수가 발생합니다.
+     * (1) List<ReadAllScheduleDto> / pageSize 시, 나머지가 있을 경우
+     *      return  List<ReadAllScheduleDto> / pageSize + 1
+     * (2) List<ReadAllScheduleDto> / pageSize 시, 나머지가 없을 경우
+     *      return  List<ReadAllScheduleDto> / pageSize
+     */
+    private Integer calculateTotalPage(Integer pageSize, List<ReadAllScheduleDto> notDuplicatedSchedule) {
+        // 몫 계산
+        Integer totalPage = notDuplicatedSchedule.size() / pageSize;
+        // 나머지가 있을 시 페이지 수
+        if (hasRemainder(pageSize, notDuplicatedSchedule)) {
+            return totalPage + 1;
+        }
+        // 나머지가 없을 때 페이지 수
+        return totalPage;
+    }
+
+    private static boolean hasRemainder(Integer size, List<ReadAllScheduleDto> notDuplicatedSchedule) {
+        return notDuplicatedSchedule.size() % size == 0;
     }
 
     public ReadOneResponse readOneSchedule(Long eventId) {
