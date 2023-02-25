@@ -1,5 +1,6 @@
 package com.gnims.project.config;
 
+import com.gnims.project.security.exception.CustomAuthenticationEntryPoint;
 import com.gnims.project.security.jwt.JwtAuthFilter;
 import com.gnims.project.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,8 @@ public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
 
+    private static final String[] permitUrl = {"/social/**","/users/**","/auth/**" ,"/favicon.ico","/"}; // cors test 용 "/cors/**"
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -52,9 +55,13 @@ public class WebSecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.authorizeRequests()
-                .anyRequest().permitAll()
+                .antMatchers(permitUrl).permitAll()
+                .anyRequest().authenticated()
                 // JWT 인증/인가를 사용하기 위한 설정
                 .and().addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+
+        http.exceptionHandling()
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint());
 
         return http.build();
     }

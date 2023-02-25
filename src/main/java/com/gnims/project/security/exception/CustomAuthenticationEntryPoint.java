@@ -17,7 +17,8 @@ import java.io.IOException;
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private static ExceptionResponseMessage exceptionMessage = new ExceptionResponseMessage(HttpStatus.UNAUTHORIZED.value(), "로그인이 필요한 서비스입니다.");
+    private static ExceptionResponseMessage exceptionMessage = new ExceptionResponseMessage(HttpStatus.UNAUTHORIZED.value(),
+            "로그인이 필요한 서비스입니다.");
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
