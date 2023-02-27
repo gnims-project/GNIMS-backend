@@ -32,7 +32,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId " +
             "and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
-            "and e.isDeleted = false and e.dDay >= 0")
+            "and e.isDeleted = false and e.dDay >= 0 order by e.dDay asc ")
     List<ReadAllScheduleDto> readAllSchedule(@Param("userId") Long userId);
 
 
@@ -55,7 +55,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "where e.id in (select s2.event.id from Schedule s2 where s2.user.id =:userId " +
             "and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
-            "and e.isDeleted = false and e.dDay >= 0")
+            "and e.isDeleted = false and e.dDay >= 0 order by e.dDay asc ")
     Page<ReadAllScheduleDto> readAllSchedulePage(@Param("userId") Long userId, PageRequest pageRequest);
 
     /**
