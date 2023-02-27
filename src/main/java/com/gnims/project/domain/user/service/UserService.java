@@ -4,9 +4,6 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.gnims.project.domain.friendship.entity.FollowStatus;
-import com.gnims.project.domain.friendship.entity.Friendship;
-import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.entity.User;
@@ -27,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.gnims.project.share.message.ExceptionMessage.*;
@@ -38,7 +34,6 @@ import static com.gnims.project.share.message.ResponseMessage.CHECK_NICKNAME_MES
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final FriendshipRepository friendshipRepository;
     private final EmailServiceImpl emailServiceImpl;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
@@ -75,29 +70,16 @@ public class UserService {
         //이메일 / 닉네임 중복체크
         checkDuplicate(email, nickname);
 
-//        String search = request.getUsername() + "@" + request.getNickname();
-//
-//        char[] chars = search.toCharArray();
-//
-//        String searchNickname = "";
-//
-//        for(char char1: chars) {
-//            searchNickname += char1;
-//            if('가' <= char1 && char1 <= '힣') {
-//                searchNickname = searchNickname + CHO.get((char1-'가')/28/21);
-//            }
-//        }
-
         //비밀번호 암호화
         String password = passwordEncoder.encode(request.getPassword());
 
         if(image == null) {
-            userRepository.save(new User(request.getUsername(), request.getNickname(), /* searchNickname,*/ email, password, defaultImage));
+            userRepository.save(new User(request.getUsername(), request.getNickname(), email, password, defaultImage));
             return;
         }
         String imageUrl = getImage(image);
 
-        userRepository.save(new User(request.getUsername(), request.getNickname(), /* searchNickname,*/ email, password, imageUrl));
+        userRepository.save(new User(request.getUsername(), request.getNickname(), email, password, imageUrl));
     }
 
     private String getImage(MultipartFile image) throws IOException {
@@ -139,31 +121,18 @@ public class UserService {
         //이메일 / 닉네임 중복체크
         checkDuplicate(email, request.getNickname());
 
-//        String nickname = request.getNickname();
-//
-//        char[] chars = nickname.toCharArray();
-//
-//        String searchNickname = "";
-//
-//        for(char char1: chars) {
-//            searchNickname += char1;
-//            if('가' <= char1 && char1 <= '힣') {
-//                searchNickname = searchNickname + CHO.get((char1-'가')/28/21);
-//            }
-//        }
-
         //소셜 회원가입 시 비밀번호 임의 생성
         //비밀번호 암호화
         String password = passwordEncoder.encode(UUID.randomUUID().toString());
 
         if(image == null) {
-            userRepository.save(new User(request.getUsername(), request.getNickname(), /*, searchNickname,*/ email, password, defaultImage));
+            userRepository.save(new User(request.getUsername(), request.getNickname(), email, password, defaultImage));
             return;
         }
 
         String imageUrl = getImage(image);
 
-        userRepository.save(new User(request.getUsername(), request.getNickname(), /*, searchNickname,*/ email, password, imageUrl));
+        userRepository.save(new User(request.getUsername(), request.getNickname(), email, password, imageUrl));
     }
 
     private void checkDuplicate(String email, String nickname) {
@@ -226,128 +195,10 @@ public class UserService {
         return new ProfileImageDto(imageUrl);
     }
 
-    /*
-    * 검색 기존
-    * */
-
-//    public SearchResponseDto search(String nickname, User user) {
-//
-//        //검색한 닉네임을 찾음
-//        User searchedUser = userRepository.findByNickname(nickname).orElseThrow(
-//                () -> new IllegalArgumentException("해당 닉네임의 유저가 존재하지 않습니다.")
-//        );
-//
-//        Optional<Friendship> friend = friendshipRepository
-//                .findAllByMyself_IdAndFollowing_Id(user.getId(), searchedUser.getId());
-//
-//        //팔로우 한 적이 없거나, 언 팔로우 상태 일 경우
-//        if(friend.isEmpty() || FollowStatus.INACTIVE.equals(friend.get().getStatus())) {
-//            return new SearchResponseDto(searchedUser, false);
-//        }
-//
-//        return new SearchResponseDto(searchedUser, true);
-//    }
-
-    public boolean check(User searchedUser, User user) {
-        Optional<Friendship> friend = friendshipRepository
-                .findAllByMyself_IdAndFollow_Id(user.getId(), searchedUser.getId());
-
-        return friend.isEmpty() || FollowStatus.INACTIVE.equals(friend.get().getStatus());
-    }
-
-    /*
-    * 검색 업그레이드 v2
-    * */
-    //본인 제외
-//
-//    //현재 정렬 ID 내림차순
-//    public List<SearchResponseDto> search(String username, PageRequest pageRequest, User user) {
-//
-////        System.out.println("nickname2 = " + user.getNickname());
-////
-////        if(nickname == null || "".equals(nickname) || nickname.length()>8) {
-////            throw new IllegalArgumentException("8자리 이하의 닉네임을 검색해 주세요!");
-////        }
-////
-////        nickname = nickname.trim();
-////
-////        //공백 제거
-////        String nickname2 = nickname.replace(" ", "");
-////
-////        char[] chars = nickname2.toCharArray();
-////
-////        nickname2 = "@?";
-////
-////        for(char char1: chars) {
-////            nickname2 = nickname2 + "[a-zA-Z0-9ㄱ-ㅎ가-힣]*";
-////            String checkChar = "" + char1;
-////            if(checkChar.matches("^[가-힣]$")) {
-////                nickname2 = nickname2 + char1;
-////                nickname2 = nickname2 + CHO.get((char1-'가')/28/21);
-////                continue;
-////            }
-////            nickname2 += char1;
-////        };
-////
-////        nickname2.replaceFirst("[a-zA-Z0-9ㄱ-ㅎ가-힣]*", "");
-////
-////        System.out.println("searchNickname = " + nickname2);
-//
-////        Page<User> users = userRepository.searchByRegExpKeyword(nickname2 + "@?", pageRequest);
-////        PageDto page = new PageDto(users);
-//
-//        Page<User> users = userRepository.findAllByUsernameLike("%" + username + "%", pageRequest);
-//
-//        List<SearchResponseDto> data = users.stream()
-//                .map(u -> new SearchResponseDto(u, !check(u, user)))
-//                .collect(Collectors.toList());
-//
-//
-////        List<SearchResponseDto> data = new ArrayList<>();
-////
-////        for(User u: users) {
-////            if (u.getId().equals(user.getId())) {
-////                continue;
-////            }
-////
-////            data.add(new SearchResponseDto(u, !check(u, user)));
-////        }
-//
-//        return data;
-//    }
-
     public List<SearchAllQueryDto> search(String username, User user, PageRequest pageRequest) {
 
-        return userRepository.testsearch1("%" + username + "%", user.getUsername(), user.getId(), pageRequest);
+        return userRepository.userSearch("%" + username + "%",user.getId(), pageRequest);
     }
-
-    public List<SearchAllQueryDto> testSearch(String username, User user, PageRequest pageRequest) {
-
-        List<User> users = userRepository.findAllByUsernameLikeAndUsernameIsNot("%" + username + "%", user.getUsername(),pageRequest).orElse(new ArrayList<>());
-
-        List<SearchAllQueryDto> response = new ArrayList<>();
-
-        for(User user2: users) {
-            response.add(new SearchAllQueryDto(user2.getId(), user2.getUsername(), user2.getProfileImage(), check(user2, user)));
-        }
-
-        return response;
-    }
-
-    /*
-    * 검색 업그레이드 v1
-    * */
-
-    //    public List<String> testSearch(String nickname) {
-//
-//        nickname = nickname.trim();
-//
-//        String searchNickname= nickname.replace(' ','|');
-//
-//        //특문 안받는 다는 가정
-//
-//        return userRepository.searchByRegExpKeyword(searchNickname).get();
-//    }
 
     @Transactional
     public void authPassword(AuthEmailDto request) throws Exception {
