@@ -56,7 +56,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "and s2.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT) " +
             "and s.scheduleStatus = com.gnims.project.domain.schedule.entity.ScheduleStatus.ACCEPT " +
             "and e.isDeleted = false and e.dDay >= 0")
-    List<ReadAllScheduleDto> readAllSchedulePage(@Param("userId") Long userId, PageRequest pageRequest);
+    Page<ReadAllScheduleDto> readAllSchedulePage(@Param("userId") Long userId, PageRequest pageRequest);
 
     /**
      * 단건 조회 최적화
