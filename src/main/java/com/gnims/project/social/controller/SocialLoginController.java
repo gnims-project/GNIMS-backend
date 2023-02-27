@@ -21,7 +21,7 @@ public class SocialLoginController {
     private final KakaoService kakaoService;
     private final NaverService naverService;
 
-    @PostMapping ("/kakao/login")
+    @PostMapping ("/social/kakao-login")
     public ResponseEntity<SocialResult> kakaoLogin(@RequestBody SocialCodeDto codeDto, HttpServletResponse response) throws JsonProcessingException {
 
         // code: 카카오 서버로부터 받은 인가 코드
@@ -29,7 +29,7 @@ public class SocialLoginController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
-    @PostMapping ("/naver/login")
+    @PostMapping ("/social/naver-login")
     public ResponseEntity<SocialResult> naverLogin(@RequestBody SocialTokenDto tokenDto, HttpServletResponse response) throws JsonProcessingException {
 
 //        System.out.println("________________________________________token: " + request.getHeader("token"));
