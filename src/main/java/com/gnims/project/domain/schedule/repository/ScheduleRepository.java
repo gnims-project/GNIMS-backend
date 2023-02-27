@@ -4,7 +4,6 @@ import com.gnims.project.domain.schedule.dto.ReadAllScheduleDto;
 import com.gnims.project.domain.schedule.dto.ReadOneScheduleDto;
 import com.gnims.project.domain.schedule.dto.ReadPendingDto;
 import com.gnims.project.domain.schedule.entity.Schedule;
-import com.gnims.project.domain.schedule.entity.ScheduleStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    List<Schedule> findAllByUser_IdAndScheduleStatusIs(Long userId, ScheduleStatus scheduleStatus);
     Optional<Schedule> findByUser_IdAndEvent_Id(Long userId, Long eventId);
 
     /**

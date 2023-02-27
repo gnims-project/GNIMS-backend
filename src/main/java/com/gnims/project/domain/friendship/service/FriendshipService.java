@@ -28,8 +28,8 @@ public class FriendshipService {
     private final UserRepository userRepository;
 
     public List<FollowReadResponse> readFollowing(Long myselfId) {
-        List<Friendship> follows = friendshipRepository.readAllFollowingOf(myselfId);
-        return follows.stream().map(f -> new FollowReadResponse(
+        List<Friendship> followings = friendshipRepository.readAllFollowingOf(myselfId);
+        return followings.stream().map(f -> new FollowReadResponse(
                 f.receiveFollowId(),
                 f.receiveFollowUsername(),
                 f.receiveFollowProfile(),
@@ -81,8 +81,10 @@ public class FriendshipService {
 
         // 한 번도 팔로잉을 한적이 없다면
         if (optionalFriendship.isEmpty()) {
-            User user = userRepository.findById(followingId).orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_USER));
-            User myself = userRepository.findById(myselfId).get();
+            User user = userRepository.findById(followingId)
+                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_USER));
+            User myself = userRepository.findById(myselfId)
+                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_USER));
             Friendship friendship = friendshipRepository.save(new Friendship(myself, user));
             return new FriendshipResponse(friendship.receiveFollowId(), friendship.getStatus());
         }
@@ -101,11 +103,9 @@ public class FriendshipService {
 
     public Integer countFollowing(Long myselfId) {
         return friendshipRepository.countAllByMyself_IdAndStatusNot(myselfId, INACTIVE);
-
     }
 
     public Integer countFollower(Long myselfId) {
         return friendshipRepository.countAllByFollow_IdAndStatusNot(myselfId, INACTIVE);
-
     }
 }

@@ -32,32 +32,14 @@ public class Schedule extends TimeStamped {
     @JoinColumn(name="event_id")
     private Event event;
 
-    private Boolean isAttend;
-
     @Enumerated(value = EnumType.STRING)
     private ScheduleStatus scheduleStatus;
 
     public Schedule(User user, Event event) {
         this.user = user;
         this.event = event;
-        this.isAttend = false;
         this.scheduleStatus = PENDING;
     }
-
-    public String receiveUsername() {
-        return this.getUser().getUsername();
-    }
-    public String receiveProfile() {
-        return user.getProfileImage();
-    }
-    // 1대 다 조회
-    public List<ReadAllUserDto> findInvitees() {
-        return event.getSchedule().stream()
-                .filter(schedule -> schedule.isAccepted())
-                .map(s -> new ReadAllUserDto(s.receiveUsername(), s.receiveProfile()))
-                .collect(Collectors.toList());
-    }
-
     public void decideScheduleStatus(ScheduleStatus scheduleStatus) {
         this.scheduleStatus = scheduleStatus;
     }
@@ -68,9 +50,5 @@ public class Schedule extends TimeStamped {
 
     public boolean isAccepted() {
         return getScheduleStatus().equals(ACCEPT);
-    }
-
-    public boolean isDeletedEvent() {
-        return event.getIsDeleted().equals(false);
     }
 }

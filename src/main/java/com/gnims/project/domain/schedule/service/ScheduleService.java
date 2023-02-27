@@ -98,10 +98,6 @@ public class ScheduleService {
         return new PageableReadResponse(schedules.getTotalPages(), responses);
     }
 
-    private boolean hasRemainder(Integer size, List<ReadAllScheduleDto> notDuplicatedSchedule) {
-        return notDuplicatedSchedule.size() % size != 0;
-    }
-
     public ReadOneResponse readOneSchedule(Long eventId) {
         List<ReadOneScheduleDto> events = scheduleRepository.readOneSchedule(eventId);
         if (events.isEmpty()) {
@@ -120,21 +116,6 @@ public class ScheduleService {
                 event.getDDay(),
                 events.stream().map(e -> new ReadOneUserDto(e.getUsername())).collect(toList())
         );
-    }
-
-    @Deprecated
-    public List<ReadPastAllResponse> readPendingSchedule(Long userId) {
-        List<Schedule> schedules = scheduleRepository.findAllByUser_IdAndScheduleStatusIs(userId, PENDING);
-
-        List<Schedule> liveSchedules = filterDeletedSchedules(schedules);
-
-        return liveSchedules.stream().map(s -> new ReadPastAllResponse(
-                s.getEvent().getId(),
-                s.getEvent().receiveDate(),
-                s.getEvent().receiveTime(),
-                s.getEvent().getCardColor(),
-                s.getEvent().getSubject(),
-                s.findInvitees())).collect(toList());
     }
 
     public List<ReadPendingResponse> readPendingScheduleV2(Long userId) {
@@ -182,13 +163,6 @@ public class ScheduleService {
 
         schedule.decideScheduleStatus(REJECT);
         scheduleRepository.save(schedule);
-    }
-
-    private static List<Schedule> filterDeletedSchedules(List<Schedule> schedules) {
-        List<Schedule> liveSchedules = schedules.stream()
-                .filter(s -> s.isDeletedEvent())
-                .collect(toList());
-        return liveSchedules;
     }
 
     private boolean isPersonalSchedule(ScheduleServiceForm form, Long userId) {
