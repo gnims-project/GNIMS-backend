@@ -48,14 +48,6 @@ public class ScheduleController {
     }
 
     // 수락 대기중인 스케줄 조회
-    @Deprecated
-    @GetMapping("/events/pending")
-    public ResponseEntity<ReadScheduleResult> readPendingSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long userId = userDetails.receiveUserId();
-        List<ReadPastAllResponse> responses = scheduleService.readPendingSchedule(userId);
-        return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PENDING_SCHEDULE_MESSAGE, responses), OK);
-    }
-
     @GetMapping("/v2/events/pending")
     public ResponseEntity<ReadScheduleResult> readPendingScheduleV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
