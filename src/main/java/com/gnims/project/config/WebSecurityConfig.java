@@ -26,7 +26,7 @@ public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
 
-    private static final String[] PERMIT_URL = {"/social/**","/users/**","/auth/**" ,"/favicon.ico","/"}; // cors test 용 "/cors/**"
+    private static final String[] PERMIT_URL = {"/social/**","/users/**","/auth/**" ,"/favicon.ico","/","/slack/**"}; // cors test 용 "/cors/**"
 
     @Bean
     public PasswordEncoder passwordEncoder() {
