@@ -20,9 +20,6 @@ public class User {
     @Column(nullable = false)
     private String nickname;
 
-//    @Column(nullable = false)
-//    private String searchNickname;
-
     @Column(nullable = false)
     private String email;
 
@@ -32,25 +29,13 @@ public class User {
     @Column
     private String profileImage;
 
-//    @Column(nullable = false)
-//    @Enumerated(value = EnumType.STRING)
-//    private SocialCode socialCode;
-//
-//    @Column
-//    private String socialId;
-
-    public User(String username, String nickname,/* String searchNickname,*/ String email, String password, String imageUrl) {
+    public User(String username, String nickname, String email, String password, String imageUrl) {
         this.username = username;
         this.nickname = nickname;
-//        this.searchNickname = searchNickname;
         this.email = email;
         this.password = password;
         this.profileImage = imageUrl;
     }
-
-//    public String getNickname() {
-//        return nickname.replaceAll("[ㄱ-ㅎ]", "");
-//    }
 
     public String makePureEmail() {
         //여기서 12는 DB의 이메일 앞에 붙은 "Gnims.~~"를 제거 하기 위한 숫자입니다.
@@ -64,25 +49,4 @@ public class User {
     public void updatePassword(String password) {
         this.password = password;
     }
-
-    //    public User(String username, String nickname, SocialCode socialCode, /*String socialId, */String email, String password) {
-//        this.username = username;
-//        this.nickname = nickname;
-////        this.socialId = socialId;
-//        this.email = email;
-//        this.password = password;
-//        this.socialCode = socialCode;
-//    }
-
-
-
-    /*
-    * 기존 유저와 소셜 유저 강제 통합 x
-    * */
-
-//    public User socialIdUpdate(SocialCode socialCode, String socialId) {
-//        this.socialCode = socialCode;
-//        this.socialId = socialId;
-//        return this;
-//    }
 }
