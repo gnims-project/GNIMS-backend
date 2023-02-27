@@ -19,8 +19,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity // 스프링 Security 지원을 가능하게 함
@@ -28,7 +26,7 @@ public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
 
-    private static final String[] permitUrl = {"/social/**","/users/**","/auth/**" ,"/favicon.ico","/"}; // cors test 용 "/cors/**"
+    private static final String[] PERMIT_URL = {"/social/**","/users/**","/auth/**" ,"/favicon.ico","/"}; // cors test 용 "/cors/**"
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -55,7 +53,7 @@ public class WebSecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.authorizeRequests()
-                .antMatchers(permitUrl).permitAll()
+                .antMatchers(PERMIT_URL).permitAll()
                 .anyRequest().authenticated()
                 // JWT 인증/인가를 사용하기 위한 설정
                 .and().addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);

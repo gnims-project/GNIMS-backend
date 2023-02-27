@@ -24,8 +24,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
+    private static final String[] PERMIT_URL_PREFIX = {"/social","/users","/auth" ,"/"};
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        for (String prefix : PERMIT_URL_PREFIX) {
+            if(request.getRequestURI().startsWith(prefix)) {
+                filterChain.doFilter(request,response);
+                return;
+            }
+        }
+
         String token = jwtUtil.resolveToken(request);
 
         if(token != null) {
