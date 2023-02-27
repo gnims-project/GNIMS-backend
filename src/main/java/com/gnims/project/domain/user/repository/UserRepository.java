@@ -20,5 +20,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "(u.id, u.username, u.profileImage, (case when f.status is null or f.status = 'INACTIVE' then false else true end)) from users u " +
             "left outer join Friendship f on f.myself.id = :myId " +
             "where u.id <> :myId and u.username like :username and (f.follow.id = u.id or f.follow.id is null)")
+    List<SearchAllQueryDto> userSearch2(@Param("username") String username, @Param("myId") Long myId, @Param("pageRequest") Pageable pageable);
+
+    //최적화 수정
+    @Query(value = "select new com.gnims.project.domain.user.dto.SearchAllQueryDto" +
+            "(u.id, u.username, u.profileImage, (case when f.status is null or f.status = 'INACTIVE' then false else true end)) from users u " +
+            "left outer join Friendship f on (f.myself.id = :myId and f.follow.id = u.id)" +
+            "where u.id <> :myId and u.username like :username")
     List<SearchAllQueryDto> userSearch(@Param("username") String username, @Param("myId") Long myId, @Param("pageRequest") Pageable pageable);
 }
