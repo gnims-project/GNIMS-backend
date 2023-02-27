@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.8'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+//    id "org.sonarqube" version "2.7"
+    id 'jacoco'
 }
 
 group = 'com.gnims'
@@ -16,6 +18,33 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+//jacoco
+jacoco {
+    toolVersion = '0.8.5'
+}
+
+jacocoTestReport {
+    // ...
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, excludes: [
+                            '**/*Application*',
+                            '**/*Exception*',
+                            '**/dto/**',
+                            "**/message/**",
+                            "**/share/**"
+                            // ...
+                    ])
+                })
+        )
+    }
+}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
 }
 
 jar {
