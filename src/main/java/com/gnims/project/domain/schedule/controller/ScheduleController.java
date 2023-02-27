@@ -35,9 +35,9 @@ public class ScheduleController {
                                                                           @RequestParam Integer page,
                                                                           @RequestParam Integer size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        PageableReadResponse response = scheduleService.readAllSchedulePage(followId, pageRequest, size);
+        PageableReadResponse response = scheduleService.readAllSchedulePage(followId, pageRequest);
         return new ResponseEntity<>(new PageableReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE,
-                response.getTotalPage(), response.getData()), OK);
+                response.getSize(), response.getData()), OK);
     }
 
     //스케줄 단건 조회 - 쿼리 최적화 DTO **한방쿼리**
