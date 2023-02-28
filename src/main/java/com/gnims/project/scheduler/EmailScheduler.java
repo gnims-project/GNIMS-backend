@@ -2,6 +2,7 @@ package com.gnims.project.scheduler;
 
 import com.gnims.project.share.slack.SlackMessageSender;
 import com.gnims.project.share.gmail.EmailRepository;
+import com.gnims.project.share.slack.SlackController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,14 +32,23 @@ public class EmailScheduler {
     public void deleteAuthMail() throws IOException {
         LocalDate today = LocalDate.now();
         try {
-            emailRepository.deleteByCreateAtBefore(LocalDateTime.now().minusMinutes(183));
+            emailRepository.deleteAuthEmail(LocalDateTime.now().minusMinutes(183));
         }
         catch (Exception e) {
+
             slackMessageSender.sendTaskResult(today + " 인증 메일 삭제 중 오류가 발생했습니다. 관리자를 호출하십시오");
             log.info("[인증 메일 삭제 중 오류가 발생했습니다]");
             throw new RuntimeException("인증 메일 처리 오류 발생");
         }
         slackMessageSender.sendTaskResult(today + "금일 21:00:10 이전에 생성된 인증 메일이 삭제됩니다.");
+
+            slackController.sendTaskResult("["+ today + "] 인증 메일 삭제 중 오류가 발생했습니다. 관리자를 호출하십시오");
+            log.info("[인증 메일 삭제 중 오류가 발생했습니다]");
+            throw new RuntimeException("인증 메일 처리 오류 발생");
+        }
+        slackController.sendTaskResult("[" + today + "] " + today.minusDays(1).getMonthValue()
+                + "월 " + today.minusDays(1).getDayOfMonth() + "일 20:57:10 이전에 생성된 인증 메일이 삭제됩니다.");
+                
         log.info("[인증 메일 삭제 처리가 완료되었습니다]");
     }
 }
