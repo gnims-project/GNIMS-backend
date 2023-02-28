@@ -88,7 +88,7 @@ public class EmailServiceImpl{
         return message;
     }
 
-    public String createLink() {
+    public String createCode() {
 
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
@@ -96,7 +96,7 @@ public class EmailServiceImpl{
     public String sendSimpleMessage(String to, String email) throws Exception {
 
         // TODO Auto-generated method stub
-        String code = createLink();
+        String code = createCode();
         MimeMessage message = createMessage(to, code, email);
         try{//예외처리
             Optional<EmailValidation> byEmail = emailRepository.findByEmail(email);
