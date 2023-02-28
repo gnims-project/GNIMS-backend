@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-public class SlackController {
+public class SlackMessageSender {
 
     @Value("${slack.webhook}")
     private String dailyToken;
@@ -20,7 +20,7 @@ public class SlackController {
     @Value("${slack.webhook.error-tracking}")
     private String errorToken;
 
-    @GetMapping("/slack/scheduler-task")
+    @GetMapping("/send-scheduler-task-result")
     public void sendTaskResult(String message) throws IOException {
         RestTemplate restTemplate = new RestTemplate();
         Map<String,Object> request = new HashMap<>();
@@ -31,11 +31,10 @@ public class SlackController {
         restTemplate.exchange(dailyToken, HttpMethod.POST, entity, String.class);
     }
 
-    @GetMapping("/slack/track-error")
+    @GetMapping("/send-error")
     public void trackError(String message) throws IOException {
         RestTemplate restTemplate = new RestTemplate();
         Map<String,Object> request = new HashMap<>();
-        request.put("type","mrkdwn");
         request.put("username", "gnims-error-tracking-bot");
         request.put("text", "🔥\n" + message + "\n");
 
