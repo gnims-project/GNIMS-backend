@@ -13,10 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.gnims.project.share.message.ExceptionMessage.*;
 
@@ -27,9 +26,6 @@ public class EmailServiceImpl{
 
     private final JavaMailSender emailSender;
     private final PasswordEncoder passwordEncoder;
-//    @Value("${email.hostAddress}")
-//    private String hostAddress; //바꿔야함 <- 백 배포주소
-////        private static String hostAddress = "https://eb.jxxhxxx.shop"; //바꿔야함 <- 백 배포주소 //필요없을지도?
     private final EmailRepository emailRepository;
     private final UserRepository userRepository;
 
@@ -85,9 +81,6 @@ public class EmailServiceImpl{
         msgg+= "<h2 style='color:blue;'>인증 코드 입니다.</h2>";
         msgg+= "<div style='font-size:130%'>";
         msgg+= "인증코드 : <strong>"  + link + "</strong><div><br/> ";
-//        msgg+= "<a href=\"" + hostAddress + "/email/" + link + "/" + email + "\">"; //프론트의 주소 + api/email/대충암호화된문자열/대충누군가의이메일 <- 백엔드로 바로 안가는 이유는 프론트와 연결하기 위해서
-//        msgg+= "<눌러서 인증하기>" + "</strong><div><br/> ";                           //프론트에서 받고 다시 백엔드로 link, email 이랑 재설정한 비밀번호를 넘김
-//        msgg+= "인증코드 : ";                           //프론트에서 받고 다시 백엔드로 link, email 이랑 재설정한 비밀번호를 넘김
         msgg+= "</div>";                                                            //백에서 link 로 인증유저임을 확인하고(이 로직이 없을경우 임의의유저가 인증없이 비밀번호를 바꾸는 가능성이생김)
         message.setText(msgg, "utf-8", "html");//내용
         message.setFrom(new InternetAddress(hostEmail,"그님스"));//보내는 사람
@@ -95,71 +88,26 @@ public class EmailServiceImpl{
         return message;
     }
 
-    public String createLink(String userId) throws NoSuchAlgorithmException {
+    public String createLink() {
 
-        StringBuffer key = new StringBuffer();
-
-        MessageDigest messageDigest = MessageDigest.getInstance("SHa-256");
-        messageDigest.update(userId.getBytes());
-
-        return bytesToHex(messageDigest.digest());
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
-    private String bytesToHex(byte[] bytes) {
-
-        StringBuilder builder = new StringBuilder();
-        for (byte b : bytes) {
-            builder.append(String.format("%02x", b));
-        }
-        return builder.toString();
-    }
-    //    public String createKey() {
-//        StringBuilder key = new StringBuilder();
-//        Random rnd = new Random();
-//        rnd.setSeed(System.currentTimeMillis());
-////        rnd.setSeed(1);   //  되긴 하네
-//        for (int i = 0; i < 8; i++) { // 인증코드 8자리
-//            int index = rnd.nextInt(3); // 0~2 까지 랜덤
-//            switch (index) {
-//                case 0:
-//                    key.append((char) (rnd.nextInt(26) + 97));
-//                    //  a~z  (ex. 1+97=98 => (char)98 = 'b')
-//                    break;
-//                case 1:
-//                    key.append((char) (rnd.nextInt(26) + 65));
-//                    //  A~Z
-//                    break;
-//                case 2:
-//                    key.append((rnd.nextInt(10)));
-//                    // 0~9
-//                    break;
-//            }
-//        }
-//        return key.toString();
-//    }
 
     public String sendSimpleMessage(String to, String email) throws Exception {
 
         // TODO Auto-generated method stub
-        String code = createLink(email);
+        String code = createLink();
         MimeMessage message = createMessage(to, code, email);
         try{//예외처리
             Optional<EmailValidation> byEmail = emailRepository.findByEmail(email);
 
-            if(byEmail.isPresent()) {
-                byEmail.get().isCheckedFalse();
-            }
+            byEmail.ifPresent(emailRepository::delete);
 
-            else {
-                EmailValidation emailValidation = new EmailValidation(code, email);
-                emailRepository.save(emailValidation);
-            }
+            EmailValidation emailValidation = new EmailValidation(code, email);
+            emailRepository.save(emailValidation);
+
             emailSender.send(message);
-        }/*catch(MailException es){
-            es.printStackTrace();
-            throw new IllegalArgumentException(POSTING_EMAIL_ERROR);
-        } catch(DataIntegrityViolationException es) {
-            throw new IllegalArgumentException("이미 존재하는 이메일 입니다.");
-        }*/
+        }
         catch (Exception es) {
             es.printStackTrace();
             throw new IllegalArgumentException(POSTING_EMAIL_ERROR);

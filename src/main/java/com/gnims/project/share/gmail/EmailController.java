@@ -18,7 +18,7 @@ import static org.springframework.http.HttpStatus.OK;
 public class EmailController {
     private final EmailServiceImpl emailServiceImpl;
 
-    @PatchMapping("/email/password")
+    @PatchMapping("/auth/password")
     public ResponseEntity<SimpleMessageResult> updatePassword(@Validated(ValidationSequence.class) @RequestBody EmailPasswordDto request)  throws Exception {
 
         emailServiceImpl.updatePassword(request);
