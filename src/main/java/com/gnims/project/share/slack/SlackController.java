@@ -15,16 +15,31 @@ import java.util.Map;
 public class SlackController {
 
     @Value("${slack.webhook}")
-    private String url;
+    private String dailyToken;
+
+    @Value("${slack.webhook.error-tracking}")
+    private String errorToken;
 
     @GetMapping("/slack/scheduler-task")
     public void sendTaskResult(String message) throws IOException {
         RestTemplate restTemplate = new RestTemplate();
         Map<String,Object> request = new HashMap<>();
         request.put("username", "gnims-bot");
-        request.put("text", message);
+        request.put("text", "🕛\n" + message + "\n");
 
         HttpEntity<Map<String,Object>> entity = new HttpEntity<>(request);
-        restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+        restTemplate.exchange(dailyToken, HttpMethod.POST, entity, String.class);
+    }
+
+    @GetMapping("/slack/track-error")
+    public void trackError(String message) throws IOException {
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String,Object> request = new HashMap<>();
+        request.put("type","mrkdwn");
+        request.put("username", "gnims-error-tracking-bot");
+        request.put("text", "🔥\n" + message + "\n");
+
+        HttpEntity<Map<String,Object>> entity = new HttpEntity<>(request);
+        restTemplate.exchange(errorToken, HttpMethod.POST, entity, String.class);
     }
 }
