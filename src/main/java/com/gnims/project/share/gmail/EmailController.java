@@ -16,12 +16,12 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequiredArgsConstructor
 public class EmailController {
-    private final EmailServiceImpl emailServiceImpl;
+    private final EmailService emailService;
 
     @PatchMapping("/auth/password")
     public ResponseEntity<SimpleMessageResult> updatePassword(@Validated(ValidationSequence.class) @RequestBody EmailPasswordDto request)  throws Exception {
 
-        emailServiceImpl.updatePassword(request);
+        emailService.updatePassword(request);
 
         return new ResponseEntity<>(new SimpleMessageResult(OK.value(), PASSWORD_UPDATE_SUCCESS_MESSAGE), OK);
     }
@@ -29,7 +29,7 @@ public class EmailController {
     @PatchMapping("/auth/code")
     public ResponseEntity<SimpleMessageResult> updatePassword(@RequestBody AuthCodeDto request)  throws Exception {
 
-        emailServiceImpl.checkCode(request);
+        emailService.checkCode(request);
 
         return new ResponseEntity<>(new SimpleMessageResult(OK.value(), SUCCESS_AUTH_EMAIL_MESSAGE), OK);
     }

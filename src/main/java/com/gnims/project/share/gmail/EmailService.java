@@ -22,7 +22,7 @@ import static com.gnims.project.share.message.ExceptionMessage.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EmailServiceImpl{
+public class EmailService {
 
     private final JavaMailSender emailSender;
     private final PasswordEncoder passwordEncoder;
@@ -93,7 +93,7 @@ public class EmailServiceImpl{
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 
-    public String sendSimpleMessage(String to, String email) throws Exception {
+    public String createEmailValidation(String to, String email) throws Exception {
 
         // TODO Auto-generated method stub
         String code = createCode();
@@ -101,7 +101,9 @@ public class EmailServiceImpl{
         try{//예외처리
             Optional<EmailValidation> byEmail = emailRepository.findByEmail(email);
 
-            byEmail.ifPresent(emailRepository::delete);
+            if(byEmail.isPresent()) {
+                emailRepository.delete(byEmail.get());
+            }
 
             EmailValidation emailValidation = new EmailValidation(code, email);
             emailRepository.save(emailValidation);

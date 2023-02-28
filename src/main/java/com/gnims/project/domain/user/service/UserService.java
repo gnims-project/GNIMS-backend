@@ -9,7 +9,7 @@ import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
-import com.gnims.project.share.gmail.EmailServiceImpl;
+import com.gnims.project.share.gmail.EmailService;
 import com.gnims.project.social.dto.SocialSignupDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +34,7 @@ import static com.gnims.project.share.message.ResponseMessage.CHECK_NICKNAME_MES
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final EmailServiceImpl emailServiceImpl;
+    private final EmailService emailService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
@@ -207,7 +207,7 @@ public class UserService {
                 () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
         );
 
-        emailServiceImpl.sendSimpleMessage(user.getNickname(), request.getEmail());
+        emailService.createEmailValidation(user.getNickname(), request.getEmail());
     }
 
     @Transactional

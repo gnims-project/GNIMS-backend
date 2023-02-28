@@ -34,7 +34,7 @@ public class EmailScheduler {
             emailRepository.deleteAuthEmail(LocalDateTime.now().minusMinutes(183));
         }
         catch (Exception e) {
-            slackController.sendTaskResult(today + " 인증 메일 삭제 중 오류가 발생했습니다. 관리자를 호출하십시오");
+            slackController.sendTaskResult("["+ today + "] 인증 메일 삭제 중 오류가 발생했습니다. 관리자를 호출하십시오");
             log.info("[인증 메일 삭제 중 오류가 발생했습니다]");
             throw new RuntimeException("인증 메일 처리 오류 발생");
         }
