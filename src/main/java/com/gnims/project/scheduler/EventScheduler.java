@@ -1,6 +1,6 @@
 package com.gnims.project.scheduler;
 
-import com.gnims.project.share.slack.SlackController;
+import com.gnims.project.share.slack.SlackMessageSender;
 import com.gnims.project.domain.event.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.time.LocalDate;
 public class EventScheduler {
 
     private final EventRepository eventRepository;
-    private final SlackController slackController;
+    private final SlackMessageSender slackMessageSender;
 
     /**
      * 매일 0시에 d-day 작업
@@ -33,11 +33,11 @@ public class EventScheduler {
             eventRepository.updateDDay();
         }
         catch (Exception e) {
-            slackController.sendTaskResult(today + " 디데이 감소 처리 중 오류가 발생했습니다. 관리자를 호출하십시오");
+            slackMessageSender.sendTaskResult(today + " 디데이 감소 처리 중 오류가 발생했습니다. 관리자를 호출하십시오");
             log.info("[{} 디데이 감소 처리 중 오류가 발생했습니다]", today);
             throw new RuntimeException("디디에 처리 오류 발생");
         }
-        slackController.sendTaskResult(today + " 그님스 데이터베이스에 보관중인 모든 Event의 D-day가 1 감소합니다.");
+        slackMessageSender.sendTaskResult(today + " 그님스 데이터베이스에 보관중인 모든 Event의 D-day가 1 감소합니다.");
         log.info("[{} 디데이 처리가 완료되었습니다]", today);
     }
 }
