@@ -29,8 +29,4 @@ public class EmailValidation extends TimeStamped {
     public void isCheckedTrue() {
         this.isChecked = true;
     }
-
-    public void isCheckedFalse() {
-        this.isChecked = false;
-    }
 }
