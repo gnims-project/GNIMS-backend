@@ -1,0 +1,9 @@
+dto suffix 설명
+
+Form : @RequestBody 에 들어갈 데이터 @Controller 에서 사용됩니다.
+Response : 서비스단에서 응답으로 내리는 전용 DTO, @Service 에서 사용됩니다.
+Dto : 리포짓토리단의 응답, 서비스단에서 응답을 만들기 위한 DTO, @Repository, @Service 에서 사용됩니다.
+서비스단에서 사용될 경우 ResponseDto 를 만들기 위해 사용됩니다.
+Result : 최종적으로 클라이언트에게 응답할 데이터 @Controller 에서 사용됩니다.
+
+*이렇게 나눈 이유가 궁금해요!*

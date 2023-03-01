@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.8'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id "org.sonarqube" version "2.7"
+    id 'jacoco'
 }
 
 group = 'com.gnims'
@@ -17,21 +19,71 @@ configurations {
 repositories {
     mavenCentral()
 }
+//jacoco
+jacoco {
+    toolVersion = '0.8.5'
+}
+
+jacocoTestReport {
+    // ...
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, excludes: [
+                            '**/*Application*',
+                            '**/*Exception*',
+                            '**/dto/**',
+                            "**/message/**",
+                            "**/share/**"
+                            // ...
+                    ])
+                })
+        )
+    }
+}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
+}
+
+jar {
+    enabled = false
+}
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    //@Valid 등의 유효성 검사에 사용
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //s3 의존성 설치
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // email 인증
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
     compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
 
-    compileOnly 'org.projectlombok:lombok'
+    // main 서버
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    // test 서버
     runtimeOnly 'com.h2database:h2'
+
+    compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    //slack
+    implementation("com.slack.api:slack-api-client:1.27.3")
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
