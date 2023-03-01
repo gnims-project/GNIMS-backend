@@ -18,7 +18,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -30,23 +29,8 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class NaverService {
-
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-
-    /*
-    * 사용 안하지만 혹시 몰라서 남겨둠
-    * */
-
-//    @Value("${naver.tokenUri}")
-//    private String naverTokenUri;
-//    @Value("${naver.clientId}")
-//    private String naverClientId;
-//    @Value("${naver.redirectUri}")
-//    private String naverCallbackUri;
-//    @Value("${naver.clientSecret}")
-//    private String naverClientSecret;
 
     @Value("${naver.userInfoUri}")
     private String naverProfileUri;
@@ -55,12 +39,6 @@ public class NaverService {
 
         // 1. 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
         SocialProfileDto naverUserInfo = getNaverUserInfo(token);
-
-//        // 2. 필요시에 회원가입
-//        User naverUser = registerNaverUserIfNeeded(naverUserInfo);
-//
-//        // 3. JWT 토큰 담기
-//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(naverUser.getUsername()));
 
         // DB 에 중복된 Naver email 이 있는지 확인
         String naverEmail = SocialCode.NAVER.getValue() + naverUserInfo.getEmail();
@@ -101,58 +79,10 @@ public class NaverService {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
-        //네이버 식별자 id
-//        String id = jsonNode.get("response").get("id").asText();
-        //네이버 유저 이름
-//        String nickname = jsonNode.get("response").get("name").asText();
-
         //네이버 유저 이메일
         String email = jsonNode.get("response").get("email").asText();
-
-//        System.out.println("____________________________ naverEmail: " + email);
         log.info("네이버 사용자 정보: " + email);
 
         return new SocialProfileDto(email);
     }
-
-//    // 3. 필요시에 회원가입
-//    private User registerNaverUserIfNeeded(SocialProfileDto naverUserInfo) {
-//
-//        // DB 에 중복된 naver Id 가 있는지 확인
-//        String naverId = naverUserInfo.getId();
-//        User naverUser = userRepository.findBySocialId(naverId)
-//                .orElse(null);
-//        if (naverUser == null) {
-//            String naverEmail = naverUserInfo.getEmail();
-//            naverUser = getNaverUser(naverUserInfo, naverId, naverEmail);
-//            userRepository.flush();
-//        }
-//        return naverUser;
-//    }
-//
-//    //DB에서 사용자의 네이버 정보를 추가, 없을 시 DB에 저장 후 가져옴
-//    @Transactional
-//    User getNaverUser(SocialProfileDto naverUserInfo, String naverId, String naverEmail) {
-//
-//        //네이버 이메일과 동일한 이메일 유저가 있는경우
-//        if (userRepository.findByEmail(naverEmail).isPresent()) {
-//            return userRepository
-//                    .findByEmail(naverEmail).get()
-//                    // 기존 회원정보에 네이버 Id 추가
-//                    .socialIdUpdate(SocialCode.NAVER, naverId);
-//        }
-//
-//        // 신규 회원가입
-//        // password: random UUID
-//        String password = UUID.randomUUID().toString();
-//        String encodedPassword = passwordEncoder.encode(password);
-//
-//        // email: naver email
-//        String email = naverUserInfo.getEmail();
-//
-//        User naverUser = new User(naverUserInfo.getNickname(), SocialCode.NAVER, naverId, email, encodedPassword);
-//
-//        userRepository.save(naverUser);
-//        return naverUser;
-//    }
 }

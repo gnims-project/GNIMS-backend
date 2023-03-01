@@ -41,12 +41,6 @@ public class UserService {
     @Value("${cloud.aws.s3.bucket}")
     private String S3Bucket;
 
-    @Value("${cloud.aws.s3.uri}")
-    private String S3Uri;
-
-    @Value("${cloud.aws.cdn.uri}")
-    private String cdnUri;
-
     @Value("${profile.image}")
     private String defaultImage;
 
@@ -110,7 +104,7 @@ public class UserService {
                 new PutObjectRequest(S3Bucket, originName, image.getInputStream(), objectMetadata )
                         .withCannedAcl(CannedAccessControlList.PublicRead)
         );
-        return amazonS3Client.getUrl(S3Bucket, originName).toString().replace(S3Uri, cdnUri);
+        return amazonS3Client.getUrl(S3Bucket, originName).toString();
     }
 
     @Transactional
