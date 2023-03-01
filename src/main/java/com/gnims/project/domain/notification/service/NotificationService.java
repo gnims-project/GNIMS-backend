@@ -38,6 +38,7 @@ public class NotificationService {
 
         return notifications.stream().map(n -> new ReadAllNotificationResponse(
                 n.getId(),
+                n.getCreateAt(),
                 n.getCreateBy(),
                 n.getMessage(),
                 n.getIsChecked(),
