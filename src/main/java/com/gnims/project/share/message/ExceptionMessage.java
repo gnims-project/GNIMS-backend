@@ -30,7 +30,7 @@ public class ExceptionMessage {
 
     // User
     public static final String NOT_EXISTED_USER = "존재하지 않는 유저입니다.";
-    public static final String NOT_EXISTED_SCHEDULE = "존재하지 않는 유저입니다.";
+    public static final String NOT_EXISTED_SCHEDULE = "존재하지 않는 일정입니다.";
 
     // Schedule
     public static final String ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE = "이미 요청이 처리되었거나 존재하지 않는 일정입니다.";
@@ -43,4 +43,7 @@ public class ExceptionMessage {
     public static final String INVALID_CODE_ERROR = "인증 실패 / 인증 코드가 유효하지 않습니다.";
     public static final String UNAUTHENTICATED_EMAIL_ERROR = "이메일 인증을 해주세요";
     public static final String POSTING_EMAIL_ERROR = "이메일 발송 오류입니다.";
+
+    // Notification
+    public static final String NOT_EXISTED_NOTIFICATION = "존재하지 않는 알림입니다.";
 }
