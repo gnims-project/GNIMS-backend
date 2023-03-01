@@ -5,6 +5,7 @@ import com.gnims.project.domain.schedule.service.ScheduleService;
 import com.gnims.project.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,9 +34,12 @@ public class ScheduleController {
     @GetMapping("/v2-page/users/{user-id}/events")
     public ResponseEntity<PageableReadScheduleResult> readAllSchedulePage(@PathVariable("user-id") Long followId,
                                                                           @RequestParam Integer page,
-                                                                          @RequestParam Integer size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        PageableReadResponse response = scheduleService.readAllSchedulePage(followId, pageRequest);
+                                                                          @RequestParam Integer size,
+                                                                          @RequestParam(defaultValue = "event.dDay")
+                                                                              String sortedBy) {
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sortedBy).ascending());
+        PageableReadResponse response = scheduleService.readAllSchedulePage(followId, pageRequest, sortedBy);
         return new ResponseEntity<>(new PageableReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE,
                 response.getSize(), response.getData()), OK);
     }

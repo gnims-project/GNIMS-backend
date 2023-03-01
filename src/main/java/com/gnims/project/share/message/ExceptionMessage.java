@@ -35,7 +35,7 @@ public class ExceptionMessage {
     // Schedule
     public static final String ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE = "이미 요청이 처리되었거나 존재하지 않는 일정입니다.";
     public static final String ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE = "이미 요청이 처리되었거나 권한이 없습니다.";
-
+    public static final String BAD_REQUEST = "잘못된 요청입니다.";
     public static final String ALREADY_DELETED_EVENT = "이미 삭제된 일정입니다.";
 
 

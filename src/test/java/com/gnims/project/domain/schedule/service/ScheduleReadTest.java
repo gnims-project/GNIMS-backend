@@ -14,12 +14,15 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @AutoConfigureMockMvc
@@ -43,6 +46,7 @@ public class ScheduleReadTest {
 
     TransactionStatus status = null;
     String hostToken = null;
+    String carrotToken = null;
 
     @BeforeEach
     void beforeEach() throws Exception {
@@ -50,9 +54,15 @@ public class ScheduleReadTest {
 
         MvcResult result = mvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\",\"socialCode\": \"AUTH\" }")).andReturn();
+                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}")).andReturn();
 
         hostToken = result.getResponse().getHeader("Authorization");
+
+        MvcResult result2 = mvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\": \"danguen@gmail.com\", \"password\": \"123456aA9\"}")).andReturn();
+
+        carrotToken = result2.getResponse().getHeader("Authorization");
 
         Long hostId = userRepository.findByNickname("딸기").get().getId();
         Long inviteeId = userRepository.findByNickname("당근").get().getId();
@@ -199,6 +209,50 @@ public class ScheduleReadTest {
                 .andExpect(jsonPath("$.data.size()").value(3));
     }
 
+    @DisplayName("페이징 조회 시 정렬 기준은 String 타입의 sortedBy Param으로 받고 결과는 다음과 같다. " +
+            "sortedBy 생략 혹은 event.dDay 일 경우 d-day를 기준으로 오름 차순으로 정렬되고 " +
+            "event.createAt 일 때는 이벤트 생성일자를 기준으로 내림 차순으로 정렬된다." +
+            "그 외 param 값이 들어온다면 400 에러를 던진다.")
+    @Test
+    void test6() throws Exception {
+        //given : 스케줄 7번 생성, beforeEach에서 만들어지는 스케줄 1번 총 스케줄 갯수 8개
+        Long hostId = userRepository.findByNickname("당근").get().getId();
+        createSchedule("\"9999-04-15\"", "\"첫 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-01-15\"", "\"두 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-02-17\"", "\"세 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-03-20\"", "\"네 번째 스케줄\"", carrotToken);
+
+        //when
+        mvc.perform(get("/v2-page/users/" + hostId + "/events").header("Authorization", carrotToken)
+                        .param("page","0")
+                        .param("size","10"))
+                //then sortedBy : 생략될 경우 d-day를 기준으로 오름 차순으로 정렬
+                .andExpect(jsonPath("$.data[0].subject").value("두 번째 스케줄"))
+                .andExpect(jsonPath("$.data[1].subject").value("세 번째 스케줄"));
+
+        mvc.perform(get("/v2-page/users/" + hostId + "/events").header("Authorization", carrotToken)
+                        .param("page","0")
+                        .param("size","10")
+                        .param("sortedBy", "event.dDay"))
+                //then sortedBy : event.dDay d-day를 기준으로 오름 차순으로 정렬
+                .andExpect(jsonPath("$.data[0].subject").value("두 번째 스케줄"))
+                .andExpect(jsonPath("$.data[1].subject").value("세 번째 스케줄"));
+
+        mvc.perform(get("/v2-page/users/" + hostId + "/events").header("Authorization", carrotToken)
+                        .param("page","0")
+                        .param("size","10")
+                        .param("sortedBy","event.createAt"))
+                //then sortedBy : 이벤트 생성일자를 기준으로 내림 차순으로 정렬
+                .andExpect(jsonPath("$.data[0].subject").value("네 번째 스케줄"));
+
+        mvc.perform(get("/v2-page/users/" + hostId + "/events").header("Authorization", carrotToken)
+                        .param("page","0")
+                        .param("size","10")
+                        .param("sortedBy","event.modifiedAt"))
+                // then : sortedBy param 에 지정되지 않은 정렬 기준이 들어갔을 때
+                .andExpect(status().isBadRequest());
+    }
+
 
     private void makeUser() throws Exception {
         MockMultipartFile file1 = new MockMultipartFile(
@@ -232,6 +286,18 @@ public class ScheduleReadTest {
                 .content("{\"date\": \"9999-03-15\", " +
                         "\"time\":\"16:00:00\"," +
                         "\"subject\":\"자바 스터디\"," +
+                        "\"content\":\"람다, 스트림에 대해 공부합니다.\", " +
+                        "\"cardColor\": \"pink\"," +
+                        "\"participantsId\": " +
+                        "[]}"));
+    }
+
+    private void createSchedule(String date, String subject, String token) throws Exception {
+        mvc.perform(post("/events").header("Authorization", token)
+                .contentType(APPLICATION_JSON)
+                .content("{\"date\":" + date + ", " +
+                        "\"time\":\"16:00:00\"," +
+                        "\"subject\":" + subject + "," +
                         "\"content\":\"람다, 스트림에 대해 공부합니다.\", " +
                         "\"cardColor\": \"pink\"," +
                         "\"participantsId\": " +

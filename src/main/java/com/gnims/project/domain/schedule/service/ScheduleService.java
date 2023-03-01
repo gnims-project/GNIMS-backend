@@ -60,12 +60,14 @@ public class ScheduleService {
 
     public List<ReadAllResponse> readAllSchedule(Long userId) {
         List<ReadAllScheduleDto> eventQueries = scheduleRepository.readAllSchedule(userId);
+
+        //필요한 로직인지 확인 필요
         HashSet<Long> set = new HashSet<>(eventQueries.size());
 
         List<ReadAllScheduleDto> event = eventQueries.stream()
                 .filter(e -> set.add(e.getEventId()))
                 .collect(toList());
-
+        //필요한 로직인지 확인 필요
         return event.stream().map(e -> new ReadAllResponse(
                 e.getEventId(),
                 e.getDate(),
@@ -77,16 +79,21 @@ public class ScheduleService {
 
     }
 
-    public PageableReadResponse readAllSchedulePage(Long userId, PageRequest pageRequest) {
+    private static List<String> sorts = List.of("event.createAt", "event.dDay");
+
+    public PageableReadResponse readAllSchedulePage(Long userId, PageRequest pageRequest, String sorting) {
+        if (!sorts.contains(sorting)) {
+            throw new IllegalArgumentException(BAD_REQUEST);
+        }
+
+        // 이베트 생성순일때는 내림차순으로 변경
+        if ("event.createAt".equals(sorting)) {
+            pageRequest = pageRequest.withSort(pageRequest.getSort().descending());
+        }
+
         Page<ReadAllScheduleDto> schedules = scheduleRepository.readAllSchedulePage(userId, pageRequest);
-        Long totalElements = schedules.getTotalElements();
-        int eventSize = totalElements.intValue();
 
-        // 이벤트는 중복될 수 있음으로 set으로 중복 처리
-        HashSet<Long> set = new HashSet<>(eventSize);
-        List<ReadAllScheduleDto> distinctSchedules = schedules.stream().filter(e -> set.add(e.getEventId())).collect(toList());
-
-        List<ReadAllResponse> responses = distinctSchedules.stream().map(ds -> new ReadAllResponse(
+        List<ReadAllResponse> responses = schedules.stream().map(ds -> new ReadAllResponse(
                 ds.getEventId(),
                 ds.getDate(),
                 ds.getTime(),
