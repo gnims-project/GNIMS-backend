@@ -32,9 +32,6 @@ public class SocialLoginController {
     @PostMapping ("/social/naver-login")
     public ResponseEntity<SocialResult> naverLogin(@RequestBody SocialTokenDto tokenDto, HttpServletResponse response) throws JsonProcessingException {
 
-//        System.out.println("________________________________________token: " + request.getHeader("token"));
-        System.out.println("________________________________________token: " + tokenDto.getToken());
-
         // 프론트에서 naver token 을 받아옴
         SocialResult result = naverService.naverLogin(tokenDto.getToken(), response);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));

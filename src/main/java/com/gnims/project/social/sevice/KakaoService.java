@@ -18,7 +18,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -31,7 +30,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class KakaoService {
-    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
@@ -128,50 +126,4 @@ public class KakaoService {
         log.info("카카오 사용자 정보: " + email);
         return new SocialProfileDto(email);
     }
-
-//    // 3. 필요시에 회원가입
-//    private User registerKakaoUserIfNeeded(SocialProfileDto kakaoUserInfo) {
-//
-//        // DB 에 중복된 Kakao email 가 있는지 확인
-//        String kakaoEmail = "Gnims.Kakao." + kakaoUserInfo.getEmail();
-//        User kakaoUser = userRepository.findByEmail(kakaoEmail)
-//                .orElse(null);
-//        if (kakaoUser == null) {
-//            kakaoUser = new User();
-//        }
-//        return kakaoUser;
-//    }
-
-
-    /*
-    *
-    * 이메일 유저와
-    * 소셜 로그인 유저
-    * 통합 x
-    * */
-
-//    //DB에서 사용자의 카카오 정보를 추가, 없을 시 DB에 저장 후 가져옴
-//    User getKakaoUser(SocialProfileDto kakaoUserInfo, String kakaoEmail) {
-//
-//        //카카오 이메일과 동일한 이메일 유저가 있는경우
-//        if (userRepository.findByEmail(kakaoEmail).isPresent()) {
-//            return userRepository
-//                    .findByEmail(kakaoEmail).get()
-//                    // 기존 회원정보에 카카오 Id 추가
-//                    .socialIdUpdate(SocialCode.KAKAO, kakaoId);
-//        }
-//
-//        // 신규 회원가입
-//        // password: random UUID
-//        String password = UUID.randomUUID().toString();
-//        String encodedPassword = passwordEncoder.encode(password);
-//
-//        // email: kakao email
-//        String email = kakaoUserInfo.getEmail();
-//
-//        User kakaoUser = new User(kakaoUserInfo.getNickname(), SocialCode.KAKAO, kakaoId, email, encodedPassword);
-//
-//        userRepository.save(kakaoUser);
-//        return kakaoUser;
-//    }
 }
