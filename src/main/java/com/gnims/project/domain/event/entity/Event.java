@@ -30,8 +30,12 @@ public class Event extends BaseEntity {
     private Appointment appointment;
 
     private String cardColor;
+
     private String subject;
+
+    @Lob
     private String content;
+
     private Boolean isDeleted;
 
     @OneToMany(mappedBy = "event")

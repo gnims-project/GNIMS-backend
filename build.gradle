@@ -69,7 +69,9 @@ dependencies {
     compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
 
-//    runtimeOnly 'com.mysql:mysql-connector-j'
+    // main 서버
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    // test 서버
     runtimeOnly 'com.h2database:h2'
 
     compileOnly 'org.projectlombok:lombok'
@@ -79,6 +81,9 @@ dependencies {
 
     //slack
     implementation("com.slack.api:slack-api-client:1.27.3")
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
