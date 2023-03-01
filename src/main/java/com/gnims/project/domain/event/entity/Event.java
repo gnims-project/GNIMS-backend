@@ -1,6 +1,5 @@
 package com.gnims.project.domain.event.entity;
 
-import com.gnims.project.domain.schedule.dto.ScheduleForm;
 import com.gnims.project.domain.schedule.dto.ScheduleServiceForm;
 import com.gnims.project.domain.schedule.dto.UpdateForm;
 import com.gnims.project.domain.schedule.entity.Schedule;
@@ -12,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,14 +60,6 @@ public class Event extends BaseEntity {
         this.content = form.getContent();
         this.appointment = new Appointment(form);
         this.dDay = calculateDDay();
-    }
-
-    public LocalDate receiveDate() {
-        return this.appointment.getDate();
-    }
-
-    public LocalTime receiveTime() {
-        return this.appointment.getTime();
     }
 
     private long calculateDDay() {
