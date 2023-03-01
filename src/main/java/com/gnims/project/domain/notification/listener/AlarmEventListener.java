@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static com.gnims.project.domain.notification.entity.NotificationType.*;
 
 @Slf4j
 @Component
@@ -51,7 +52,7 @@ public class AlarmEventListener {
             try {
                 String message = form.getUsername() + "님께서 " + form.getSubject() + " 일정에 초대하셨습니다.";
                 log.info("이벤트 리스너 메시지 : {} TO USER ID : {}", message, participantsId);
-                Notification notification = notificationService.createV2(participantsId, message);
+                Notification notification = notificationService.create(participantsId, message, SCHEDULE);
 
                 sseEmitter.send(SseEmitter.event()
                         .name("invite")
@@ -75,7 +76,7 @@ public class AlarmEventListener {
             String message = response.getSenderName() + "님께서 팔로우하셨습니다.";
 
             log.info("이벤트 리스너 메시지 : {} TO USER ID : {}", message, response.getFollowId());
-            Notification notification = notificationService.createV2(response.getFollowId(), message);
+            Notification notification = notificationService.create(response.getFollowId(), message, FRIENDSHIP);
 
             sseEmitter.send(SseEmitter.event()
                     .name("follow")
