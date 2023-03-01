@@ -2,6 +2,7 @@ package com.gnims.project.domain.schedule.service;
 
 import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
+import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -40,6 +41,9 @@ public class ScheduleRejectTest {
     ScheduleRepository scheduleRepository;
 
     @Autowired
+    NotificationRepository notificationRepository;
+
+    @Autowired
     EventRepository eventRepository;
 
     @Autowired
@@ -75,10 +79,12 @@ public class ScheduleRejectTest {
 
     @AfterEach
     void afterEach() {
+        notificationRepository.deleteAll();
         scheduleRepository.deleteAll();
         eventRepository.deleteAll();
         userRepository.deleteAll();
     }
+
     @DisplayName("삭제된 일정을 거절하려는 경우 " +
             "400 상태 코드와 응답 메시지 반환 " +
             "scheduleStatus는 기존(PENDING)과 동일하다.")

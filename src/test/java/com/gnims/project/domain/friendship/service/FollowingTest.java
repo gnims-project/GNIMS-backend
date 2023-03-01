@@ -1,6 +1,7 @@
 package com.gnims.project.domain.friendship.service;
 
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
+import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -41,6 +42,9 @@ public class FollowingTest {
     @Autowired
     FriendshipRepository friendshipRepository;
 
+    @Autowired
+    NotificationRepository notificationRepository;
+
     String mytoken = null;
 
     @Autowired
@@ -61,6 +65,7 @@ public class FollowingTest {
 
     @AfterEach
     void afterEach() {
+        notificationRepository.deleteAll();
         friendshipRepository.deleteAll();
         userRepository.deleteAll();
     }

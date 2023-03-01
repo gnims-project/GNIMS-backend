@@ -2,6 +2,7 @@ package com.gnims.project.domain.schedule.service;
 
 import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
+import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -34,6 +35,9 @@ public class SchedulePendingTest {
 
     @Autowired
     ScheduleRepository scheduleRepository;
+
+    @Autowired
+    NotificationRepository notificationRepository;
 
     @Autowired
     EventRepository eventRepository;
@@ -69,6 +73,7 @@ public class SchedulePendingTest {
 
     @AfterEach
     void afterEach() {
+        notificationRepository.deleteAll();
         scheduleRepository.deleteAll();
         eventRepository.deleteAll();
         userRepository.deleteAll();

@@ -1,6 +1,7 @@
 package com.gnims.project.domain.schedule.service;
 
 import com.gnims.project.domain.event.repository.EventRepository;
+import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.schedule.dto.ReadAllScheduleDto;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -42,6 +43,9 @@ public class SchedulePastTest {
     ScheduleRepository scheduleRepository;
 
     @Autowired
+    NotificationRepository notificationRepository;
+
+    @Autowired
     EventRepository eventRepository;
 
     @Autowired
@@ -65,6 +69,7 @@ public class SchedulePastTest {
 
     @AfterEach
     void afterEach() {
+        notificationRepository.deleteAll();
         scheduleRepository.deleteAll();
         eventRepository.deleteAll();
         userRepository.deleteAll();
