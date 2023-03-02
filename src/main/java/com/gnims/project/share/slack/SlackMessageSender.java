@@ -39,8 +39,6 @@ public class SlackMessageSender {
         Map<String,Object> request = new HashMap<>();
         request.put("username", botName);
         request.put("text", message);
-
-        HttpEntity<Map<String,Object>> entity = new HttpEntity<>(request);
-        return entity;
+        return new HttpEntity<>(request);
     }
 }
