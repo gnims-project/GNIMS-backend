@@ -161,12 +161,12 @@ public class UserService {
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
 
         User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
-                () -> new BadCredentialsException(MISMATCH_EMAIL_OR_PASSWORD)
+                () -> new BadCredentialsException(MISMATCH_EMAIL_OR_SECRET)
         );
 
         //암호화 된 비밀번호를 비교
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException(MISMATCH_EMAIL_OR_PASSWORD);
+            throw new BadCredentialsException(MISMATCH_EMAIL_OR_SECRET);
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getNickname()));
@@ -208,11 +208,11 @@ public class UserService {
     public void updatePassword(PasswordDto request, User user) {
 
         if(request.getOldPassword().equals(request.getNewPassword())) {
-            throw new IllegalArgumentException(THE_SAME_PASSWORD_AS_BEFORE);
+            throw new IllegalArgumentException(THE_SAME_SECRET_AS_BEFORE);
         }
 
         if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new IllegalArgumentException(CURRENT_MISMATCHED_PASSWORD);
+            throw new IllegalArgumentException(CURRENT_MISMATCHED_SECRET);
         }
 
         String newPassword = passwordEncoder.encode(request.getNewPassword());

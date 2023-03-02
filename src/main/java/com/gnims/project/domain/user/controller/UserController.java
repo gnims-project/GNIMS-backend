@@ -89,7 +89,7 @@ public class UserController {
 
         userService.updatePassword(request, userDetails.getUser());
 
-        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), PASSWORD_UPDATE_SUCCESS_MESSAGE), OK);
+        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), SECRET_UPDATE_SUCCESS_MESSAGE), OK);
     }
 
     //최적화 검색

@@ -13,17 +13,17 @@ import static com.gnims.project.share.message.ExceptionMessage.*;
 @NoArgsConstructor
 public class PasswordDto {
 
-    @NotBlank(message = OLD_PASSWORD_EMPTY_MESSAGE,
+    @NotBlank(message = OLD_SECRET_EMPTY_MESSAGE,
             groups = ValidationGroups.NotNullGroup.class)
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,16}$",
             groups = ValidationGroups.PatternCheckGroup.class,
-            message = PASSWORD_ERROR_MESSAGE)
+            message = SECRET_ERROR_MESSAGE)
     private String oldPassword;
 
-    @NotBlank(message = NEW_PASSWORD_EMPTY_MESSAGE,
+    @NotBlank(message = NEW_SECRET_EMPTY_MESSAGE,
             groups = ValidationGroups.NotNullGroup.class)
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,16}$",
             groups = ValidationGroups.PatternCheckGroup.class,
-            message = PASSWORD_ERROR_MESSAGE)
+            message = SECRET_ERROR_MESSAGE)
     private String newPassword;
 }

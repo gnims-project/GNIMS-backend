@@ -141,7 +141,7 @@ public class UserSignupTest {
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         expression2,
                         NICKNAME_EMPTY_MESSAGE,
-                        PASSWORD_EMPTY_MESSAGE,
+                        SECRET_EMPTY_MESSAGE,
                         USERNAME_EMPTY_MESSAGE,
                         EMAIL_EMPTY_MESSAGE
                 ).exists());
@@ -154,7 +154,7 @@ public class UserSignupTest {
                 .andExpect(MockMvcResultMatchers.jsonPath(
                         expression2,
                         USERNAME_ERROR_MESSAGE,
-                        PASSWORD_ERROR_MESSAGE,
+                        SECRET_ERROR_MESSAGE,
                         EMAIL_ERROR_MESSAGE,
                         NICKNAME_ERROR_MESSAGE
                 ).exists());
