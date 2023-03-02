@@ -14,7 +14,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.gnims.project.share.message.ExceptionMessage.MISMATCH_EMAIL_OR_PASSWORD;
+import static com.gnims.project.share.message.ExceptionMessage.MISMATCH_EMAIL_OR_SECRET;
 import static com.gnims.project.share.message.ResponseMessage.LOGIN_SUCCESS_MESSAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -65,7 +65,7 @@ public class UserLoginTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi2@gmail.com\", \"password\": \"123456aA9\"}"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(MISMATCH_EMAIL_OR_PASSWORD));
+                .andExpect(jsonPath("$.message").value(MISMATCH_EMAIL_OR_SECRET));
     }
 
     @DisplayName("로그인 시 등록된 이메일 있음, 비밀번호 틀림 - 상태코드 401, 실패 메세지 반환")
@@ -75,6 +75,6 @@ public class UserLoginTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456a9\"}"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(MISMATCH_EMAIL_OR_PASSWORD));
+                .andExpect(jsonPath("$.message").value(MISMATCH_EMAIL_OR_SECRET));
     }
 }

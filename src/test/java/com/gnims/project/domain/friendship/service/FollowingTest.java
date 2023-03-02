@@ -1,6 +1,7 @@
 package com.gnims.project.domain.friendship.service;
 
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
+import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -41,12 +42,13 @@ public class FollowingTest {
     @Autowired
     FriendshipRepository friendshipRepository;
 
+    @Autowired
+    NotificationRepository notificationRepository;
+
     String mytoken = null;
 
     @Autowired
     PlatformTransactionManager transactionManager;
-
-    TransactionStatus status = null;
 
     @BeforeEach
     void beforeEach() throws Exception {
@@ -61,11 +63,11 @@ public class FollowingTest {
 
     @AfterEach
     void afterEach() {
+        notificationRepository.deleteAll();
         friendshipRepository.deleteAll();
         userRepository.deleteAll();
     }
 
-    @Transactional
     @DisplayName("최초 팔로우 상태(INIT)일 시 - 상태 코드 200, 'username' : {팔로잉 이름} 반환")
     @Test
     void test1() throws Exception {

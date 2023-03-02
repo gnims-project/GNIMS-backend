@@ -2,6 +2,7 @@ package com.gnims.project.domain.schedule.service;
 
 import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
+import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -40,6 +41,9 @@ public class ScheduleAcceptTest {
     ScheduleRepository scheduleRepository;
 
     @Autowired
+    NotificationRepository notificationRepository;
+
+    @Autowired
     EventRepository eventRepository;
 
     @Autowired
@@ -75,6 +79,7 @@ public class ScheduleAcceptTest {
 
     @AfterEach
     void afterEach() {
+        notificationRepository.deleteAll();
         scheduleRepository.deleteAll();
         eventRepository.deleteAll();
         userRepository.deleteAll();
@@ -97,7 +102,7 @@ public class ScheduleAcceptTest {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Schedule schedule = scheduleRepository.findByUser_IdAndEvent_Id(inviteeId, eventId).get();
+        Schedule schedule = scheduleRepository.findByUserIdAndEventId(inviteeId, eventId).get();
         Assertions.assertThat(schedule.getScheduleStatus()).isEqualTo(PENDING);
     }
 
@@ -117,7 +122,7 @@ public class ScheduleAcceptTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Schedule schedule = scheduleRepository.findByUser_IdAndEvent_Id(inviteeId, eventId).get();
+        Schedule schedule = scheduleRepository.findByUserIdAndEventId(inviteeId, eventId).get();
         Assertions.assertThat(schedule.getScheduleStatus()).isEqualTo(PENDING);
     }
 
@@ -148,7 +153,7 @@ public class ScheduleAcceptTest {
         Long hostId = userRepository.findByNickname("딸기").get().getId();
 
         Long eventId = eventRepository.findBySubject("과일 정기 모임").get().getId();
-        Schedule initialSchedule = scheduleRepository.findByUser_IdAndEvent_Id(hostId, eventId).get();
+        Schedule initialSchedule = scheduleRepository.findByUserIdAndEventId(hostId, eventId).get();
         // 스케줄을 수락 전 ScheduleStatus 필드
         Assertions.assertThat(initialSchedule.getScheduleStatus()).isEqualTo(ACCEPT);
         //when
@@ -157,7 +162,7 @@ public class ScheduleAcceptTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Schedule acceptedSchedule = scheduleRepository.findByUser_IdAndEvent_Id(hostId, eventId).get();
+        Schedule acceptedSchedule = scheduleRepository.findByUserIdAndEventId(hostId, eventId).get();
         Assertions.assertThat(acceptedSchedule.getScheduleStatus()).isEqualTo(ACCEPT);
     }
 
@@ -174,7 +179,7 @@ public class ScheduleAcceptTest {
         //given
 
         Long eventId = eventRepository.findBySubject("과일 정기 모임").get().getId();
-        Schedule initialSchedule1 = scheduleRepository.findByUser_IdAndEvent_Id(inviteeId, eventId).get();
+        Schedule initialSchedule1 = scheduleRepository.findByUserIdAndEventId(inviteeId, eventId).get();
         // 스케줄을 수락 전 ScheduleStatus 필드
         Assertions.assertThat(initialSchedule1.getScheduleStatus()).isEqualTo(PENDING);
 
@@ -185,7 +190,7 @@ public class ScheduleAcceptTest {
 
         //then
         // 스케줄을 수락 후 ScheduleStatus 필드
-        Schedule acceptedSchedule = scheduleRepository.findByUser_IdAndEvent_Id(inviteeId, eventId).get();
+        Schedule acceptedSchedule = scheduleRepository.findByUserIdAndEventId(inviteeId, eventId).get();
         Assertions.assertThat(acceptedSchedule.getScheduleStatus()).isEqualTo(ACCEPT);
     }
 

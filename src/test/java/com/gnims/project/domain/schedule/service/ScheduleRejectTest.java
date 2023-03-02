@@ -2,6 +2,7 @@ package com.gnims.project.domain.schedule.service;
 
 import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
+import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.repository.UserRepository;
@@ -22,7 +23,6 @@ import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
@@ -38,6 +38,9 @@ public class ScheduleRejectTest {
 
     @Autowired
     ScheduleRepository scheduleRepository;
+
+    @Autowired
+    NotificationRepository notificationRepository;
 
     @Autowired
     EventRepository eventRepository;
@@ -75,10 +78,12 @@ public class ScheduleRejectTest {
 
     @AfterEach
     void afterEach() {
+        notificationRepository.deleteAll();
         scheduleRepository.deleteAll();
         eventRepository.deleteAll();
         userRepository.deleteAll();
     }
+
     @DisplayName("삭제된 일정을 거절하려는 경우 " +
             "400 상태 코드와 응답 메시지 반환 " +
             "scheduleStatus는 기존(PENDING)과 동일하다.")
@@ -96,7 +101,7 @@ public class ScheduleRejectTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Schedule schedule = scheduleRepository.findByUser_IdAndEvent_Id(inviteeId, eventId).get();
+        Schedule schedule = scheduleRepository.findByUserIdAndEventId(inviteeId, eventId).get();
         Assertions.assertThat(schedule.getScheduleStatus()).isEqualTo(PENDING);
     }
 
@@ -116,7 +121,7 @@ public class ScheduleRejectTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Schedule schedule = scheduleRepository.findByUser_IdAndEvent_Id(inviteeId, eventId).get();
+        Schedule schedule = scheduleRepository.findByUserIdAndEventId(inviteeId, eventId).get();
         Assertions.assertThat(schedule.getScheduleStatus()).isEqualTo(PENDING);
     }
 
@@ -148,7 +153,7 @@ public class ScheduleRejectTest {
         Long hostId = userRepository.findByNickname("딸기").get().getId();
 
         Long eventId = eventRepository.findBySubject("과일 정기 모임").get().getId();
-        Schedule initialSchedule = scheduleRepository.findByUser_IdAndEvent_Id(hostId, eventId).get();
+        Schedule initialSchedule = scheduleRepository.findByUserIdAndEventId(hostId, eventId).get();
         // 스케줄을 수락 전 ScheduleStatus 필드
         Assertions.assertThat(initialSchedule.getScheduleStatus()).isEqualTo(ACCEPT);
         //when
@@ -157,7 +162,7 @@ public class ScheduleRejectTest {
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        Schedule acceptedSchedule = scheduleRepository.findByUser_IdAndEvent_Id(hostId, eventId).get();
+        Schedule acceptedSchedule = scheduleRepository.findByUserIdAndEventId(hostId, eventId).get();
         Assertions.assertThat(acceptedSchedule.getScheduleStatus()).isEqualTo(ACCEPT);
     }
 
@@ -170,7 +175,7 @@ public class ScheduleRejectTest {
         Long inviteeId = userRepository.findByNickname("당근").get().getId();
 
         Long eventId = eventRepository.findBySubject("과일 정기 모임").get().getId();
-        Schedule initialSchedule = scheduleRepository.findByUser_IdAndEvent_Id(inviteeId, eventId).get();
+        Schedule initialSchedule = scheduleRepository.findByUserIdAndEventId(inviteeId, eventId).get();
         // 스케줄을 수락 전 ScheduleStatus 필드
         Assertions.assertThat(initialSchedule.getScheduleStatus()).isEqualTo(PENDING);
 
@@ -181,7 +186,7 @@ public class ScheduleRejectTest {
 
         //then
         // 스케줄을 수락 후 ScheduleStatus 필드
-        Schedule acceptedSchedule = scheduleRepository.findByUser_IdAndEvent_Id(inviteeId, eventId).get();
+        Schedule acceptedSchedule = scheduleRepository.findByUserIdAndEventId(inviteeId, eventId).get();
         Assertions.assertThat(acceptedSchedule.getScheduleStatus()).isEqualTo(REJECT);
     }
 

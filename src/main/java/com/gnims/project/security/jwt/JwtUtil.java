@@ -31,12 +31,12 @@ public class JwtUtil {
     //토큰 형태 : Bearer
     private static final long TOKEN_TIME = 24 * 60 * 60 * 1000L;
     //토큰 지속시간(지금은 24시간)
+    private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
     private Key key;
-    private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
     @PostConstruct
     public void init() {

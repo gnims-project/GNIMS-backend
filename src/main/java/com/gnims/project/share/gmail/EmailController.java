@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.gnims.project.share.message.ResponseMessage.PASSWORD_UPDATE_SUCCESS_MESSAGE;
+import static com.gnims.project.share.message.ResponseMessage.SECRET_UPDATE_SUCCESS_MESSAGE;
 import static com.gnims.project.share.message.ResponseMessage.SUCCESS_AUTH_EMAIL_MESSAGE;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -23,7 +23,7 @@ public class EmailController {
 
         emailService.updatePassword(request);
 
-        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), PASSWORD_UPDATE_SUCCESS_MESSAGE), OK);
+        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), SECRET_UPDATE_SUCCESS_MESSAGE), OK);
     }
 
     @PatchMapping("/auth/code")
