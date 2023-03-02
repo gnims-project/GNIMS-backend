@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    Optional<Schedule> findByUser_IdAndEvent_Id(Long userId, Long eventId);
+    Optional<Schedule> findByUserIdAndEventId(Long userId, Long eventId);
 
     /**
      * 전체 조회 최적화 DTO -> 필요한 데이터를 한 번에 select

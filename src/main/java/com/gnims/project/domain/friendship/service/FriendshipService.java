@@ -77,7 +77,7 @@ public class FriendshipService {
     @Transactional
     public FriendshipResponse makeFriendship(Long myselfId, Long followingId) {
         // 팔로잉 했는지 확인
-        Optional<Friendship> optionalFriendship = friendshipRepository.findAllByMyself_IdAndFollow_Id(myselfId, followingId);
+        Optional<Friendship> optionalFriendship = friendshipRepository.findAllByMyselfIdAndFollowId(myselfId, followingId);
 
         // 한 번도 팔로잉을 한적이 없다면
         if (optionalFriendship.isEmpty()) {
@@ -102,10 +102,10 @@ public class FriendshipService {
     }
 
     public Integer countFollowing(Long myselfId) {
-        return friendshipRepository.countAllByMyself_IdAndStatusNot(myselfId, INACTIVE);
+        return friendshipRepository.countAllByMyselfIdAndStatusNot(myselfId, INACTIVE);
     }
 
     public Integer countFollower(Long myselfId) {
-        return friendshipRepository.countAllByFollow_IdAndStatusNot(myselfId, INACTIVE);
+        return friendshipRepository.countAllByFollowIdAndStatusNot(myselfId, INACTIVE);
     }
 }

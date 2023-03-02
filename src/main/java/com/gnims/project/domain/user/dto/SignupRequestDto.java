@@ -2,6 +2,7 @@ package com.gnims.project.domain.user.dto;
 
 import com.gnims.project.share.validation.ValidationGroups;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -9,6 +10,7 @@ import javax.validation.constraints.Pattern;
 import static com.gnims.project.share.message.ExceptionMessage.*;
 
 @Getter
+@NoArgsConstructor
 public class SignupRequestDto {
     @NotBlank(message = NICKNAME_EMPTY_MESSAGE,
             groups = ValidationGroups.NotNullGroup.class)
@@ -37,4 +39,11 @@ public class SignupRequestDto {
             groups = ValidationGroups.PatternCheckGroup.class,
             message = SECRET_ERROR_MESSAGE)
     private String password;
+
+    public SignupRequestDto(String nickname, String username, String email, String password) {
+        this.nickname = nickname;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 }
