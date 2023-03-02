@@ -2,6 +2,9 @@ package com.gnims.project.share.message;
 
 public class ResponseMessage {
 
+    private ResponseMessage() {
+    }
+
     //user
     public static final String SIGNUP_SUCCESS_MESSAGE = "회원가입 완료";
     public static final String PROFILE_UPDATE_SUCCESS_MESSAGE = "프로필 변경 성공";

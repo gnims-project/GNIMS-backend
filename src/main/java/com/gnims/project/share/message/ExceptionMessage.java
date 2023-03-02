@@ -2,6 +2,9 @@ package com.gnims.project.share.message;
 
 public class ExceptionMessage {
 
+    private ExceptionMessage() {
+    }
+
     //User 에서 사용
     public static final String MISMATCH_EMAIL_OR_SECRET = "이메일 혹은 비밀번호가 일치하지 않습니다.";
     public static final String NON_EXISTED_EMAIL = "등록되지 않은 이메일 입니다.";
