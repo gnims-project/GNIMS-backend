@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,16 +31,14 @@ public class GlobalExceptionHandler {
     private final SlackMessageSender slackMessageSender;
 
     @ExceptionHandler
-    public ResponseEntity<ExceptionResponseMessage> HandleIllegalArgumentException
-            (IllegalArgumentException exception) throws IOException {
+    public ResponseEntity<ExceptionResponseMessage> handleIllegalArgumentException(IllegalArgumentException exception) {
         ExceptionResponseMessage message = new ExceptionResponseMessage(BAD_REQUEST.value(), exception.getMessage());
         slackMessageSender.trackError("status : " + BAD_REQUEST.getReasonPhrase() + "\nmessage: " + exception.getMessage());
         return new ResponseEntity<>(message, HttpStatus.valueOf(message.getStatus()));
     }
 
     @ExceptionHandler
-    public ResponseEntity<ExceptionResponseListMessage> HandleMethodArgumentNotValidException
-            (MethodArgumentNotValidException exception) throws IOException {
+    public ResponseEntity<ExceptionResponseListMessage> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         List<FieldError> fieldErrors = exception.getBindingResult().getFieldErrors();
 
         List<String> errorMessages = fieldErrors.stream().map(fieldError -> fieldError.getDefaultMessage())
@@ -54,16 +51,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ExceptionResponseMessage> HandleBadCredentialsException(BadCredentialsException exception)
-            throws IOException {
+    public ResponseEntity<ExceptionResponseMessage> handleBadCredentialsException(BadCredentialsException exception) {
         ExceptionResponseMessage message = new ExceptionResponseMessage(UNAUTHORIZED.value(), exception.getMessage());
         slackMessageSender.trackError("status : " + UNAUTHORIZED.getReasonPhrase() + "\nmessage: " + exception.getMessage());
         return new ResponseEntity<>(message, HttpStatus.valueOf(message.getStatus()));
     }
 
     @ExceptionHandler
-    public ResponseEntity<ExceptionResponseMessage> HandleSecurityException(SecurityException exception)
-            throws IOException {
+    public ResponseEntity<ExceptionResponseMessage> HandleSecurityException(SecurityException exception) {
         ExceptionResponseMessage message = new ExceptionResponseMessage(FORBIDDEN.value(), exception.getMessage());
         slackMessageSender.trackError("status : " + FORBIDDEN.getReasonPhrase() + "\nmessage: " + exception.getMessage());
         return new ResponseEntity<>(message, HttpStatus.valueOf(message.getStatus()));
@@ -71,7 +66,7 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    public void handleUnexpectedException(Exception exception) throws IOException {
+    public void handleUnexpectedException(Exception exception) {
         slackMessageSender.trackError("status : " + INTERNAL_SERVER_ERROR.getReasonPhrase() + "\nmessage: " + exception.getMessage());
         log.info("[error class : {} message : {}]", exception.getClass(), exception.getMessage());
 
