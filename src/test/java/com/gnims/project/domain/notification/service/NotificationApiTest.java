@@ -87,7 +87,7 @@ class NotificationApiTest {
         createSchedule(hostId, inviteeId);
 
         //then
-        Notification notification = notificationRepository.findAllByUser_Id(inviteeId).get(0);
+        Notification notification = notificationRepository.findAllByUserId(inviteeId).get(0);
         Assertions.assertThat(notification.getCreateBy()).isEqualTo(hostId);
         Assertions.assertThat(notification.getUser().getId()).isEqualTo(inviteeId);
         Assertions.assertThat(notification.getNotificationType()).isEqualTo(SCHEDULE);
@@ -108,7 +108,7 @@ class NotificationApiTest {
         mvc.perform(post("/friendship/followings/" + followId).header("Authorization", hostToken));
 
         //then
-        Notification notification = notificationRepository.findAllByUser_Id(followId).get(0);
+        Notification notification = notificationRepository.findAllByUserId(followId).get(0);
         Assertions.assertThat(notification.getCreateBy()).isEqualTo(hostId);
         Assertions.assertThat(notification.getUser().getId()).isEqualTo(followId);
         Assertions.assertThat(notification.getNotificationType()).isEqualTo(FRIENDSHIP);
@@ -123,7 +123,7 @@ class NotificationApiTest {
         mvc.perform(post("/friendship/followings/" + followId).header("Authorization", hostToken));
 
         //알림이 생긴다.
-        Notification notification = notificationRepository.findAllByUser_Id(followId).get(0);
+        Notification notification = notificationRepository.findAllByUserId(followId).get(0);
 
         //알림을 확인하기 전 isChecked 필드
         Assertions.assertThat(notification.getIsChecked()).isFalse();
@@ -133,7 +133,7 @@ class NotificationApiTest {
                 .header("Authorization", inviteeToken))
                 .andExpect(status().isOk());
 
-        Notification updateNotification = notificationRepository.findAllByUser_Id(followId).get(0);
+        Notification updateNotification = notificationRepository.findAllByUserId(followId).get(0);
         //알림을 확인 후 isChecked 필드
         Assertions.assertThat(updateNotification.getIsChecked()).isTrue();
     }
