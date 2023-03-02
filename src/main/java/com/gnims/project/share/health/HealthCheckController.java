@@ -1,4 +1,4 @@
-package com.gnims.project.domain.friendship.controller;
+package com.gnims.project.share.health;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
