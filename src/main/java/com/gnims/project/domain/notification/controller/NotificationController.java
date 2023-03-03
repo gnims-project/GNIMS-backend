@@ -1,6 +1,6 @@
 package com.gnims.project.domain.notification.controller;
 
-import com.gnims.project.domain.notification.dto.ReadAllNotificationResponse;
+import com.gnims.project.domain.notification.dto.ReadNotificationResponse;
 import com.gnims.project.domain.notification.dto.ReadNotificationResult;
 import com.gnims.project.domain.notification.dto.SimpleNotificationResult;
 import com.gnims.project.domain.notification.repository.SseEmitterManager;
@@ -43,7 +43,7 @@ public class NotificationController {
     @GetMapping("/notifications")
     public ResponseEntity<ReadNotificationResult> readAll(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
-        List<ReadAllNotificationResponse> responses = notificationService.readAll(userId);
+        List<ReadNotificationResponse> responses = notificationService.readAll(userId);
 
         return new ResponseEntity<>(new ReadNotificationResult(200, READ_ALL_NOTIFICATION_MESSAGE, responses), OK);
     }

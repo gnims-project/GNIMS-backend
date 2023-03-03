@@ -2,6 +2,7 @@ package com.gnims.project.domain.notification.entity;
 
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.share.persistence.superclass.BaseEntity;
+import com.gnims.project.share.persistence.superclass.TimeStamped;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import static javax.persistence.EnumType.*;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Notification extends BaseEntity {
+public class Notification extends TimeStamped {
 
     @Id
     @Column(name = "notification_id")
@@ -23,6 +24,8 @@ public class Notification extends BaseEntity {
 
     private boolean isChecked;
 
+    private Long createBy;
+
     @Enumerated(value = STRING)
     private NotificationType notificationType;
     
@@ -30,9 +33,10 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "accepter_id")
     private User user;
 
-    public Notification(String message, User user) {
+    public Notification(User user, Long createBy, String message) {
         this.message = message;
         this.user = user;
+        this.createBy = createBy;
         this.isChecked = false;
     }
 
