@@ -53,4 +53,8 @@ public class SseEmitterManager {
     public Map<Long, SseEmitter> getSseEmitters() {
         return sseEmitters;
     }
+
+    public void clear() {
+        sseEmitters.clear();
+    }
 }
