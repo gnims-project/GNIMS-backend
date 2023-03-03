@@ -33,7 +33,7 @@ public class UserLoginTest {
     @Autowired
     UserRepository userRepository;
 
-    String token = "test";
+    String invalidToken = "test";
 
     @BeforeEach
     void beforeEach() throws Exception {
@@ -52,6 +52,7 @@ public class UserLoginTest {
     @DisplayName("로그인 성공 - 상태코드 200, 헤더에 토큰 반환")
     @Test
     void 로그인성공테스트() throws Exception {
+
         mvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}"))
@@ -63,7 +64,8 @@ public class UserLoginTest {
     @DisplayName("로그인 성공, 토큰이 같이 왓을 시 - 상태코드 200, 헤더에 토큰 반환")
     @Test
     void 로그인성공테스트2() throws Exception {
-        mvc.perform(post("/auth/login").header("Authorization", token)
+
+        mvc.perform(post("/auth/login").header("Authorization", invalidToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}"))
                 .andExpect(status().isOk())
@@ -74,6 +76,7 @@ public class UserLoginTest {
     @DisplayName("로그인 시 등록된 이메일 없음 - 상태코드 401, 실패 메세지 반환")
     @Test
     void 로그인실패테스트1() throws Exception {
+
         mvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi2@gmail.com\", \"password\": \"123456aA9\"}"))
@@ -84,6 +87,7 @@ public class UserLoginTest {
     @DisplayName("로그인 시 등록된 이메일 있음, 비밀번호 틀림 - 상태코드 401, 실패 메세지 반환")
     @Test
     void 로그인실패테스트2() throws Exception {
+
         mvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456a9\"}"))

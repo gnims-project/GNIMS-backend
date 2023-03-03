@@ -52,44 +52,38 @@ public class NicknameCheckTest {
     @Test
     void 중복체크성공테스트() throws Exception {
 
-        String expression = "$.[?(@.message == '%s')]";
-
         mvc.perform(post("/auth/nickname")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nickname\": \"포도\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath(expression, CHECK_NICKNAME_MESSAGE).exists());
+                .andExpect(jsonPath("$.message").value(CHECK_NICKNAME_MESSAGE));
     }
 
     @DisplayName("닉네임 중복체크 null or 정규식 실패 - 상태코드 400, 실패 메세지 반환")
     @Test
     void 중복체크실패테스트1() throws Exception {
 
-        String expression = "$.[?(@.messages == ['%s'])]";
-
         mvc.perform(post("/auth/nickname")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(expression, NICKNAME_EMPTY_MESSAGE).exists());
+                .andExpect(jsonPath("$.messages[*]").value(NICKNAME_EMPTY_MESSAGE));
 
         mvc.perform(post("/auth/nickname")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nickname\": \"포\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(expression, NICKNAME_ERROR_MESSAGE).exists());
+                .andExpect(jsonPath("$.messages[*]").value(NICKNAME_ERROR_MESSAGE));
     }
 
     @DisplayName("닉네임 중복체크 중복 실패 - 상태코드 400, 실패 메세지 반환")
     @Test
     void 중복체크실패테스트2() throws Exception {
 
-        String expression = "$.[?(@.message == '%s')]";
-
         mvc.perform(post("/auth/nickname")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nickname\": \"딸기\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(expression, DUPLICATE_NICKNAME).exists());
+                .andExpect(jsonPath("$.message").value(DUPLICATE_NICKNAME));
     }
 }

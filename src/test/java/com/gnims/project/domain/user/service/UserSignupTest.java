@@ -37,6 +37,8 @@ public class UserSignupTest {
     @Value("${profile.image}")
     private String defaultImage;
 
+    String invalidToken = "test";
+
     @DisplayName("회원가입 성공(이미지 있을 때) - 상태코드 201, 성공 메세지를 반환, db에 저장")
     @Test
     void 회원가입성공테스트1() throws Exception {
@@ -56,9 +58,6 @@ public class UserSignupTest {
                 fileInputStream
         );
 
-        String expression = "$.[?(@.message == '%s')]";
-
-
         /**
          * S3 프리티어 제한으로 인해
          * 테스트 때마다 S3에 이미지 쌓이는 것을 방지
@@ -69,7 +68,7 @@ public class UserSignupTest {
         mvc.perform(multipart("/auth/signup")
                 /*.file(imageFile)*/.file(signupFile).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, SIGNUP_SUCCESS_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(SIGNUP_SUCCESS_MESSAGE));
 
         //DB에 저장 됨
         Assertions.assertThat(userRepository.findByNickname("딸기").get()).isNotNull();
@@ -87,19 +86,32 @@ public class UserSignupTest {
 
         MockMultipartFile signupFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
 
-        String expression = "$.[?(@.message == '%s')]";
-
         //이미지 없을 때
         mvc.perform(multipart("/auth/signup")
                         .file(signupFile).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, SIGNUP_SUCCESS_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(SIGNUP_SUCCESS_MESSAGE));
 
         //DB에 저장 됨
         Assertions.assertThat(userRepository.findByNickname("딸기").get()).isNotNull();
 
         //기본이미지 인지 판별
         Assertions.assertThat(userRepository.findByNickname("딸기").get().getProfileImage()).isEqualTo(defaultImage);
+    }
+
+    @DisplayName("회원가입 성공, 토큰이 같이 왓을 시 - 상태코드 201, 성공 메세지를 반환, db에 저장")
+    @Test
+    void 회원가입토큰성공테스트() throws Exception {
+
+        MockMultipartFile kakaoFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"포도\", \"username\": \"김땡땡\", \"email\": \"orange@kakao.com\", \"password\": \"123456aA9\"}".getBytes());
+
+        mvc.perform(multipart("/auth/signup")
+                        .file(kakaoFile).characterEncoding("utf-8").header("Authorization", invalidToken))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(SIGNUP_SUCCESS_MESSAGE));
+
+        //DB에 저장 됨
+        Assertions.assertThat(userRepository.findByNickname("포도").get()).isNotNull();
     }
 
     @DisplayName("회원가입 시 닉네임 중복 - 상태코드 400, 에러 메세지를 반환, db에 저장 실패")
@@ -112,8 +124,6 @@ public class UserSignupTest {
         //닉네임 중복
         MockMultipartFile failFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"김땡땡\", \"email\": \"ddalgi2@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
 
-        String expression = "$.[?(@.message == '%s')]";
-
         mvc.perform(multipart("/auth/signup")
                 .file(successFile).characterEncoding("utf-8"));
 
@@ -121,7 +131,7 @@ public class UserSignupTest {
         mvc.perform(multipart("/auth/signup")
                         .file(failFile).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, DUPLICATE_NICKNAME).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(DUPLICATE_NICKNAME));
 
         //DB에 저장되었는지 검사
         Assertions.assertThat(userRepository.findByEmail(SocialCode.EMAIL.getValue() + "ddalgi2@gmail.com")).isEmpty();
@@ -137,8 +147,6 @@ public class UserSignupTest {
         //이메일 중복
         MockMultipartFile failFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"김밥\",\"username\": \"박땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
 
-        String expression = "$.[?(@.message == '%s')]";
-
         mvc.perform(multipart("/auth/signup")
                         .file(successFile).characterEncoding("utf-8"));
 
@@ -146,7 +154,7 @@ public class UserSignupTest {
         mvc.perform(multipart("/auth/signup")
                         .file(failFile).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, ALREADY_REGISTERED_EMAIL).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(ALREADY_REGISTERED_EMAIL));
 
         //DB에 저장되었는지 검사
         Assertions.assertThat(userRepository.findByNickname("김밥")).isEmpty();
@@ -162,20 +170,18 @@ public class UserSignupTest {
         //정규식 불일치
         MockMultipartFile failFile2 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"짱구!\",\"username\": \"신땡땡\", \"email\": \"orange@gmail.com\", \"password\": \"1234aA5678\"}".getBytes());
 
-        String expression = "$.[?(@.messages == ['%s'])]";
-
         //닉네임 null 값
         mvc.perform(multipart("/auth/signup")
                         .file(failFile1).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, NICKNAME_EMPTY_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messages[*]").value(NICKNAME_EMPTY_MESSAGE));
         Assertions.assertThat(userRepository.findByEmail(SocialCode.EMAIL.getValue() + "orange@gmail.com")).isEmpty();
 
         //닉네임 정규식 불 일치
         mvc.perform(multipart("/auth/signup")
                         .file(failFile2).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, NICKNAME_ERROR_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messages[*]").value(NICKNAME_ERROR_MESSAGE));
         Assertions.assertThat(userRepository.findByEmail(SocialCode.EMAIL.getValue() + "orange@gmail.com")).isEmpty();
     }
 
@@ -189,20 +195,18 @@ public class UserSignupTest {
         //정규식 불일치
         MockMultipartFile failFile2 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"짱구\",\"username\": \"신땡땡\", \"email\": \"orange@gmailcom\", \"password\": \"1234aA5678\"}".getBytes());
 
-        String expression = "$.[?(@.messages == ['%s'])]";
-
         //이메일 null 값
         mvc.perform(multipart("/auth/signup")
                         .file(failFile1).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, EMAIL_EMPTY_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messages[*]").value(EMAIL_EMPTY_MESSAGE));
         Assertions.assertThat(userRepository.findByNickname("짱구")).isEmpty();
 
         //이메일 정규식 불 일치
         mvc.perform(multipart("/auth/signup")
                         .file(failFile2).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, EMAIL_ERROR_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messages[*]").value(EMAIL_ERROR_MESSAGE));
         Assertions.assertThat(userRepository.findByNickname("짱구")).isEmpty();
     }
 
@@ -216,20 +220,18 @@ public class UserSignupTest {
         //정규식 불일치
         MockMultipartFile failFile2 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"짱구\", \"username\": \"신땡땡1\", \"email\": \"orange@gmail.com\", \"password\": \"1234aA5678\"}".getBytes());
 
-        String expression = "$.[?(@.messages == ['%s'])]";
-
         //이름 null 값
         mvc.perform(multipart("/auth/signup")
                         .file(failFile1).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, USERNAME_EMPTY_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messages[*]").value(USERNAME_EMPTY_MESSAGE));
         Assertions.assertThat(userRepository.findByNickname("짱구")).isEmpty();
 
         //이름 정규식 불 일치
         mvc.perform(multipart("/auth/signup")
                         .file(failFile2).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, USERNAME_ERROR_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messages[*]").value(USERNAME_ERROR_MESSAGE));
         Assertions.assertThat(userRepository.findByNickname("짱구")).isEmpty();
     }
 
@@ -243,20 +245,18 @@ public class UserSignupTest {
         //정규식 불일치
         MockMultipartFile failFile2 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"짱구\", \"username\": \"신땡땡\", \"email\": \"orange@gmail.com\", \"password\": \"123456789\"}".getBytes());
 
-        String expression = "$.[?(@.messages == ['%s'])]";
-
         //비밀번호 null 값
         mvc.perform(multipart("/auth/signup")
                         .file(failFile1).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, SECRET_EMPTY_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messages[*]").value(SECRET_EMPTY_MESSAGE));
         Assertions.assertThat(userRepository.findByNickname("짱구")).isEmpty();
 
         //비밀번호 정규식 불 일치
         mvc.perform(multipart("/auth/signup")
                         .file(failFile2).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression, SECRET_ERROR_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messages[*]").value(SECRET_ERROR_MESSAGE));
         Assertions.assertThat(userRepository.findByNickname("짱구")).isEmpty();
     }
 
@@ -270,19 +270,16 @@ public class UserSignupTest {
         //정규식 불일치
         MockMultipartFile failFile4 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"오렌지1234567890\", \"username\": \"신땡땡1\", \"email\": \"orange@gmailcom\", \"password\": \"1234567890\"}".getBytes());
 
-        String expression = "$.[?(@.messages == ['%s', '%s', '%s', '%s'])]";
-
         //이메일, 닉네임, 이름, 비밀번호 null 값
         mvc.perform(multipart("/auth/signup")
                         .file(failFile3).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        expression,
-                        NICKNAME_EMPTY_MESSAGE,
-                        SECRET_EMPTY_MESSAGE,
-                        USERNAME_EMPTY_MESSAGE,
-                        EMAIL_EMPTY_MESSAGE
-                ).exists());
+                        "$.[?(@.messages == ['%s', '%s', '%s', '%s'])]",
+                                NICKNAME_EMPTY_MESSAGE,
+                                SECRET_EMPTY_MESSAGE,
+                                USERNAME_EMPTY_MESSAGE,
+                                EMAIL_EMPTY_MESSAGE).exists());
         Assertions.assertThat(userRepository.count()).isEqualTo(0);
 
         //이메일, 닉네임, 이름, 비밀번호 정규식 불 일치
@@ -290,12 +287,12 @@ public class UserSignupTest {
                         .file(failFile4).characterEncoding("utf-8"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath(
-                        expression,
-                        USERNAME_ERROR_MESSAGE,
-                        SECRET_ERROR_MESSAGE,
-                        EMAIL_ERROR_MESSAGE,
-                        NICKNAME_ERROR_MESSAGE
-                ).exists());
+                        "$.[?(@.messages == ['%s', '%s', '%s', '%s'])]",
+                                USERNAME_ERROR_MESSAGE,
+                                SECRET_ERROR_MESSAGE,
+                                EMAIL_ERROR_MESSAGE,
+                                NICKNAME_ERROR_MESSAGE)
+                        .exists());
         Assertions.assertThat(userRepository.findByNickname("오렌지1234567890")).isEmpty();
     }
 }

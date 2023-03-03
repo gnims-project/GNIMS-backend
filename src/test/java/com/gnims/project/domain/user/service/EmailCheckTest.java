@@ -52,44 +52,38 @@ public class EmailCheckTest {
     @Test
     void 중복체크성공테스트() throws Exception {
 
-        String expression = "$.[?(@.message == '%s')]";
-
         mvc.perform(post("/auth/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"orange@gmail.com\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath(expression, CHECK_EMAIL_MESSAGE).exists());
+                .andExpect(jsonPath("$.message").value(CHECK_EMAIL_MESSAGE));
     }
 
     @DisplayName("이메일 중복체크 null or 정규식 실패 - 상태코드 400, 실패 메세지 반환")
     @Test
     void 중복체크실패테스트1() throws Exception {
 
-        String expression = "$.[?(@.messages == ['%s'])]";
-
         mvc.perform(post("/auth/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(expression, EMAIL_EMPTY_MESSAGE).exists());
+                .andExpect(jsonPath("$.messages[*]").value(EMAIL_EMPTY_MESSAGE));
 
         mvc.perform(post("/auth/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"orange@gmailcom\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(expression, EMAIL_ERROR_MESSAGE).exists());
+                .andExpect(jsonPath("$.messages[*]").value(EMAIL_ERROR_MESSAGE));
     }
 
     @DisplayName("이메일 중복체크 중복 실패 - 상태코드 400, 실패 메세지 반환")
     @Test
     void 중복체크실패테스트2() throws Exception {
 
-        String expression = "$.[?(@.message == '%s')]";
-
         mvc.perform(post("/auth/email")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(expression, ALREADY_REGISTERED_EMAIL).exists());
+                .andExpect(jsonPath("$.message").value(ALREADY_REGISTERED_EMAIL));
     }
 }
