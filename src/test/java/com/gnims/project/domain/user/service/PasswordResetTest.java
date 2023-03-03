@@ -9,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +24,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * 비밀번호 인증 로직은 API간의 연계가 되기 때문에
  * 이 테스트만 인증 순서대로
  * 단위 테스트가 아닌 기능테스트로 진행 됩니다!
+ *
+ * passwordUpdate의 로직 흐름은 아래와 같습니다
+ * step.1 이메일 전송 -> step2. 코드 인증 -> step3. 비밀번호 재설정
+ * 각 step 마다 실패,성공 케이스가 존재합니다.
  * */
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -41,20 +44,12 @@ public class PasswordResetTest {
     @Autowired
     EmailRepository emailRepository;
 
-    String token = null;
-
     @BeforeAll
     void before() throws Exception {
 
         MockMultipartFile signupFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
 
         mvc.perform(multipart("/auth/signup").file(signupFile).characterEncoding("utf-8"));
-
-        MvcResult result = mvc.perform(post("/auth/login")
-                .contentType(APPLICATION_JSON)
-                .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}")).andReturn();
-
-        token = result.getResponse().getHeader("Authorization");
     }
 
     @AfterAll
@@ -65,14 +60,14 @@ public class PasswordResetTest {
     }
 
     /**
-     * 1단계 메일 날리기
+     * step.1 이메일 전송
      * */
     @DisplayName("메일 날리기 성공 - 상태코드 200, db에 생성, 인증상태 false")
     @Test
     @Order(1)
     void 이메일날리기테스트() throws Exception {
 
-        mvc.perform(post("/auth/password").header("Authorization", token)
+        mvc.perform(post("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\"}"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
@@ -89,7 +84,7 @@ public class PasswordResetTest {
     @Order(2)
     void 이메일날리기실패테스트() throws Exception {
 
-        mvc.perform(post("/auth/password").header("Authorization", token)
+        mvc.perform(post("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalg@gmail.com\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -100,7 +95,7 @@ public class PasswordResetTest {
     }
 
     /**
-     * 2단계 코드 인증
+     * step2. 코드 인증
      * */
     @DisplayName("코드 인증 성공 - 상태코드 200, 성공 메세지 반환, db에 반영, 인증상태 true")
     @Test
@@ -109,7 +104,7 @@ public class PasswordResetTest {
 
         String code = emailRepository.findByEmail("ddalgi@gmail.com").get().getCode();
 
-        mvc.perform(patch("/auth/code").header("Authorization", token)
+        mvc.perform(patch("/auth/code")
                         .contentType(APPLICATION_JSON)
                         .content("{\"code\": \"" + code + "\", \"email\": \"ddalgi@gmail.com\"}"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -126,7 +121,7 @@ public class PasswordResetTest {
 
         String code = emailRepository.findByEmail("ddalgi@gmail.com").get().getCode();
 
-        mvc.perform(patch("/auth/code").header("Authorization", token)
+        mvc.perform(patch("/auth/code")
                         .contentType(APPLICATION_JSON)
                         .content("{\"code\": \"" + code + "\", \"email\": \"ddalg@gmail.com\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -141,7 +136,7 @@ public class PasswordResetTest {
     @Order(4)
     void 코드인증실패테스트2() throws Exception {
 
-        mvc.perform(patch("/auth/code").header("Authorization", token)
+        mvc.perform(patch("/auth/code")
                         .contentType(APPLICATION_JSON)
                         .content("{\"code\": \"test\", \"email\": \"ddalgi@gmail.com\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -152,7 +147,7 @@ public class PasswordResetTest {
     }
 
     /**
-     * 3단계 비밀번호 재설정
+     * step3. 비밀번호 재설정
      * */
     @DisplayName("비밀번호 재설정 성공 - 상태코드 200, 성공 메세지 반환, db에 반영")
     @Test
@@ -163,7 +158,7 @@ public class PasswordResetTest {
         //인증 상태를 true
         emailRepository.findByEmail("ddalgi@gmail.com").get().isCheckedTrue();
 
-        mvc.perform(patch("/auth/password").header("Authorization", token)
+        mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -179,18 +174,18 @@ public class PasswordResetTest {
     void 비밀번호재설정실패테스트3() throws Exception {
 
         //비밀번호 null 값
-        mvc.perform(patch("/auth/password").header("Authorization", token)
+        mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.messages == ['%s'])]", SECRET_EMPTY_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messages[*]").value(SECRET_EMPTY_MESSAGE));
 
         //비밀번호 정규식 불 일치
-        mvc.perform(patch("/auth/password").header("Authorization", token)
+        mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456789\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[?(@.messages == ['%s'])]", SECRET_ERROR_MESSAGE).exists());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.messages[*]").value(SECRET_ERROR_MESSAGE));
 
         //DB에서 삭제 안됨
         Assertions.assertThat(emailRepository.findByEmail("ddalgi@gmail.com")).isPresent();
@@ -201,7 +196,7 @@ public class PasswordResetTest {
     @Order(7)
     void 비밀번호재설정실패테스트1() throws Exception {
 
-        mvc.perform(patch("/auth/password").header("Authorization", token)
+        mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalg@gmail.com\", \"password\": \"123456aA9\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -217,11 +212,11 @@ public class PasswordResetTest {
     void 비밀번호재설정실패테스트2() throws Exception {
 
         //이메일 인증을 다시 날려서 인증 상태를 false로 만듬
-        mvc.perform(post("/auth/password").header("Authorization", token)
+        mvc.perform(post("/auth/password")
                 .contentType(APPLICATION_JSON)
                 .content("{\"email\": \"ddalgi@gmail.com\"}"));
 
-        mvc.perform(patch("/auth/password").header("Authorization", token)
+        mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalg@gmail.com\", \"password\": \"123456aA9\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
