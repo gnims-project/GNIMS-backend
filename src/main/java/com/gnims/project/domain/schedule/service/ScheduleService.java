@@ -34,7 +34,7 @@ public class ScheduleService {
 
     public void makeSchedule(ScheduleServiceForm form) {
         //이벤트 엔티티 생성 및 저장
-        Long userId = form.getId();
+        Long userId = form.getCreateBy();
         Event event = eventRepository.save(new Event(new Appointment(form), form));
         //주최자 스케줄 처리 -> 주최자는 자동 일정에 자동 참여
         User user = userRepository.findById(userId).orElseThrow(

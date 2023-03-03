@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class ReadAllNotificationResponse {
+public class ReadNotificationResponse {
     private Long notificationId;
     private LocalDateTime dateTime;
     private Long createBy;
@@ -14,8 +14,8 @@ public class ReadAllNotificationResponse {
     private boolean isChecked;
     private NotificationType notificationType;
 
-    public ReadAllNotificationResponse(Long notificationId, LocalDateTime dateTime, Long createBy,
-                                       String message, boolean isChecked, NotificationType notificationType) {
+    public ReadNotificationResponse(Long notificationId, LocalDateTime dateTime, Long createBy,
+                                    String message, boolean isChecked, NotificationType notificationType) {
         this.notificationId = notificationId;
         this.dateTime = dateTime;
         this.createBy = createBy;
