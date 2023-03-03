@@ -35,7 +35,7 @@ public class NotificationService {
     }
 
     public List<ReadNotificationResponse> readAll(Long userId) {
-        List<Notification> notifications = notificationRepository.findAllByUserId(userId);
+        List<Notification> notifications = notificationRepository.findAllByUserIdOrderByCreateAtDesc(userId);
 
         return notifications.stream().map(n -> new ReadNotificationResponse(
                 n.getId(),

@@ -83,7 +83,7 @@ class NotificationApiTest {
             "알림을 보낸이(CreatedBy) " +
             "받는이(UserId) " +
             "알림 타입(Notification) - SCHEDULE 이 저장된다.")
-    @Disabled("비동기 처리로 바꾼 뒤 오류 - 포스트맨으로 API 테스트하는 경우에는 정상 작동")
+    @Disabled("비동기 처리로 바꾼 뒤 오류 - 원인 파악 중 - 포스트맨으로 API 테스트하는 경우에는 정상 작동")
     @Test
     void test2() throws Exception {
         //given
@@ -93,7 +93,7 @@ class NotificationApiTest {
         //when
         createSchedule(hostId, inviteeId);
         //then
-        Notification notification = notificationRepository.findAllByUserId(inviteeId).get(0);
+        Notification notification = notificationRepository.findAllByUserIdOrderByCreateAtDesc(inviteeId).get(0);
         Assertions.assertThat(notification.getCreateBy()).isEqualTo(hostId);
         Assertions.assertThat(notification.getUser().getId()).isEqualTo(inviteeId);
         Assertions.assertThat(notification.getNotificationType()).isEqualTo(SCHEDULE);
@@ -104,7 +104,7 @@ class NotificationApiTest {
             "알림을 보낸이(CreatedBy) " +
             "받는이(UserId) " +
             "알림 타입(Notification) - FRIENDSHIP 이 저장된다.")
-    @Disabled("비동기 처리로 바꾼 뒤 오류 - 포스트맨으로 API 테스트하는 경우에는 정상 작동")
+    @Disabled("비동기 처리로 바꾼 뒤 오류 - 원인 파악 중 - 포스트맨으로 API 테스트하는 경우에는 정상 작동")
     @Test
     void test3() throws Exception {
 
@@ -115,7 +115,7 @@ class NotificationApiTest {
         mvc.perform(post("/friendship/followings/" + followId).header("Authorization", hostToken));
 
         //then
-        Notification notification = notificationRepository.findAllByUserId(followId).get(0);
+        Notification notification = notificationRepository.findAllByUserIdOrderByCreateAtDesc(followId).get(0);
         Assertions.assertThat(notification.getCreateBy()).isEqualTo(hostId);
         Assertions.assertThat(notification.getUser().getId()).isEqualTo(followId);
         Assertions.assertThat(notification.getNotificationType()).isEqualTo(FRIENDSHIP);
@@ -131,7 +131,7 @@ class NotificationApiTest {
         mvc.perform(post("/friendship/followings/" + followId).header("Authorization", hostToken));
 
         //알림이 생긴다.
-        Notification notification = notificationRepository.findAllByUserId(followId).get(0);
+        Notification notification = notificationRepository.findAllByUserIdOrderByCreateAtDesc(followId).get(0);
 
         //알림을 확인하기 전 isChecked 필드
         Assertions.assertThat(notification.getIsChecked()).isFalse();
@@ -141,7 +141,7 @@ class NotificationApiTest {
                 .header("Authorization", inviteeToken))
                 .andExpect(status().isOk());
 
-        Notification updateNotification = notificationRepository.findAllByUserId(followId).get(0);
+        Notification updateNotification = notificationRepository.findAllByUserIdOrderByCreateAtDesc(followId).get(0);
         //알림을 확인 후 isChecked 필드
         Assertions.assertThat(updateNotification.getIsChecked()).isTrue();
     }
