@@ -76,7 +76,7 @@ public class FriendshipController {
 
         Long myselfId = userDetails.receiveUserId();
         FriendshipResponse response = friendshipService.makeFriendship(myselfId, followingId);
-        FriendShipServiceResponse serviceResponse = response.convertServiceResponse(myselfId, userDetails.getUsername());
+        FriendShipServiceResponse serviceResponse = response.convertServiceResponse(myselfId, userDetails.getUser().getUsername());
 
         if (response.getStatus().equals(INIT)) {
             applicationEventPublisher.publishEvent(serviceResponse);
