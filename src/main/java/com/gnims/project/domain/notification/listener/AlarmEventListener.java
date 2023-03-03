@@ -1,6 +1,7 @@
 package com.gnims.project.domain.notification.listener;
 
 import com.gnims.project.domain.friendship.dto.FriendShipServiceResponse;
+import com.gnims.project.domain.notification.dto.ReadNotificationResponse;
 import com.gnims.project.domain.notification.entity.Notification;
 import com.gnims.project.domain.notification.repository.SseEmitterManager;
 import com.gnims.project.domain.notification.service.NotificationService;
@@ -52,11 +53,13 @@ public class AlarmEventListener {
             try {
                 String message = form.getUsername() + "님께서 " + form.getSubject() + " 일정에 초대하셨습니다.";
                 log.info("이벤트 리스너 메시지 : {} TO USER ID : {}", message, participantsId);
-                Notification notification = notificationService.create(participantsId, message, SCHEDULE);
+                Notification notification = notificationService.create(form.getCreateBy(), participantsId, message, SCHEDULE);
+
+                ReadNotificationResponse notificationResponse = toNotificationResponse(notification);
 
                 sseEmitter.send(SseEmitter.event()
                         .name("invite")
-                        .data(notification, MediaType.APPLICATION_JSON));
+                        .data(notificationResponse, MediaType.APPLICATION_JSON));
 
             } catch (IOException e) {
                 log.info("IO exception");
@@ -76,11 +79,13 @@ public class AlarmEventListener {
             String message = response.getSenderName() + "님께서 팔로우하셨습니다.";
 
             log.info("이벤트 리스너 메시지 : {} TO USER ID : {}", message, response.getFollowId());
-            Notification notification = notificationService.create(response.getFollowId(), message, FRIENDSHIP);
+            Notification notification = notificationService.create(response.getCreateBy(), response.getFollowId(), message, FRIENDSHIP);
+
+            ReadNotificationResponse notificationResponse = toNotificationResponse(notification);
 
             sseEmitter.send(SseEmitter.event()
                     .name("follow")
-                    .data(notification, MediaType.APPLICATION_JSON));
+                    .data(notificationResponse, MediaType.APPLICATION_JSON));
 
         } catch (IOException e) {
             log.info("IO exception");
@@ -89,6 +94,17 @@ public class AlarmEventListener {
         } catch (IllegalStateException e) {
             log.info("현재 {} 사용자의 Emitter는 꺼져있습니다.");
         }
+    }
+
+    private ReadNotificationResponse toNotificationResponse(Notification notification) {
+        ReadNotificationResponse data = new ReadNotificationResponse(
+                notification.getId(),
+                notification.getCreateAt(),
+                notification.getCreateBy(),
+                notification.getMessage(),
+                notification.getIsChecked(),
+                notification.getNotificationType());
+        return data;
     }
 
 }

@@ -50,8 +50,6 @@ public class FollowingTest {
     @Autowired
     PlatformTransactionManager transactionManager;
 
-    TransactionStatus status = null;
-
     @BeforeEach
     void beforeEach() throws Exception {
         makeUser();
@@ -70,7 +68,6 @@ public class FollowingTest {
         userRepository.deleteAll();
     }
 
-    @Transactional
     @DisplayName("최초 팔로우 상태(INIT)일 시 - 상태 코드 200, 'username' : {팔로잉 이름} 반환")
     @Test
     void test1() throws Exception {

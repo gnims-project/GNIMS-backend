@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
 
-    Optional<Friendship> findAllByMyself_IdAndFollow_Id(Long myselfId, Long followId);
+    Optional<Friendship> findAllByMyselfIdAndFollowId(Long myselfId, Long followId);
 
     @Query(value = "select f from Friendship f " +
             "join fetch f.follow " +
@@ -21,8 +21,8 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
             "and f.follow.id =:followId")
     Optional<Friendship> findFriendShip(@Param("myselfId") Long myselfId, @Param("followId")Long followId);
 
-    Integer countAllByMyself_IdAndStatusNot(Long myselfId, FollowStatus status);
-    Integer countAllByFollow_IdAndStatusNot(Long followId, FollowStatus status);
+    Integer countAllByMyselfIdAndStatusNot(Long myselfId, FollowStatus status);
+    Integer countAllByFollowIdAndStatusNot(Long followId, FollowStatus status);
 
     @Query(value = "select f from Friendship f " +
             "join fetch f.follow " +

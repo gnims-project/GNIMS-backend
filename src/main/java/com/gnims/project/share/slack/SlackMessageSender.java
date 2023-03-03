@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,24 +20,25 @@ public class SlackMessageSender {
     private String errorToken;
 
     @GetMapping("/send-scheduler-task-result")
-    public void sendTaskResult(String message) throws IOException {
+    public void sendTaskResult(String message) {
         RestTemplate restTemplate = new RestTemplate();
-        Map<String,Object> request = new HashMap<>();
-        request.put("username", "gnims-bot");
-        request.put("text", "🕛\n" + message + "\n");
-
-        HttpEntity<Map<String,Object>> entity = new HttpEntity<>(request);
+        HttpEntity<Map<String, Object>> entity = createMessageForm("gnims-daily-bot",
+                "🕛\n" + message + "\n");
         restTemplate.exchange(dailyToken, HttpMethod.POST, entity, String.class);
     }
 
     @GetMapping("/send-error")
-    public void trackError(String message) throws IOException {
+    public void trackError(String message) {
         RestTemplate restTemplate = new RestTemplate();
-        Map<String,Object> request = new HashMap<>();
-        request.put("username", "gnims-error-tracking-bot");
-        request.put("text", "🔥\n" + message + "\n");
-
-        HttpEntity<Map<String,Object>> entity = new HttpEntity<>(request);
+        HttpEntity<Map<String, Object>> entity = createMessageForm("gnims-error-tracking-bot",
+                "🔥\n" + message + "\n");
         restTemplate.exchange(errorToken, HttpMethod.POST, entity, String.class);
+    }
+
+    private HttpEntity<Map<String, Object>> createMessageForm(String botName, String message) {
+        Map<String,Object> request = new HashMap<>();
+        request.put("username", botName);
+        request.put("text", message);
+        return new HttpEntity<>(request);
     }
 }

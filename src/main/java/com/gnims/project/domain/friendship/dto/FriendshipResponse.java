@@ -22,7 +22,7 @@ public class FriendshipResponse {
         return this.status.equals(followStatus);
     }
 
-    public FriendShipServiceResponse convertServiceResponse(String senderName) {
-        return new FriendShipServiceResponse(senderName, this);
+    public FriendShipServiceResponse convertServiceResponse(Long createBy, String senderName) {
+        return new FriendShipServiceResponse(createBy, senderName, this);
     }
 }
