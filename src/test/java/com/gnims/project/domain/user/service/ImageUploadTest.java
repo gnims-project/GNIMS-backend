@@ -2,6 +2,7 @@ package com.gnims.project.domain.user.service;
 
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,8 +16,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileInputStream;
@@ -42,11 +41,6 @@ public class ImageUploadTest {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    PlatformTransactionManager transactionManager;
-
-    TransactionStatus status = null;
-
     String token = null;
 
     @Value("${profile.image}")
@@ -69,6 +63,12 @@ public class ImageUploadTest {
                 .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}")).andReturn();
 
         token = result.getResponse().getHeader("Authorization");
+    }
+
+    @AfterEach
+    void afterEach() throws Exception {
+
+        userRepository.deleteAll();
     }
 
     @DisplayName("이미지 파일 null 값 - 상태코드 200, 성공 메세지를 반환, db에 기본 이미지 저장")
