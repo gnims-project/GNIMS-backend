@@ -47,9 +47,11 @@ public class PasswordResetTest {
     @BeforeAll
     void before() throws Exception {
 
-        MockMultipartFile signupFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
+        MockMultipartFile signupFile1 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
+        MockMultipartFile signupFile2 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기2\",\"username\": \"김땡땡\", \"email\": \"ddalig@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
 
-        mvc.perform(multipart("/auth/signup").file(signupFile).characterEncoding("utf-8"));
+        mvc.perform(multipart("/auth/signup").file(signupFile1).characterEncoding("utf-8"));
+        mvc.perform(multipart("/auth/signup").file(signupFile2).characterEncoding("utf-8"));
     }
 
     @AfterAll
@@ -151,12 +153,9 @@ public class PasswordResetTest {
      * */
     @DisplayName("비밀번호 재설정 성공 - 상태코드 200, 성공 메세지 반환, db에 반영")
     @Test
-    @Order(9)
+    @Order(10)
     @Transactional
     void 비밀번호재설정성공테스트() throws Exception {
-
-        //인증 상태를 true
-        emailRepository.findByEmail("ddalgi@gmail.com").get().isCheckedTrue();
 
         mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
@@ -171,7 +170,7 @@ public class PasswordResetTest {
     @DisplayName("재설정 시 비밀번호 값이 null 혹은 정규식 불 일치 - 상태코드 400, 실패 메세지를 반환, db에 반영x")
     @Test
     @Order(6)
-    void 비밀번호재설정실패테스트3() throws Exception {
+    void 비밀번호재설정실패테스트1() throws Exception {
 
         //비밀번호 null 값
         mvc.perform(patch("/auth/password")
@@ -191,14 +190,14 @@ public class PasswordResetTest {
         Assertions.assertThat(emailRepository.findByEmail("ddalgi@gmail.com")).isPresent();
     }
 
-    @DisplayName("비밀번호 재설정 실패, 이메일 틀릴 시 - 상태코드 400, 실패 메세지 반환, db에 반영x")
+    @DisplayName("비밀번호 재설정 실패, 이메일 인증 정보가 없을 시 - 상태코드 400, 실패 메세지 반환, db에 반영x")
     @Test
     @Order(7)
-    void 비밀번호재설정실패테스트1() throws Exception {
+    void 비밀번호재설정실패테스트2() throws Exception {
 
         mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"email\": \"ddalg@gmail.com\", \"password\": \"123456aA9\"}"))
+                        .content("{\"email\": \"ddalig@gmail.com\", \"password\": \"123456aA9\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(INVALID_CODE_ERROR));
 
@@ -209,18 +208,34 @@ public class PasswordResetTest {
     @DisplayName("비밀번호 재설정 실패, 인증 상태가 false 일시 - 상태코드 400, 실패 메세지 반환, db에 반영x")
     @Test
     @Order(8)
-    void 비밀번호재설정실패테스트2() throws Exception {
+    void 비밀번호재설정실패테스트3() throws Exception {
 
-        //이메일 인증을 다시 날려서 인증 상태를 false로 만듬
+        //인증 실패 테스트를 위한 다른 이메일
         mvc.perform(post("/auth/password")
                 .contentType(APPLICATION_JSON)
-                .content("{\"email\": \"ddalgi@gmail.com\"}"));
+                .content("{\"email\": \"ddalig@gmail.com\"}"));
 
         mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"email\": \"ddalg@gmail.com\", \"password\": \"123456aA9\"}"))
+                        .content("{\"email\": \"ddalig@gmail.com\", \"password\": \"123456aA9\"}"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(INVALID_CODE_ERROR));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(UNAUTHENTICATED_EMAIL_ERROR));
+
+        //DB에서 삭제 안됨
+        Assertions.assertThat(emailRepository.findByEmail("ddalgi@gmail.com")).isPresent();
+    }
+
+    @DisplayName("비밀번호 재설정 실패, DB에 없는 이메일 시 - 상태코드 400, 실패 메세지 반환, db에 반영x")
+    @Test
+    @Order(9)
+    void 비밀번호재설정실패테스트4() throws Exception {
+
+        //DB에 없는 이메일
+        mvc.perform(patch("/auth/password")
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"email\": \"d@gmail.com\", \"password\": \"123456aA9\"}"))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(NON_EXISTED_EMAIL));
 
         //DB에서 삭제 안됨
         Assertions.assertThat(emailRepository.findByEmail("ddalgi@gmail.com")).isPresent();
