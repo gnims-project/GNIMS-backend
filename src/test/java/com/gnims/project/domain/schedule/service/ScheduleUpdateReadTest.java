@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import static com.gnims.project.share.message.ExceptionMessage.*;
@@ -27,28 +28,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Transactional
 @AutoConfigureMockMvc
 @SpringBootTest
 public class ScheduleUpdateReadTest {
     @Autowired
     MockMvc mvc;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     ScheduleRepository scheduleRepository;
-
     @Autowired
     NotificationRepository notificationRepository;
-
-    @Autowired
-    PlatformTransactionManager transactionManager;
-
     @Autowired
     EventRepository eventRepository;
 
-    TransactionStatus status = null;
     String hostToken = null;
     String userToken = null;
 
@@ -91,8 +85,6 @@ public class ScheduleUpdateReadTest {
     @Test
     void 스케줄_수정_성공_케이스() throws Exception {
         //given
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
 
         Event event = eventRepository.findBySubject("자바 스터디").get();
         mvc.perform(put("/events/" + event.getId())
@@ -124,8 +116,6 @@ public class ScheduleUpdateReadTest {
     @Test
     void 스케줄_수정_성공_케이스2() throws Exception {
         //given
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
 
         Event event = eventRepository.findBySubject("자바 스터디").get();
         mvc.perform(put("/events/" + event.getId())
@@ -147,11 +137,8 @@ public class ScheduleUpdateReadTest {
             "event의 dday 필드도 이에 맞게 변경되어야 한다.")
     @Test
     void 스케줄_수정_성공_케이스3() throws Exception {
-        //given
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
-
         Event event = eventRepository.findBySubject("자바 스터디").get();
+        Long beforeDDay = event.getDDay();
         mvc.perform(put("/events/" + event.getId())
                         .header("Authorization", hostToken)
                         .contentType(APPLICATION_JSON)
@@ -167,7 +154,7 @@ public class ScheduleUpdateReadTest {
         Event updateEvent = eventRepository.findById(event.getId()).get();
 
         Assertions.assertThat(updateEvent.getDDay()).isNotNull();
-        Assertions.assertThat(updateEvent.getDDay() - event.getDDay()).isEqualTo(5l);
+        Assertions.assertThat(updateEvent.getDDay() - beforeDDay).isEqualTo(5l);
     }
 
     @DisplayName("주최자가 아닌 유저가 스케줄을 수정하려는 경우 " +
@@ -175,8 +162,6 @@ public class ScheduleUpdateReadTest {
             "event 엔티티의 내용은 수정 전과 동일해야 한다.")
     @Test
     void 스케줄_수정_실패_케이스() throws Exception {
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
 
         Event originalEvent = eventRepository.findBySubject("자바 스터디").get();
 
@@ -201,8 +186,6 @@ public class ScheduleUpdateReadTest {
     void 스케줄_수정_실패_케이스2() throws Exception {
 
         //given
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
 
         Event originalEvent = eventRepository.findBySubject("자바 스터디").get();
 
@@ -225,8 +208,6 @@ public class ScheduleUpdateReadTest {
     @Test
     void 스케줄_수정_실패_케이스3() throws Exception {
         //given
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
 
         mvc.perform(put("/events/" + Integer.MAX_VALUE)
                         .header("Authorization", hostToken)

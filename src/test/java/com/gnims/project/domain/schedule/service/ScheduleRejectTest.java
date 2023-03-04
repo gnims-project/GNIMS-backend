@@ -45,10 +45,6 @@ public class ScheduleRejectTest {
     @Autowired
     EventRepository eventRepository;
 
-    @Autowired
-    PlatformTransactionManager transactionManager;
-
-    TransactionStatus status = null;
     String hostToken = null;
     String inviteeToken = null;
 
