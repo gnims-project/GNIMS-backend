@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * Emitter를 초기화하는 이유는 OOM 떄문입니다.
@@ -23,18 +24,19 @@ public class NotificationScheduler {
     private final SseEmitterManager sseEmitterManager;
     private final SlackMessageSender slackMessageSender;
 
-    @Scheduled(cron = "0 0 4 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void clearEmitterContainer() {
         LocalDate today = LocalDate.now();
+        LocalTime time = LocalTime.now();
         try {
             sseEmitterManager.clear();
         } catch (Exception e) {
-            slackMessageSender.sendTaskResult("[" + today + "] Emitter Map 초기화 중 오류가 발생했습니다. " +
+            slackMessageSender.sendTaskResult("[" + today + " " + time + "] Emitter Map 초기화 중 오류가 발생했습니다. " +
                     "관리자를 호출하십시오");
-            log.info("[{} Emitter 를 보관하는 자료 구조 초기화 중 오류가 발생했습니다]", today);
+            log.info("[{} {} Emitter 를 보관하는 자료 구조 초기화 중 오류가 발생했습니다]", today, time);
             throw new RuntimeException("Emitter 자료 구조 초기화 오류 발생");
         }
-        slackMessageSender.sendTaskResult("[" + today + "] Emitter Map 초기화가 완료되었습니다.");
+        slackMessageSender.sendTaskResult("[" + today + " " + time + "] Emitter Map 초기화가 완료되었습니다.");
 
         log.info("[{} Emitter Map 초기화가 완료되었습니다]", today);
     }

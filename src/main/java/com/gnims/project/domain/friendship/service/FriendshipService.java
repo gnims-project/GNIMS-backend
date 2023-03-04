@@ -27,33 +27,7 @@ public class FriendshipService {
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
 
-    public List<FollowReadResponse> readFollowing(Long myselfId) {
-        List<Friendship> followings = friendshipRepository.readAllFollowingOf(myselfId);
-        return followings.stream().map(f -> new FollowReadResponse(
-                f.receiveFollowId(),
-                f.receiveFollowUsername(),
-                f.receiveFollowProfile(),
-                f.getStatus())).collect(toList());
-    }
-
-    public List<FollowReadResponse> readFollower(Long myselfId) {
-        List<FollowReadResponse> followers = friendshipRepository.readAllFollowerOf(myselfId);
-
-        return followers.stream().map(f -> new FollowReadResponse(
-                        f.getFollowId(),
-                        f.getUsername(),
-                        f.getProfile(),
-                        sendFollowStatus(f.getFollowStatus()))).collect(toList());
-    }
-
-    private FollowStatus sendFollowStatus(FollowStatus status) {
-        if (status == null) {
-            return INACTIVE;
-        }
-        return status;
-    }
-
-    public List<FollowReadResponse> readFollowingPage(Long myselfId, PageRequest pageRequest) {
+    public List<FollowReadResponse> readFollowing(Long myselfId, PageRequest pageRequest) {
         List<Friendship> friendships = friendshipRepository.readAllFollowingPageOf(myselfId, pageRequest);
 
         return friendships.stream().map(f -> new FollowReadResponse(
@@ -64,7 +38,7 @@ public class FriendshipService {
 
     }
 
-    public List<FollowReadResponse> readFollowerPage(Long myId, PageRequest pageRequest) {
+    public List<FollowReadResponse> readFollower(Long myId, PageRequest pageRequest) {
         List<Friendship> followers = friendshipRepository.readAllFollowerPageOf(myId, pageRequest);
 
         return followers.stream().map(f -> new FollowReadResponse(
