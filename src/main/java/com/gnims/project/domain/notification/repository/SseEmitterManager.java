@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class SseEmitterManager {
 
-    private static final Long TIMEOUT = 60 * 1000l; // 60초
+    private static final Long TIMEOUT = 10 * 60 * 1000l; // 60초 -> 10분
     // 동시성에 대해 공부하자. 일단 thread-safe 한 자료구조를 써야한다는 것만 알고 가자.
     private final Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
