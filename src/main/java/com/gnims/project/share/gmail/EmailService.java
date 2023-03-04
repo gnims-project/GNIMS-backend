@@ -1,6 +1,7 @@
 package com.gnims.project.share.gmail;
 
 import com.gnims.project.domain.user.entity.SocialCode;
+import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,11 @@ public class EmailService {
     @Transactional
     public void updatePassword(EmailPasswordDto request) {
 
+        //DB에서 해당 이메일의 유저를 찾음
+        User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
+                () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
+        );
+
         //해당 이메일의 인증 정보가 없을 때
         EmailValidation emailValidation = emailRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException(INVALID_CODE_ERROR)
@@ -50,12 +56,8 @@ public class EmailService {
             throw new IllegalArgumentException(INVALID_CODE_ERROR);
         }
 
-        //DB에 해당 이메일이 있을 때
-        userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
-                        () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
-                )
-                //암호화 후 저장
-                .updatePassword(passwordEncoder.encode(request.getPassword()));
+        //암호화 후 저장
+        user.updatePassword(passwordEncoder.encode(request.getPassword()));
 
         emailRepository.delete(emailValidation);
     }
