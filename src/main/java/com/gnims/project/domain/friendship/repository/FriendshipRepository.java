@@ -28,14 +28,14 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
             "join fetch f.follow " +
             "where f.myself.id =:userId " +
             "and not f.status = com.gnims.project.domain.friendship.entity.FollowStatus.INACTIVE")
-    List<Friendship> readAllFollowingOf(@Param("userId")Long userId);
+    List<Friendship> readAllFollowingOf(@Param("userId")Long userId, PageRequest pageRequest);
 
     @Query(value = "select new com.gnims.project.domain.friendship.dto.FollowReadResponse" +
             "(f.myself.id, f.myself.username, f.myself.profileImage, f2.status) from Friendship f " +
             "left outer join Friendship f2 on f2.follow.id = f.myself.id and f2.myself.id = f.follow.id " +
             "where f.follow.id =:userId " +
             "and not f.status = com.gnims.project.domain.friendship.entity.FollowStatus.INACTIVE")
-    List<FollowReadResponse> readAllFollowerOf(@Param("userId") Long userId);
+    List<FollowReadResponse> readAllFollowerOf(@Param("userId") Long userId, PageRequest pageRequest);
 
     // 페이징 최적화 필요
     @Query(value = "select f from Friendship f " +
