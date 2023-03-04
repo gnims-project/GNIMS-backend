@@ -178,13 +178,13 @@ public class UserService {
     public ProfileImageDto updateProfile(MultipartFile image, User user) throws IOException {
 
         if(image == null) {
-            userRepository.findById(user.getId()).get().updateProfile(defaultImage);
+            user.updateProfile(defaultImage);
             return new ProfileImageDto(defaultImage);
         }
 
         String imageUrl = getImage(image);
 
-        userRepository.findById(user.getId()).get().updateProfile(imageUrl);
+        user.updateProfile(imageUrl);
 
         return new ProfileImageDto(imageUrl);
     }
@@ -217,6 +217,6 @@ public class UserService {
 
         String newPassword = passwordEncoder.encode(request.getNewPassword());
 
-        userRepository.findByNickname(user.getNickname()).get().updatePassword(newPassword);
+        user.updatePassword(newPassword);
     }
 }
