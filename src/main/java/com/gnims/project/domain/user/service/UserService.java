@@ -221,6 +221,8 @@ public class UserService {
 
         String newPassword = passwordEncoder.encode(request.getNewPassword());
 
-        user.updatePassword(newPassword);
+        userRepository.findById(user.getId()).orElseThrow(
+                () -> new IllegalArgumentException(NOT_EXISTED_USER)
+        ).updatePassword(newPassword);
     }
 }
