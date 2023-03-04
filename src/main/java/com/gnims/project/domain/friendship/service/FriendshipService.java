@@ -28,24 +28,29 @@ public class FriendshipService {
     private final UserRepository userRepository;
 
     public List<FollowReadResponse> readFollowing(Long myselfId, PageRequest pageRequest) {
-        List<Friendship> friendships = friendshipRepository.readAllFollowingPageOf(myselfId, pageRequest);
-
-        return friendships.stream().map(f -> new FollowReadResponse(
+        List<Friendship> followings = friendshipRepository.readAllFollowingOf(myselfId, pageRequest);
+        return followings.stream().map(f -> new FollowReadResponse(
                 f.receiveFollowId(),
                 f.receiveFollowUsername(),
                 f.receiveFollowProfile(),
-                f.getStatus())).collect(Collectors.toList());
-
+                f.getStatus())).collect(toList());
     }
 
-    public List<FollowReadResponse> readFollower(Long myId, PageRequest pageRequest) {
-        List<Friendship> followers = friendshipRepository.readAllFollowerPageOf(myId, pageRequest);
+    public List<FollowReadResponse> readFollower(Long myselfId, PageRequest pageRequest) {
+        List<FollowReadResponse> followers = friendshipRepository.readAllFollowerOf(myselfId, pageRequest);
 
         return followers.stream().map(f -> new FollowReadResponse(
-                f.receiveMyselfId(),
-                f.receiveMyselfUsername(),
-                f.receiveMyselfProfile(),
-                f.getStatus())).collect(toList());
+                        f.getFollowId(),
+                        f.getUsername(),
+                        f.getProfile(),
+                        sendFollowStatus(f.getFollowStatus()))).collect(toList());
+    }
+
+    private FollowStatus sendFollowStatus(FollowStatus status) {
+        if (status == null) {
+            return INACTIVE;
+        }
+        return status;
     }
 
     @Transactional
