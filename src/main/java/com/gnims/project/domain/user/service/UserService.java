@@ -178,13 +178,17 @@ public class UserService {
     public ProfileImageDto updateProfile(MultipartFile image, User user) throws IOException {
 
         if(image == null) {
-            user.updateProfile(defaultImage);
+            userRepository.findById(user.getId()).orElseThrow(
+                    () -> new IllegalArgumentException(NOT_EXISTED_USER)
+            ).updateProfile(defaultImage);
             return new ProfileImageDto(defaultImage);
         }
 
         String imageUrl = getImage(image);
 
-        user.updateProfile(imageUrl);
+        userRepository.findById(user.getId()).orElseThrow(
+                () -> new IllegalArgumentException(NOT_EXISTED_USER)
+        ).updateProfile(imageUrl);
 
         return new ProfileImageDto(imageUrl);
     }
@@ -217,6 +221,8 @@ public class UserService {
 
         String newPassword = passwordEncoder.encode(request.getNewPassword());
 
-        user.updatePassword(newPassword);
+        userRepository.findById(user.getId()).orElseThrow(
+                () -> new IllegalArgumentException(NOT_EXISTED_USER)
+        ).updatePassword(newPassword);
     }
 }
