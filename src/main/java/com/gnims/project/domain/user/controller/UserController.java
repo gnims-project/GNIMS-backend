@@ -1,6 +1,5 @@
 package com.gnims.project.domain.user.controller;
 
-import com.gnims.project.domain.schedule.dto.ReadScheduleResult;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
 import com.gnims.project.security.service.UserDetailsImpl;
@@ -85,7 +84,9 @@ public class UserController {
 
     //이메일 인증 x 비밀번호 재설정
     @PatchMapping("/users/password")
-    public ResponseEntity<SimpleMessageResult> updatePassword(@Validated(ValidationSequence.class) @RequestBody PasswordDto request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<SimpleMessageResult> updatePassword(@Validated(ValidationSequence.class)
+                                                                  @RequestBody PasswordDto request,
+                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         userService.updatePassword(request, userDetails.getUser());
 
@@ -94,14 +95,16 @@ public class UserController {
 
     //최적화 검색
     @GetMapping("/users/search")
-    public ResponseEntity<ReadScheduleResult> testSearch(@RequestParam(value = "username") String username,
+    public ResponseEntity<SearchResponseDto> testSearch(@RequestParam(value = "username") String username,
                                                          @RequestParam(value = "page") Integer page,
                                                          @RequestParam(value = "size") Integer size,
                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), USER_SEARCH_SUCCESS_MESSAGE, userService.search(username, userDetails.getUser(), pageRequest)), OK);
+        return new ResponseEntity<>(
+                new SearchResponseDto<>(OK.value(), USER_SEARCH_SUCCESS_MESSAGE,
+                        userService.search(username, userDetails.getUser(), pageRequest)), OK);
     }
 }
 

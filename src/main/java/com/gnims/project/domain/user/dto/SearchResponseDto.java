@@ -1,21 +1,16 @@
 package com.gnims.project.domain.user.dto;
 
-import com.gnims.project.domain.user.entity.User;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-public class SearchResponseDto {
-    private Long userId;
-    private String username;
-    private String profileImage;
-    private Boolean isFollowed;
+public class SearchResponseDto<T> {
+    private Integer status;
+    private String message;
+    private T data;
 
-    public SearchResponseDto(User user, Boolean isFollowed) {
-        this.userId = user.getId();
-        this.username = user.getUsername();
-        this.profileImage = user.getProfileImage();
-        this.isFollowed = isFollowed;
+    public SearchResponseDto(Integer status, String message, T data) {
+        this.status = status;
+        this.message = message;
+        this.data = data;
     }
 }

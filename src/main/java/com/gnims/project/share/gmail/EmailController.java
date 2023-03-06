@@ -19,7 +19,8 @@ public class EmailController {
     private final EmailService emailService;
 
     @PatchMapping("/auth/password")
-    public ResponseEntity<SimpleMessageResult> updatePassword(@Validated(ValidationSequence.class) @RequestBody EmailPasswordDto request)  throws Exception {
+    public ResponseEntity<SimpleMessageResult> updatePassword(
+            @Validated(ValidationSequence.class) @RequestBody EmailPasswordDto request)  throws Exception {
 
         emailService.updatePassword(request);
 
