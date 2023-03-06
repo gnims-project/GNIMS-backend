@@ -13,7 +13,6 @@ import javax.validation.Valid;
 
 import static com.gnims.project.share.message.ResponseMessage.DELETE_SCHEDULE_MESSAGE;
 import static com.gnims.project.share.message.ResponseMessage.UPDATE_SCHEDULE_MESSAGE;
-import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.ResponseEntity.*;
 
 @RestController

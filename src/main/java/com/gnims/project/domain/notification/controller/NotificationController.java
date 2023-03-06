@@ -21,7 +21,6 @@ import java.util.List;
 
 import static com.gnims.project.share.message.ResponseMessage.READ_ALL_NOTIFICATION_MESSAGE;
 import static com.gnims.project.share.message.ResponseMessage.READ_ONE_NOTIFICATION_MESSAGE;
-import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.ResponseEntity.*;
 
 @Slf4j

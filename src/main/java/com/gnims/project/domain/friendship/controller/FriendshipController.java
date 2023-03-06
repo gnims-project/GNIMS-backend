@@ -10,9 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.net.URL;
 import java.util.List;
 
 import static com.gnims.project.domain.friendship.entity.FollowStatus.INIT;
