@@ -7,7 +7,6 @@ import com.gnims.project.social.dto.SocialTokenDto;
 import com.gnims.project.social.sevice.KakaoService;
 import com.gnims.project.social.sevice.NaverService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,7 +26,7 @@ public class SocialLoginController {
 
         // code: 카카오 서버로부터 받은 인가 코드
         SocialResult result = kakaoService.kakaoLogin(codeDto.getCode(), response);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+        return ResponseEntity.status(result.getStatus()).body(result);
     }
 
     @PostMapping ("/social/naver-login")
@@ -36,6 +35,6 @@ public class SocialLoginController {
 
         // token: 네이버 서버로부터 받은 사용자 정보 접근 토큰
         SocialResult result = naverService.naverLogin(tokenDto.getToken(), response);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+        return ResponseEntity.status(result.getStatus()).body(result);
     }
 }

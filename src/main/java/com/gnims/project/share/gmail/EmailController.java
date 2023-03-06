@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static com.gnims.project.share.message.ResponseMessage.SECRET_UPDATE_SUCCESS_MESSAGE;
 import static com.gnims.project.share.message.ResponseMessage.SUCCESS_AUTH_EMAIL_MESSAGE;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class EmailController {
 
         emailService.updatePassword(request);
 
-        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), SECRET_UPDATE_SUCCESS_MESSAGE), OK);
+        return ok(new SimpleMessageResult(OK.value(), SECRET_UPDATE_SUCCESS_MESSAGE));
     }
 
     @PatchMapping("/auth/code")
@@ -32,6 +33,6 @@ public class EmailController {
 
         emailService.checkCode(request);
 
-        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), SUCCESS_AUTH_EMAIL_MESSAGE), OK);
+        return ok(new SimpleMessageResult(OK.value(), SUCCESS_AUTH_EMAIL_MESSAGE));
     }
 }
