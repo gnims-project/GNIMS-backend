@@ -21,7 +21,7 @@ import java.util.List;
 
 import static com.gnims.project.share.message.ResponseMessage.READ_ALL_NOTIFICATION_MESSAGE;
 import static com.gnims.project.share.message.ResponseMessage.READ_ONE_NOTIFICATION_MESSAGE;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.ResponseEntity.*;
 
 @Slf4j
 @RestController
@@ -45,14 +45,14 @@ public class NotificationController {
         Long userId = userDetails.receiveUserId();
         List<ReadNotificationResponse> responses = notificationService.readAll(userId);
 
-        return new ResponseEntity<>(new ReadNotificationResult(200, READ_ALL_NOTIFICATION_MESSAGE, responses), OK);
+        return ok(new ReadNotificationResult(200, READ_ALL_NOTIFICATION_MESSAGE, responses));
     }
 
     @GetMapping("/notifications/{notification-id}")
     public ResponseEntity<SimpleNotificationResult> readAll(@PathVariable("notification-id") Long notificationId) {
         notificationService.readAndCheckNotification(notificationId);
 
-        return new ResponseEntity<>(new SimpleNotificationResult(200, READ_ONE_NOTIFICATION_MESSAGE), OK);
+        return ok(new SimpleNotificationResult(200, READ_ONE_NOTIFICATION_MESSAGE));
     }
 
 }
