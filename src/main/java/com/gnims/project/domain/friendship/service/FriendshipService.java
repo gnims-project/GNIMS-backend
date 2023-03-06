@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
 import static com.gnims.project.share.message.ExceptionMessage.NOT_EXISTED_USER;
@@ -35,6 +34,16 @@ public class FriendshipService {
                 f.receiveFollowProfile(),
                 f.getStatus())).collect(toList());
     }
+
+    public List<FollowReadResponse> readFollowing(Long myselfId) {
+        List<Friendship> followings = friendshipRepository.readAllFollowingOf(myselfId);
+        return followings.stream().map(f -> new FollowReadResponse(
+                f.receiveFollowId(),
+                f.receiveFollowUsername(),
+                f.receiveFollowProfile(),
+                f.getStatus())).collect(toList());
+    }
+
 
     public List<FollowReadResponse> readFollower(Long myselfId, PageRequest pageRequest) {
         List<FollowReadResponse> followers = friendshipRepository.readAllFollowerOf(myselfId, pageRequest);
