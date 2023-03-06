@@ -38,7 +38,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "join users u on s.user_id = u.id " +
             "join event e on s.event_id = e.event_id " +
             "join users u2 on u2.id = e.create_by " +
-            "where u.id =:userId and e.d_day >= 0 and s.schedule_status ='PENDING';",nativeQuery = true)
+            "where u.id =:userId and e.d_day >= 0 and e.is_deleted = false " +
+            "and s.schedule_status ='PENDING';", nativeQuery = true)
     List<ReadPendingDto> readAllPendingSchedule(@Param("userId") Long userId);
 
     /**
