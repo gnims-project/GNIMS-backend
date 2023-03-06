@@ -69,8 +69,9 @@ public class WebSecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.addAllowedOrigin("http://localhost:3000"); //프론트가 3000번 포트를 사용함
-        configuration.setAllowCredentials(true);
+        configuration.addAllowedOrigin("https://gnims.kr");
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("http://gnims.kr.s3-website.ap-northeast-2.amazonaws.com");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
 
@@ -78,7 +79,7 @@ public class WebSecurityConfig {
         configuration.addExposedHeader("Content-Type");
         configuration.addExposedHeader("token");
 
-        configuration.addAllowedOriginPattern("*");
+//        configuration.addAllowedOriginPattern("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
