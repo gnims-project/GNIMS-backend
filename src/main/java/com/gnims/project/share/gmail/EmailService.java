@@ -31,7 +31,7 @@ public class EmailService {
     private final UserRepository userRepository;
 
     @Value("${AdminMail.id}")
-    private String hostEmail;
+    private String hostEmail;   //이메일을 날리는 주체의 이메일
 
     @Transactional
     public void updatePassword(EmailPasswordDto request) {
@@ -69,6 +69,7 @@ public class EmailService {
         message.addRecipients(RecipientType.TO, email);//보내는 대상
         message.setSubject("그님스 이메일 인증");//제목
 
+        //이메일에 들어갈 내용
         String msgg = "";
         msgg += "<div style='margin:100px;'>";
         msgg += "<h1> 안녕하세요 그님스입니다. </h1>";
@@ -82,8 +83,8 @@ public class EmailService {
         msgg += "<h2 style='color:blue;'>인증 코드 입니다.</h2>";
         msgg += "<div style='font-size:130%'>";
         msgg += "인증코드 : <strong>" + link + "</strong><div><br/> ";
-        msgg += "</div>";                                                            //백에서 link 로 인증유저임을 확인하고(이 로직이 없을경우 임의의유저가 인증없이 비밀번호를 바꾸는 가능성이생김)
-        message.setText(msgg, "utf-8", "html");//내용
+        msgg += "</div>";
+        message.setText(msgg, "utf-8", "html");
         message.setFrom(new InternetAddress(hostEmail, "그님스"));//보내는 사람
 
         return message;
@@ -91,35 +92,44 @@ public class EmailService {
 
     public String createCode() {
 
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        //12자리의 임의 코드 생성
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 12);
     }
 
-    public String createEmailValidation(String to, String email) throws Exception {
+    public void createEmailValidation(String to, String email) throws Exception {
 
-        // TODO Auto-generated method stub
+        //인증 코드 생성
         String code = createCode();
+
+        //인증 메일 생성
         MimeMessage message = createMessage(to, code, email);
-        try {//예외처리
+
+        //예외처리
+        try {
             Optional<EmailValidation> byEmail = emailRepository.findByEmail(email);
 
+            //DB에 존재하는 인증 메일인지 검사
             if (byEmail.isPresent()) {
+                //삭제 후 재 생성
                 emailRepository.delete(byEmail.get());
             }
 
+            //인증 객체 생성 / 저장
             EmailValidation emailValidation = new EmailValidation(code, email);
             emailRepository.save(emailValidation);
 
+            //인증 메일 발송
             emailSender.send(message);
         } catch (Exception es) {
             es.printStackTrace();
             throw new IllegalArgumentException(POSTING_EMAIL_ERROR);
         }
-        return code;
     }
 
     @Transactional
     public void checkCode(AuthCodeDto request) {
 
+        //인증하는 메일의 인증 객체가 존재하지 않을 시
         EmailValidation emailValidation = emailRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException(INVALID_CODE_ERROR)
         );
@@ -135,7 +145,7 @@ public class EmailService {
             throw new IllegalArgumentException(INVALID_CODE_ERROR);
         }
 
-        //인증 상태를 true로 바꿈
+        //인증 객체의 상태를 true로 바꿈
         emailValidation.isCheckedTrue();
     }
 }

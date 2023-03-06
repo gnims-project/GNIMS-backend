@@ -15,6 +15,7 @@ import java.util.List;
 
 import static com.gnims.project.share.message.ResponseMessage.*;
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.ResponseEntity.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,44 +28,45 @@ public class ScheduleController {
     @GetMapping("/users/{user-id}/events")
     public ResponseEntity<ReadScheduleResult> readAllSchedule(@PathVariable("user-id") Long followId) {
         List<ReadAllResponse> responses = scheduleService.readAllSchedule(followId);
-        return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, responses), OK);
+
+        return ok(new ReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, responses));
     }
 
     //스케줄 전체 조회 최적화 진행중 - Paging, dto 버전 **한방쿼리**
     @GetMapping("/v2-page/users/{user-id}/events")
-    public ResponseEntity<PageableReadScheduleResult> readAllSchedulePage(@PathVariable("user-id") Long followId,
-                                                                          @RequestParam Integer page,
-                                                                          @RequestParam Integer size,
-                                                                          @RequestParam(defaultValue = "event.dDay")
+    public ResponseEntity<PageScheduleResult> readAllSchedulePage(@PathVariable("user-id") Long followId,
+                                                                  @RequestParam Integer page,
+                                                                  @RequestParam Integer size,
+                                                                  @RequestParam(defaultValue = "event.dDay")
                                                                               String sortedBy) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sortedBy).ascending());
         PageableReadResponse response = scheduleService.readAllSchedulePage(followId, pageRequest, sortedBy);
-        return new ResponseEntity<>(new PageableReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE,
-                response.getSize(), response.getData()), OK);
+        return ok(new PageScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, response.getSize(), response.getData()));
+
     }
 
     //스케줄 단건 조회 - 쿼리 최적화 DTO **한방쿼리**
     @GetMapping("/events/{event-id}")
     public ResponseEntity<ReadScheduleResult> readOneSchedule(@PathVariable("event-id") Long eventId) {
         ReadOneResponse response = scheduleService.readOneSchedule(eventId);
-        return new ResponseEntity<>(new ReadScheduleResult(200, READ_ONE_SCHEDULE_MESSAGE, response), OK);
+        return ok(new ReadScheduleResult(200, READ_ONE_SCHEDULE_MESSAGE, response));
     }
 
     // 수락 대기중인 스케줄 조회
     @GetMapping("/v2/events/pending")
-    public ResponseEntity<ReadScheduleResult> readPendingScheduleV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ReadScheduleResult> readPendingSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
         List<ReadPendingResponse> responses = scheduleService.readPendingScheduleV2(userId);
-        return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PENDING_SCHEDULE_MESSAGE, responses), OK);
+        return ok(new ReadScheduleResult<>(200, READ_PENDING_SCHEDULE_MESSAGE, responses));
     }
 
     // 과거 스케줄 조회
     @GetMapping("/events/past")
-    public ResponseEntity<ReadScheduleResult> readPastScheduleV2(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ReadScheduleResult> readPastSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
         List<ReadAllResponse> responses = scheduleService.readPastSchedule(userId);
-        return new ResponseEntity<>(new ReadScheduleResult<>(200, READ_PAST_SCHEDULE_MESSAGE, responses), OK);
+        return ok(new ReadScheduleResult<>(200, READ_PAST_SCHEDULE_MESSAGE, responses));
     }
 
     //스케줄 수락
@@ -73,7 +75,7 @@ public class ScheduleController {
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         scheduleService.acceptSchedule(userDetails.receiveUserId(), eventId);
-        return new ResponseEntity<>(new SimpleScheduleResult(200, ACCEPT_SCHEDULE_MESSAGE), OK);
+        return ok(new SimpleScheduleResult(200, ACCEPT_SCHEDULE_MESSAGE));
     }
 
     //스케줄 거절
@@ -82,6 +84,6 @@ public class ScheduleController {
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         scheduleService.rejectSchedule(userDetails.receiveUserId(), eventId);
-        return new ResponseEntity<>(new SimpleScheduleResult(200, REJECT_SCHEDULE_MESSAGE), OK);
+        return ok(new SimpleScheduleResult(200, REJECT_SCHEDULE_MESSAGE));
     }
 }
