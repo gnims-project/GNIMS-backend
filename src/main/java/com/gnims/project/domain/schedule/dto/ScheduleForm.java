@@ -25,7 +25,7 @@ public class ScheduleForm {
     private String cardColor;
 
     @UniqueElements(message = "초대 목록에 동일 인물이 중복해서 존재합니다.")
-    @Size(max = 4, message = "공동 스케줄은 최대 4명 까지 초대 가능합니다.")
+    @Size(max = 5, message = "공동 스케줄은 최대 5명 까지 초대 가능합니다.")
     private List<Long> participantsId;
 
     public ScheduleServiceForm convertServiceForm(Long id, String username) {

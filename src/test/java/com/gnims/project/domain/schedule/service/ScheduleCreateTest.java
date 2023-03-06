@@ -18,11 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@Transactional
 class ScheduleCreateTest {
 
     @Autowired
@@ -50,10 +47,6 @@ class ScheduleCreateTest {
     @Autowired
     EventRepository eventRepository;
 
-    @Autowired
-    PlatformTransactionManager transactionManager;
-
-    TransactionStatus status = null;
     String hostToken = null;
     String inviteeToken = null;
 
@@ -81,8 +74,6 @@ class ScheduleCreateTest {
             "스케줄 미수락(PENDING, REJECT)일 경우 스케줄이 조회되지 않는다. ")
     @Test
     void 스케줄_조회_조건1() throws Exception {
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
 
         //given
         Long hostId = userRepository.findByNickname("딸기").get().getId();
@@ -91,7 +82,7 @@ class ScheduleCreateTest {
         //when
         mvc.perform(post("/events").header("Authorization", hostToken)
                         .contentType(APPLICATION_JSON)
-                        .content("{\"date\": \"2023-03-15\", " +
+                        .content("{\"date\": \"9999-03-15\", " +
                                 "\"time\":\"16:00:00\"," +
                                 "\"subject\":\"과일 정기 모임\"," +
                                 "\"content\":\"방이동 채소가게에서 저녁 식사\", " +
@@ -116,11 +107,7 @@ class ScheduleCreateTest {
             "이벤트가 생성되면 dDay 필드는 null이 아니다.")
     @Test
     void test1() throws Exception {
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
-
         //given
-        String expression = "$.[?(@.message == '%s')]";
         Long hostId = userRepository.findByNickname("딸기").get().getId();
         Long inviteeId1 = userRepository.findByNickname("당근").get().getId();
         Long inviteeId2 = userRepository.findByNickname("수박").get().getId();
@@ -128,14 +115,14 @@ class ScheduleCreateTest {
         //when
         mvc.perform(post("/events").header("Authorization", hostToken)
                 .contentType(APPLICATION_JSON)
-                .content("{\"date\": \"2023-03-15\", " +
+                .content("{\"date\": \"9999-03-15\", " +
                         "\"time\":\"16:00:00\"," +
                         "\"subject\":\"과일 정기 모임\"," +
                         "\"content\":\"방이동 채소가게에서 저녁 식사\", " +
                         "\"participantsId\": " +
                         "[" + hostId + "," + inviteeId1 + "," + inviteeId2 + "]}"))
                 //then
-                .andExpect(jsonPath(expression, "스케줄 생성 완료").exists());
+                .andExpect(jsonPath("$.message").value("스케줄 생성 완료"));
 
 
         List<Schedule> schedules = scheduleRepository.findAll();
@@ -157,8 +144,35 @@ class ScheduleCreateTest {
         Assertions.assertThat(findEvent.getDDay()).isNotNull();
     }
 
+    @DisplayName("일정은 최대 자신을 제외하고 5명 까지 초대가능하다. " +
+            "초대 인원이 5명이 넘을 시 일정은 생성되지 않고 " +
+            "400 에러가 발생한다.")
+    @Test
+    void test2() throws Exception {
+        //given
+        Long hostId = userRepository.findByNickname("딸기").get().getId();
+        Long inviteeId1 = userRepository.findByNickname("당근").get().getId();
+        Long inviteeId2 = userRepository.findByNickname("수박").get().getId();
+        Long inviteeId3 = userRepository.findByNickname("참외").get().getId();
+        Long inviteeId4 = userRepository.findByNickname("메론").get().getId();
+        Long inviteeId5 = userRepository.findByNickname("김치").get().getId();
+        Long inviteeId6 = userRepository.findByNickname("커피").get().getId();
 
+        //when
+        mvc.perform(post("/events").header("Authorization", hostToken)
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"date\": \"9999-03-15\", " +
+                                "\"time\":\"16:00:00\"," +
+                                "\"subject\":\"과일 정기 모임\"," +
+                                "\"content\":\"방이동 채소가게에서 저녁 식사\", " +
+                                "\"participantsId\": " +
+                                "[" + hostId + "," + inviteeId1 + "," + inviteeId2 + "," + inviteeId3 + "" +
+                                "," + inviteeId4 + "," + inviteeId5 + "," + inviteeId6 + "]}"))
+                //then
+                .andExpect(status().isBadRequest());
 
+        Assertions.assertThat(eventRepository.findBySubject("과일 정기 모임").isEmpty()).isTrue();
+    }
 
     private void makeUser() throws Exception {
         MockMultipartFile file1 = new MockMultipartFile(
@@ -184,6 +198,24 @@ class ScheduleCreateTest {
                 "{\"nickname\" : \"참외\",\"username\": \"최땡땡\", \"email\": \"chamwhe@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
         mvc.perform(multipart("/auth/signup")
                 .file(file4));
+
+        MockMultipartFile file5 = new MockMultipartFile(
+                "data", "", "application/json",
+                "{\"nickname\" : \"메론\",\"username\": \"메땡땡\", \"email\": \"meron@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
+        mvc.perform(multipart("/auth/signup")
+                .file(file5));
+
+        MockMultipartFile file6 = new MockMultipartFile(
+                "data", "", "application/json",
+                "{\"nickname\" : \"김치\",\"username\": \"치땡땡\", \"email\": \"kimchi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
+        mvc.perform(multipart("/auth/signup")
+                .file(file6));
+
+        MockMultipartFile file7 = new MockMultipartFile(
+                "data", "", "application/json",
+                "{\"nickname\" : \"커피\",\"username\": \"최땡땡\", \"email\": \"coffee@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
+        mvc.perform(multipart("/auth/signup")
+                .file(file7));
     }
 
     private MvcResult getMvcResult(String content) throws Exception {
