@@ -90,7 +90,7 @@ class ScheduleCreateTest {
                                 "[" + hostId + "," + inviteeId1 + "]}"));
 
         //then - 호스트는 이벤트 자동 수락이기 때문에 조회되는 일정 1개
-        mvc.perform(get("/users/"+ hostId +"/events").header("Authorization", inviteeToken))
+        mvc.perform(get("/users/"+ hostId +"/events").header("Authorization", hostToken))
                 .andExpect(jsonPath("$.data.size()").value(1));
 
         //then - 이벤트를 수락하지 않았기 때문에 초대받은 유저는 조회되는 일정 0개

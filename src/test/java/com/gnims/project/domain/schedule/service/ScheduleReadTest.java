@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@Transactional
 public class ScheduleReadTest {
 
     @Autowired
@@ -45,10 +46,6 @@ public class ScheduleReadTest {
     @Autowired
     EventRepository eventRepository;
 
-    @Autowired
-    PlatformTransactionManager transactionManager;
-
-    TransactionStatus status = null;
     String hostToken = null;
     String carrotToken = null;
 
@@ -101,13 +98,11 @@ public class ScheduleReadTest {
             "일정 제목, 본문, 카드 색상, 날짜, 시간, 디데이 반환")
     @Test
     void test1() throws Exception {
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
 
         Event event = eventRepository.findBySubject("자바 스터디").get();
         Long eventId = event.getId();
 
-        mvc.perform(MockMvcRequestBuilders.get("/events/" + eventId)
+        mvc.perform(get("/events/" + eventId)
                 .header("Authorization", hostToken)
                 .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data[?(@.subject == '%s')]","자바 스터디").exists())
@@ -127,12 +122,10 @@ public class ScheduleReadTest {
             "일정 제목, 카드 색상, 프로필, 날짜, 시간, 디데이 반환")
     @Test
     void test2() throws Exception {
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
 
         User user = userRepository.findByUsername("이땡땡").get();
 
-        mvc.perform(MockMvcRequestBuilders.get("/users/" + user.getId() + "/events")
+        mvc.perform(get("/users/" + user.getId() + "/events")
                         .header("Authorization", hostToken)
                         .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data[?(@.subject == '%s')]","자바 스터디").exists())
@@ -151,15 +144,12 @@ public class ScheduleReadTest {
             "응답 결과의 data 길이는 자신이 수락(isAccepted = true)한 일정 갯수와 동일해야 한다.")
     @Test
     void test3() throws Exception {
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
-
         User user = userRepository.findByNickname("딸기").get();
         Long userId = user.getId();
 
         createSchedule();
 
-        mvc.perform(MockMvcRequestBuilders.get( "/users/" + userId + "/events")
+        mvc.perform(get( "/users/" + userId + "/events")
                         .header("Authorization", hostToken)
                         .contentType(APPLICATION_JSON))
                 .andExpect(jsonPath("$.data.size()").value(2));
@@ -171,8 +161,6 @@ public class ScheduleReadTest {
     @Test
     void test4() throws Exception {
         //given
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
 
         // 이벤트 생성자 ID
         Long hostId = userRepository.findByNickname("딸기").get().getId();
@@ -181,7 +169,7 @@ public class ScheduleReadTest {
         Long eventId = event.getId();
 
         //then
-        mvc.perform(MockMvcRequestBuilders.get("/events/" + eventId)
+        mvc.perform(get("/events/" + eventId)
                 .header("Authorization", hostToken))
                 .andExpect(jsonPath("$..hostId").value(hostId.intValue()));
     }
@@ -258,6 +246,35 @@ public class ScheduleReadTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @DisplayName("팔로우 관계가 아닐 때 상대방의 전체 일정 조회를 시도하면 " +
+            "상태코드 403 응답 " +
+            "팔로우 관계라면 200 응답 한다.")
+    @Test
+    void test8() throws Exception {
+        User user = userRepository.findByNickname("딸기").get();
+        Long userId = user.getId();
+
+        createSchedule();
+
+        // follow 관계가 아닐 때 전체 일정 조회
+        mvc.perform(get( "/users/" + userId + "/events")
+                        .header("Authorization", carrotToken)
+                        .contentType(APPLICATION_JSON))
+                        .andExpect(status().isForbidden());
+
+        // follow 관계 맺기
+        mvc.perform(post("/friendship/followings/" + userId)
+                .header("Authorization", carrotToken));
+
+
+        // follow 관계를 맺고난 뒤 조회
+        mvc.perform(get( "/users/" + userId + "/events")
+                        .header("Authorization", carrotToken)
+                        .contentType(APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.data.size()").value(2));
+
+    }
 
     private void makeUser() throws Exception {
         MockMultipartFile file1 = new MockMultipartFile(

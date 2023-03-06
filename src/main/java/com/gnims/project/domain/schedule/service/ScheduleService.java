@@ -2,12 +2,15 @@ package com.gnims.project.domain.schedule.service;
 
 import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
+import com.gnims.project.domain.friendship.dto.FollowReadResponse;
+import com.gnims.project.domain.friendship.service.FriendshipService;
 import com.gnims.project.domain.schedule.dto.*;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.share.persistence.embedded.Appointment;
+import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,6 +34,7 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final FriendshipService friendshipService;
 
     public void makeSchedule(ScheduleServiceForm form) {
         //이벤트 엔티티 생성 및 저장
@@ -58,7 +62,10 @@ public class ScheduleService {
         scheduleRepository.saveAll(schedules);
     }
 
-    public List<ReadAllResponse> readAllSchedule(Long userId) {
+    public List<ReadAllResponse> readAllSchedule(Long myselfId, Long userId) {
+        //만약 userId userDetails 가 일치하지 않는다. -> 팔로우 일정을 조회하겠다는 의미
+        verifyAccessible(myselfId, userId);
+
         List<ReadAllScheduleDto> eventQueries = scheduleRepository.readAllSchedule(userId);
 
         //필요한 로직인지 확인 필요
@@ -85,7 +92,6 @@ public class ScheduleService {
         if (!sorts.contains(sorting)) {
             throw new IllegalArgumentException(BAD_REQUEST);
         }
-
         // 이베트 생성순일때는 내림차순으로 변경
         if ("event.createAt".equals(sorting)) {
             pageRequest = pageRequest.withSort(pageRequest.getSort().descending());
@@ -105,22 +111,24 @@ public class ScheduleService {
         return new PageableReadResponse(schedules.getTotalPages(), responses);
     }
 
-    public ReadOneResponse readOneSchedule(Long eventId) {
-        List<ReadOneScheduleDto> events = scheduleRepository.readOneSchedule(eventId);
-        if (events.isEmpty()) {
-            throw new IllegalArgumentException(NOT_EXISTED_SCHEDULE);
-        }
+    public ReadOneResponse readOneSchedule(Long myselfId, Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_SCHEDULE));
 
-        ReadOneScheduleDto event = events.get(0);
+        verifyAccessible(myselfId, eventId, event);
+
+        List<ReadOneScheduleDto> events = scheduleRepository.readOneSchedule(eventId);
+
+        ReadOneScheduleDto eventDto = events.get(0);
         return new ReadOneResponse(
-                event.getEventId(),
-                event.getDate(),
-                event.getTime(),
-                event.getCardColor(),
-                event.getSubject(),
-                event.getContent(),
-                event.getHostId(),
-                event.getDDay(),
+                eventDto.getEventId(),
+                eventDto.getDate(),
+                eventDto.getTime(),
+                eventDto.getCardColor(),
+                eventDto.getSubject(),
+                eventDto.getContent(),
+                eventDto.getHostId(),
+                eventDto.getDDay(),
                 events.stream().map(e -> new ReadOneUserDto(e.getUsername())).collect(toList())
         );
     }
@@ -182,5 +190,28 @@ public class ScheduleService {
                 .filter(eq -> eq.isSameEventId(ds.getEventId()))
                 .map(eq -> new ReadAllUserDto(eq.getUsername(), eq.getProfile()))
                 .collect(toList());
+    }
+
+    private void verifyAccessible(Long myId, Long userId) {
+        if (!userId.equals(myId)) {
+            List<FollowReadResponse> responses = friendshipService.readFollowing(myId);
+            List<FollowReadResponse> follows = responses.stream().filter(r -> r.getFollowId().equals(userId)).collect(toList());
+
+            if (follows.isEmpty()) {
+                throw new SecurityException(FORBIDDEN);
+            }
+        }
+    }
+
+    private void verifyAccessible(Long myselfId, Long eventId, Event event) {
+        if (!event.getCreateBy().equals(myselfId)) {
+            List<FollowReadResponse> followings = friendshipService.readFollowing(myselfId);
+            List<Long> followIds = followings.stream().map(f -> f.getFollowId()).collect(toList());
+            Event verifyEvent = eventRepository.findById(eventId).get();
+
+            if (!followIds.contains(verifyEvent.getCreateBy())) {
+                throw new SecurityException(FORBIDDEN);
+            }
+        }
     }
 }

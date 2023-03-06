@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.gnims.project.share.message.ResponseMessage.*;
-import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.ResponseEntity.*;
 
 @RestController
@@ -26,8 +25,10 @@ public class ScheduleController {
 
     //스케줄 전체 조회  DTO **한방쿼리** user-id 붙인 이유는 타인의 일정도 볼 수 있어야 하기 때문에
     @GetMapping("/users/{user-id}/events")
-    public ResponseEntity<ReadScheduleResult> readAllSchedule(@PathVariable("user-id") Long followId) {
-        List<ReadAllResponse> responses = scheduleService.readAllSchedule(followId);
+    public ResponseEntity<ReadScheduleResult> readAllSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                              @PathVariable("user-id") Long followId) {
+
+        List<ReadAllResponse> responses = scheduleService.readAllSchedule(userDetails.receiveUserId(), followId);
 
         return ok(new ReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, responses));
     }
@@ -48,8 +49,9 @@ public class ScheduleController {
 
     //스케줄 단건 조회 - 쿼리 최적화 DTO **한방쿼리**
     @GetMapping("/events/{event-id}")
-    public ResponseEntity<ReadScheduleResult> readOneSchedule(@PathVariable("event-id") Long eventId) {
-        ReadOneResponse response = scheduleService.readOneSchedule(eventId);
+    public ResponseEntity<ReadScheduleResult> readOneSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                              @PathVariable("event-id") Long eventId) {
+        ReadOneResponse response = scheduleService.readOneSchedule(userDetails.receiveUserId(), eventId);
         return ok(new ReadScheduleResult(200, READ_ONE_SCHEDULE_MESSAGE, response));
     }
 

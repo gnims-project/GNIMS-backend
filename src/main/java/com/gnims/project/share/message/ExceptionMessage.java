@@ -39,8 +39,8 @@ public class ExceptionMessage {
     public static final String ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE = "이미 요청이 처리되었거나 존재하지 않는 일정입니다.";
     public static final String ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE = "이미 요청이 처리되었거나 권한이 없습니다.";
     public static final String BAD_REQUEST = "잘못된 요청입니다.";
+    public static final String FORBIDDEN = "잘못된 접근입니다.";
     public static final String ALREADY_DELETED_EVENT = "이미 삭제된 일정입니다.";
-
 
     //email
     public static final String INVALID_CODE_ERROR = "인증 실패 / 인증 코드가 유효하지 않습니다.";
