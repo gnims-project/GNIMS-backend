@@ -70,6 +70,7 @@ public class WebSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.addAllowedOrigin("https://gnims.kr");
+        configuration.addAllowedOrigin("https://www.gnims.kr");
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOrigin("http://gnims.kr.s3-website.ap-northeast-2.amazonaws.com");
         configuration.addAllowedMethod("*");
