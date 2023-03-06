@@ -311,7 +311,7 @@ public class SocialSignupTest {
      * 일반적인 접근이 아닌
      * 포스트 맨등의 접근시에 발생 할 수 있음
      * */
-    @DisplayName("소셜가입 시 소셜 코드 값이 null 혹은 정규식 불 일치 - 상태코드 500, db에 저장 실패")
+    @DisplayName("소셜가입 시 소셜 코드 값이 null 일 때는 상태코드 500, db 저장 실패/소셜 코드가 올바르지 않을 시 때는 상태코드 400, db에 저장 실패")
     @Test
     void 회원가입실패테스트6() throws Exception {
 
@@ -327,10 +327,10 @@ public class SocialSignupTest {
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError());
         Assertions.assertThat(userRepository.findByNickname("짱구")).isEmpty();
 
-        //소셜 코드 정규식 불 일치
+        //소셜 코드 올바르지 않음
         mvc.perform(multipart("/social/signup")
                         .file(failFile2).characterEncoding("utf-8"))
-                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
         Assertions.assertThat(userRepository.findByNickname("짱구")).isEmpty();
     }
 
