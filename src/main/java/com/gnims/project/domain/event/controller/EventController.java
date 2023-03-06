@@ -14,6 +14,7 @@ import javax.validation.Valid;
 import static com.gnims.project.share.message.ResponseMessage.DELETE_SCHEDULE_MESSAGE;
 import static com.gnims.project.share.message.ResponseMessage.UPDATE_SCHEDULE_MESSAGE;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.ResponseEntity.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class EventController {
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         eventService.softDeleteSchedule(userDetails.receiveUserId(), eventId);
-        return new ResponseEntity<>(new SimpleScheduleResult(200, DELETE_SCHEDULE_MESSAGE), OK);
+        return ok(new SimpleScheduleResult(200, DELETE_SCHEDULE_MESSAGE));
     }
 
     //스케줄 수정
@@ -37,6 +38,6 @@ public class EventController {
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         eventService.updateSchedule(userDetails.receiveUserId(), updateForm, eventId);
-        return new ResponseEntity<>(new SimpleScheduleResult(200, UPDATE_SCHEDULE_MESSAGE), OK);
+        return ok(new SimpleScheduleResult(200, UPDATE_SCHEDULE_MESSAGE));
     }
 }

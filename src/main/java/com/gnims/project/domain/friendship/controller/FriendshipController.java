@@ -11,12 +11,15 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URL;
 import java.util.List;
 
 import static com.gnims.project.domain.friendship.entity.FollowStatus.INIT;
 import static com.gnims.project.share.message.ResponseMessage.*;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.ResponseEntity.*;
 
 
 @RestController
@@ -36,7 +39,7 @@ public class FriendshipController {
         PageRequest pageRequest = PageRequest.of(page, size);
         List<FollowReadResponse> followings = friendshipService.readFollowing(myselfId, pageRequest);
 
-        return ResponseEntity.ok(new FriendshipResult(200, READ_FOLLOWINGS_MESSAGE, followings));
+        return ok(new FriendshipResult(200, READ_FOLLOWINGS_MESSAGE, followings));
     }
 
     //팔로워 조회(나를 등록한 친구)
@@ -48,7 +51,7 @@ public class FriendshipController {
         PageRequest pageRequest = PageRequest.of(page, size);
         List<FollowReadResponse> followers = friendshipService.readFollower(myselfId, pageRequest);
 
-        return ResponseEntity.ok(new FriendshipResult(200, READ_FOLLOWERS_MESSAGE, followers));
+        return ok(new FriendshipResult(200, READ_FOLLOWERS_MESSAGE, followers));
     }
 
     // 팔로잉 하기/취소
@@ -65,7 +68,7 @@ public class FriendshipController {
             return new ResponseEntity<>(new FriendshipResult<>(CREATED.value(), response.receiveStatusMessage(), response), CREATED);
         }
 
-        return new ResponseEntity<>(new FriendshipResult<>(OK.value(), response.receiveStatusMessage(), response), OK);
+        return ok(new FriendshipResult<>(OK.value(), response.receiveStatusMessage(), response));
 
     }
 
@@ -75,7 +78,7 @@ public class FriendshipController {
         Long myselfId = userDetails.receiveUserId();
         Integer count = friendshipService.countFollowing(myselfId);
 
-        return new ResponseEntity<>(new FriendshipResult(OK.value(), COUNT_FOLLOWINGS_MESSAGE, count),OK);
+        return ok(new FriendshipResult(OK.value(), COUNT_FOLLOWINGS_MESSAGE, count));
     }
 
     //팔로워 수
@@ -84,6 +87,6 @@ public class FriendshipController {
         Long myselfId = userDetails.receiveUserId();
         Integer count = friendshipService.countFollower(myselfId);
 
-        return new ResponseEntity<>(new FriendshipResult(OK.value(), COUNT_FOLLOWERS_MESSAGE, count),OK);
+        return ok(new FriendshipResult(OK.value(), COUNT_FOLLOWERS_MESSAGE, count));
     }
 }
