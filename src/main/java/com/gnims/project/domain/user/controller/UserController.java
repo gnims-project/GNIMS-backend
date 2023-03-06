@@ -1,6 +1,5 @@
 package com.gnims.project.domain.user.controller;
 
-import com.gnims.project.domain.schedule.dto.ReadScheduleResult;
 import com.gnims.project.domain.user.dto.*;
 import com.gnims.project.domain.user.service.UserService;
 import com.gnims.project.security.service.UserDetailsImpl;
@@ -8,7 +7,6 @@ import com.gnims.project.share.validation.ValidationSequence;
 import com.gnims.project.social.dto.SocialSignupDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +19,8 @@ import java.io.IOException;
 import static com.gnims.project.share.message.ResponseMessage.*;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,7 +50,7 @@ public class UserController {
                                                                  @RequestBody NicknameDto request) {
 
         SimpleMessageResult result = userService.checkNickname(request);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+        return status(result.getStatus()).body(result);
     }
 
     @PostMapping("/auth/email")
@@ -58,7 +58,7 @@ public class UserController {
                                                               @RequestBody EmailDto request) {
 
         SimpleMessageResult result = userService.checkEmail(request);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+        return status(result.getStatus()).body(result);
     }
 
     @PatchMapping("/users/profile")
@@ -66,14 +66,14 @@ public class UserController {
                                              @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
         ProfileImageDto result = userService.updateProfile(image, userDetails.getUser());
-        return new ResponseEntity<>(new UserResult<>(OK.value(), PROFILE_UPDATE_SUCCESS_MESSAGE, result), OK);
+        return ok (new UserResult<>(OK.value(), PROFILE_UPDATE_SUCCESS_MESSAGE, result));
     }
 
     @PostMapping("/auth/login")
     public ResponseEntity<UserResult> login(@RequestBody LoginRequestDto request, HttpServletResponse response) {
 
         LoginResponseDto result = userService.login(request, response);
-        return new ResponseEntity<>(new UserResult<>(OK.value(), LOGIN_SUCCESS_MESSAGE, result), OK);
+        return ok (new UserResult<>(OK.value(), LOGIN_SUCCESS_MESSAGE, result));
     }
 
     //이메일 인증을 날릴 api
@@ -85,23 +85,27 @@ public class UserController {
 
     //이메일 인증 x 비밀번호 재설정
     @PatchMapping("/users/password")
-    public ResponseEntity<SimpleMessageResult> updatePassword(@Validated(ValidationSequence.class) @RequestBody PasswordDto request, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<SimpleMessageResult> updatePassword(@Validated(ValidationSequence.class)
+                                                                  @RequestBody PasswordDto request,
+                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         userService.updatePassword(request, userDetails.getUser());
 
-        return new ResponseEntity<>(new SimpleMessageResult(OK.value(), SECRET_UPDATE_SUCCESS_MESSAGE), OK);
+        return ok (new SimpleMessageResult(OK.value(), SECRET_UPDATE_SUCCESS_MESSAGE));
     }
 
     //최적화 검색
     @GetMapping("/users/search")
-    public ResponseEntity<ReadScheduleResult> testSearch(@RequestParam(value = "username") String username,
+    public ResponseEntity<SearchResponseDto> testSearch(@RequestParam(value = "username") String username,
                                                          @RequestParam(value = "page") Integer page,
                                                          @RequestParam(value = "size") Integer size,
                                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        return new ResponseEntity<>(new ReadScheduleResult<>(OK.value(), USER_SEARCH_SUCCESS_MESSAGE, userService.search(username, userDetails.getUser(), pageRequest)), OK);
+        return ok (
+                new SearchResponseDto<>(OK.value(), USER_SEARCH_SUCCESS_MESSAGE,
+                        userService.search(username, userDetails.getUser(), pageRequest)));
     }
 }
 

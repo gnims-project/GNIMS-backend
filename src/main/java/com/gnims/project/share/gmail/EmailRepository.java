@@ -10,11 +10,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface EmailRepository extends JpaRepository<EmailValidation, Long> {
-//    Optional<EmailValidation> findByCode(String code);
-    Optional<EmailValidation> findByEmail(String email);
 
-//    @Transactional
-//    void deleteByCreateAtBefore(LocalDateTime time);
+    Optional<EmailValidation> findByEmail(String email);
 
     @Transactional
     @Modifying(clearAutomatically = true)
