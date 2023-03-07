@@ -28,7 +28,7 @@ public class SseEmitterManager {
          */
         sseEmitter.onCompletion(() -> {
             log.info("onCompletion callback -> remove {}", sseEmitter);
-            this.sseEmitters.remove(sseEmitter);
+            this.sseEmitters.remove(userId);
         });
 
         sseEmitter.onTimeout(() -> {
