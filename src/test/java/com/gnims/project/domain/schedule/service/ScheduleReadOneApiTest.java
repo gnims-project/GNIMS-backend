@@ -4,6 +4,7 @@ import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
+import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -166,6 +167,34 @@ public class ScheduleReadOneApiTest {
         mvc.perform(get("/events/" + eventId).header("Authorization", nonInvitedToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$..subject").value("자바 스터디"));
+    }
+
+    @DisplayName("일정을 만든 사람과 팔로우 관계가 맺어지지 않더라도 본인이 포함되어 있으면 " +
+            "상태 코드 200 " +
+            "데이터가 포함된 채로 정상 응답 한다. ")
+    @Test
+    void test5() throws Exception {
+        Event event = eventRepository.findBySubject("자바 스터디").get();
+        Long eventId = event.getId();
+
+        mvc.perform(post( "/events/" + eventId + "/acceptance")
+                .header("Authorization", invitedToken)
+                .contentType(APPLICATION_JSON));
+
+        mvc.perform(get("/events/" + eventId).header("Authorization", invitedToken))
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("일정을 수락하지 않았으면 " +
+            "상태 코드 403 " +
+            "데이터가 포함된 채로 정상 응답 한다. ")
+    @Test
+    void test6() throws Exception {
+        Event event = eventRepository.findBySubject("자바 스터디").get();
+        Long eventId = event.getId();
+
+        mvc.perform(get("/events/" + eventId).header("Authorization", invitedToken))
+                .andExpect(status().isForbidden());
     }
 
     private void makeUser() throws Exception {
