@@ -88,4 +88,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     List<Schedule> findAllByEvent(Event event);
 
+    List<Schedule> findAllByEventId(Long eventId);
+
+
 }
