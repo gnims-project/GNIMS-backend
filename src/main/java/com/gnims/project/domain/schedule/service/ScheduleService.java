@@ -115,10 +115,18 @@ public class ScheduleService {
     }
 
     public ReadOneResponse readOneSchedule(Long myselfId, Long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_SCHEDULE));
+        List<Schedule> schedules = scheduleRepository.findAllByEventId(eventId);
+        Optional<Long> first = schedules.stream()
+                .filter(s -> myselfId.equals(s.getUser().getId()))
+                .filter(s -> s.isAccepted())
+                .map(s -> s.getUser().getId()).findFirst();
 
-        validateAccessibility(myselfId, event);
+        if (first.isEmpty()) {
+            Event event = eventRepository.findById(eventId)
+                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_SCHEDULE));
+
+            validateAccessibility(myselfId, event);
+        }
 
         List<ReadOneScheduleDto> events = scheduleRepository.readOneSchedule(eventId);
 
