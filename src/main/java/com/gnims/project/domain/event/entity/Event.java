@@ -66,4 +66,12 @@ public class Event extends BaseEntity {
         return ChronoUnit.DAYS.between(LocalDate.now(), appointment.getDate());
     }
 
+    public boolean isNotDeleted() {
+        return !this.isDeleted;
+    }
+
+    public boolean isNotPast() {
+        return getDDay() >= 0;
+    }
+
 }

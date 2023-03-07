@@ -50,18 +50,6 @@ public class Friendship extends TimeStamped {
         return this.follow.getProfileImage();
     }
 
-    public String receiveMyselfUsername() {
-        return this.myself.getUsername();
-    }
-
-    public Long receiveMyselfId() {
-        return this.myself.getId();
-    }
-
-    public String receiveMyselfProfile() {
-        return this.myself.getProfileImage();
-    }
-
     public boolean isActive() {
         if (this.status.equals(INACTIVE)) {
             return false;
@@ -72,5 +60,9 @@ public class Friendship extends TimeStamped {
 
     public void changeStatus(FollowStatus status) {
         this.status = status;
+    }
+
+    public boolean matchFollow(Long userId) {
+        return userId.equals(this.follow.getId());
     }
 }

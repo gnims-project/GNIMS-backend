@@ -67,9 +67,11 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(NullPointerException.class)
-    public void handleUnexpectedException(NullPointerException exception) {
+    @ExceptionHandler({NullPointerException.class, IndexOutOfBoundsException.class})
+    public ResponseEntity<ExceptionResponseMessage> handleUnexpectedException(Exception exception) {
         slackMessageSender.trackError(STATUS + INTERNAL_SERVER_ERROR.getReasonPhrase() + MESSAGE + exception.getMessage());
+        ExceptionResponseMessage message = new ExceptionResponseMessage(INTERNAL_SERVER_ERROR.value(), exception.getMessage());
         log.info("[ERROR class : {} MESSAGE : {}]", exception.getClass(), exception.getMessage());
+        return new ResponseEntity<>(message, HttpStatus.valueOf(message.getStatus()));
     }
 }
