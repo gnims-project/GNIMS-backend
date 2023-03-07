@@ -2,7 +2,8 @@ package com.gnims.project.domain.schedule.service;
 
 import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
-import com.gnims.project.domain.friendship.dto.FollowReadResponse;
+import com.gnims.project.domain.friendship.entity.Friendship;
+import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.friendship.service.FriendshipService;
 import com.gnims.project.domain.schedule.dto.*;
 import com.gnims.project.domain.schedule.entity.Schedule;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
@@ -35,6 +37,7 @@ public class ScheduleService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final FriendshipService friendshipService;
+    private final FriendshipRepository friendshipRepository;
 
     public void makeSchedule(ScheduleServiceForm form) {
         //이벤트 엔티티 생성 및 저장
@@ -64,7 +67,7 @@ public class ScheduleService {
 
     public List<ReadAllResponse> readAllSchedule(Long myselfId, Long userId) {
         //만약 userId userDetails 가 일치하지 않는다. -> 팔로우 일정을 조회하겠다는 의미
-        verifyAccessible(myselfId, userId);
+        validateAccessibility(myselfId, userId);
 
         List<ReadAllScheduleDto> eventQueries = scheduleRepository.readAllSchedule(userId);
 
@@ -115,7 +118,7 @@ public class ScheduleService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_SCHEDULE));
 
-        verifyAccessible(myselfId, eventId, event);
+        validateAccessibility(myselfId, event);
 
         List<ReadOneScheduleDto> events = scheduleRepository.readOneSchedule(eventId);
 
@@ -192,24 +195,38 @@ public class ScheduleService {
                 .collect(toList());
     }
 
-    private void verifyAccessible(Long myId, Long userId) {
+    private void validateAccessibility(Long myId, Long userId) {
         if (!userId.equals(myId)) {
-            List<FollowReadResponse> responses = friendshipService.readFollowing(myId);
-            List<FollowReadResponse> follows = responses.stream().filter(r -> r.getFollowId().equals(userId)).collect(toList());
+            List<Friendship> friendships = friendshipRepository.readAllFollowingOf(myId);
+            List<Friendship> filterFriendships = friendships.stream()
+                    .filter(f -> f.getFollow().getId().equals(userId)).collect(toList());
 
-            if (follows.isEmpty()) {
+            if (filterFriendships.isEmpty()) {
                 throw new SecurityException(FORBIDDEN);
             }
         }
     }
 
-    private void verifyAccessible(Long myselfId, Long eventId, Event event) {
+    private void validateAccessibility(Long myselfId, Event event) {
+        // 내가 만든 일정인지 체크
         if (!event.getCreateBy().equals(myselfId)) {
-            List<FollowReadResponse> followings = friendshipService.readFollowing(myselfId);
-            List<Long> followIds = followings.stream().map(f -> f.getFollowId()).collect(toList());
-            Event verifyEvent = eventRepository.findById(eventId).get();
 
-            if (!followIds.contains(verifyEvent.getCreateBy())) {
+            //팔로우 목록
+            List<Friendship> friendships = friendshipRepository.readAllFollowingOf(myselfId);
+            //팔로우 ID 불러오기
+            List<Long> follows = friendships.stream().map(f -> f.getFollow().getId()).collect(toList());
+
+            //팔로우가 포함된 일정인지 체크
+            List<Schedule> schedules = scheduleRepository.findAllByEvent(event);
+            List<Long> collect = schedules.stream()
+                    .filter(s -> s.isAccepted() == true)
+                    .filter(s -> s.getEvent().getIsDeleted() == false)
+                    .filter(s -> s.getEvent().getDDay() >= 0)
+                    .map(s -> s.getUser().getId()).collect(toList());
+            Optional<Long> verification = follows.stream().filter(f -> collect.contains(f)).findFirst();
+
+
+            if (verification.isEmpty()) {
                 throw new SecurityException(FORBIDDEN);
             }
         }
