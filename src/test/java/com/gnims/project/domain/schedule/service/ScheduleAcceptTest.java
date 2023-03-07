@@ -46,10 +46,6 @@ public class ScheduleAcceptTest {
     @Autowired
     EventRepository eventRepository;
 
-    @Autowired
-    PlatformTransactionManager transactionManager;
-
-    TransactionStatus status = null;
     String hostToken = null;
     String inviteeToken = null;
 
@@ -69,7 +65,7 @@ public class ScheduleAcceptTest {
         // 일정 생성
         mvc.perform(post("/events").header("Authorization", hostToken)
                 .contentType(APPLICATION_JSON)
-                .content("{\"date\": \"2023-03-15\", " +
+                .content("{\"date\": \"9999-03-15\", " +
                         "\"time\":\"12:00:00\"," +
                         "\"subject\":\"과일 정기 모임\"," +
                         "\"content\":\"채소가게에서 저녁 식사\", " +
@@ -171,9 +167,6 @@ public class ScheduleAcceptTest {
             "다른 사용자의 ScheduleStatus 필드에는 영향을 미치지 않는다.")
     @Test
     void 일정_수락_성공_케이스() throws Exception {
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
-
         Long hostId = userRepository.findByNickname("딸기").get().getId();
         Long inviteeId = userRepository.findByNickname("당근").get().getId();
         //given
