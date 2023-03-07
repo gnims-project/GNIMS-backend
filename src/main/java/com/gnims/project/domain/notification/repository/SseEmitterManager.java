@@ -27,12 +27,10 @@ public class SseEmitterManager {
          * 이때 새로운 Emitter 객체를 생성하기 때문에 기존 Emitter 를 제거해야 한다.
          */
         sseEmitter.onCompletion(() -> {
-            log.info("onCompletion callback -> remove {}", sseEmitter);
             this.sseEmitters.remove(userId);
         });
 
         sseEmitter.onTimeout(() -> {
-            log.info("onTimeout callback {}", sseEmitter);
             sseEmitter.complete();
         });
 

@@ -28,4 +28,8 @@ public class ReadOneScheduleDto {
         this.dDay = dDay;
         this.username = username;
     }
+
+    public boolean isCreatedBy(Long userId) {
+        return this.hostId.equals(userId);
+    }
 }

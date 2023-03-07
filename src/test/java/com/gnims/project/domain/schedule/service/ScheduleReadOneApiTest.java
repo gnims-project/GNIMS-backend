@@ -4,7 +4,6 @@ import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
-import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.gnims.project.share.message.ExceptionMessage.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -91,9 +91,9 @@ public class ScheduleReadOneApiTest {
     @DisplayName("일정 상세 조회 시, " +
             "응답 결과로 초대를 수락한(isAccepted) 사람의 username 반환 " +
             "초대를 수락하지 않은 사람의 username 은 반환하지 않습니다." +
-            "일정 제목, 본문, 카드 색상, 날짜, 시간, 디데이 반환")
+            "일정 제목, 본문, 카드 색상, 날짜, 시간, 디데이, 참여자 ID, 일정을 만든 사람의 ID 반환")
     @Test
-    void test1() throws Exception {
+    void 성공_케이스1() throws Exception {
 
         Event event = eventRepository.findBySubject("자바 스터디").get();
         Long eventId = event.getId();
@@ -115,23 +115,11 @@ public class ScheduleReadOneApiTest {
                 .andExpect(jsonPath("$..hostId").value(hostId.intValue()));
     }
 
-    @DisplayName("팔로우 관계가 아닌 상태에서 상대방의 일정 상세 조회를 할 경우 " +
-            "403 상태코드를 반환하고 " +
-            "일정과 관련된 응답 내역은 존재하지 않는다.")
-    @Test
-    void test2() throws Exception {
-        Event event = eventRepository.findBySubject("자바 스터디").get();
-        Long eventId = event.getId();
-
-        mvc.perform(get("/events/" + eventId).header("Authorization", nonInvitedToken))
-                .andExpect(status().isForbidden());
-    }
-
-    @DisplayName("일정을 만든 사람이 아닌 일정에 참여 중인 사람과 팔로우 관계가 맺어져 있다면 상세 조회 시" +
-            "상태 코드 200" +
+    @DisplayName("팔로우 관계 YES 상세 조회 시" +
+            "상태 코드 200 " +
             "데이터가 포함된 채로 정상 응답 한다. ")
     @Test
-    void test3() throws Exception {
+    void 성공_케이스2() throws Exception {
 
         Long eventId = eventRepository.findBySubject("자바 스터디").get().getId();
 
@@ -152,7 +140,7 @@ public class ScheduleReadOneApiTest {
             "상태 코드 200" +
             "데이터가 포함된 채로 정상 응답 한다. ")
     @Test
-    void test4() throws Exception {
+    void 성공_케이스3() throws Exception {
 
         Long eventId = eventRepository.findBySubject("자바 스터디").get().getId();
 
@@ -173,7 +161,7 @@ public class ScheduleReadOneApiTest {
             "상태 코드 200 " +
             "데이터가 포함된 채로 정상 응답 한다. ")
     @Test
-    void test5() throws Exception {
+    void 성공_케이스4() throws Exception {
         Event event = eventRepository.findBySubject("자바 스터디").get();
         Long eventId = event.getId();
 
@@ -185,11 +173,24 @@ public class ScheduleReadOneApiTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("일정을 수락하지 않았으면 " +
-            "상태 코드 403 " +
-            "데이터가 포함된 채로 정상 응답 한다. ")
+    @DisplayName("팔로우 관계 No /일정 초대 No 상태에서 상대방의 일정 상세 조회를 할 경우 " +
+            "403 상태코드 " +
+            "{FORBIDDEN} 메시지 반환 ")
     @Test
-    void test6() throws Exception {
+    void 실패_케이스1() throws Exception {
+        Event event = eventRepository.findBySubject("자바 스터디").get();
+        Long eventId = event.getId();
+
+        mvc.perform(get("/events/" + eventId).header("Authorization", nonInvitedToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value(FORBIDDEN));
+    }
+
+    @DisplayName("일정을 수락하지 않았으면 팔로우 관계와 상관없이 " +
+            "상태 코드 403 " +
+            "데이터는 존재하지 않는다. ")
+    @Test
+    void 실패_케이스2() throws Exception {
         Event event = eventRepository.findBySubject("자바 스터디").get();
         Long eventId = event.getId();
 
