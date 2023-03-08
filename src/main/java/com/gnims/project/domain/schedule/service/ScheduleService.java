@@ -35,7 +35,7 @@ public class ScheduleService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
 
-    private static List<String> DESC_SORTING_GROUP = List.of("event.createAt");
+    private static final List<String> DESC_SORTING_GROUP = List.of("event.createAt");
 
     public void makeSchedule(ScheduleServiceForm form) {
         //이벤트 엔티티 생성 및 저장
