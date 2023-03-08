@@ -51,11 +51,7 @@ public class Friendship extends TimeStamped {
     }
 
     public boolean isActive() {
-        if (this.status.equals(INACTIVE)) {
-            return false;
-        }
-
-        return true;
+        return !this.status.equals(INACTIVE);
     }
 
     public void changeStatus(FollowStatus status) {
