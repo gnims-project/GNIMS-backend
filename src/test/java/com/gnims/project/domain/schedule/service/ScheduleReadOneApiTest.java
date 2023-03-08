@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.gnims.project.share.message.ExceptionMessage.FORBIDDEN;
+import static com.gnims.project.share.message.ExceptionMessage.BAD_ACCESS;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -183,12 +183,11 @@ public class ScheduleReadOneApiTest {
 
         mvc.perform(get("/events/" + eventId).header("Authorization", nonInvitedToken))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value(FORBIDDEN));
+                .andExpect(jsonPath("$.message").value(BAD_ACCESS));
     }
 
     @DisplayName("일정을 수락하지 않았으면 팔로우 관계와 상관없이 " +
-            "상태 코드 403 " +
-            "데이터는 존재하지 않는다. ")
+            "상태 코드 403")
     @Test
     void 실패_케이스2() throws Exception {
         Event event = eventRepository.findBySubject("자바 스터디").get();
@@ -196,6 +195,16 @@ public class ScheduleReadOneApiTest {
 
         mvc.perform(get("/events/" + eventId).header("Authorization", invitedToken))
                 .andExpect(status().isForbidden());
+    }
+
+    @DisplayName("존재하지 않는 일정을 상세 조회하려는 경우" +
+            "상태 코드 404")
+    @Test
+    void 실패_케이스3() throws Exception {
+        Long notExistedEventId = Long.MAX_VALUE;
+
+        mvc.perform(get("/events/" + notExistedEventId).header("Authorization", invitedToken))
+                .andExpect(status().isNotFound());
     }
 
     private void makeUser() throws Exception {
