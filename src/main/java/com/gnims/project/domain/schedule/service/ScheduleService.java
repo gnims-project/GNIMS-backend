@@ -12,7 +12,6 @@ import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.share.persistence.embedded.Appointment;
 import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
 import static com.gnims.project.share.message.ExceptionMessage.*;
 import static java.util.stream.Collectors.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ScheduleService {
@@ -37,15 +35,14 @@ public class ScheduleService {
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
 
-    private static List<String> SORTING_GROUP = List.of("event.createAt", "event.dDay");
+    private static List<String> DESC_SORTING_GROUP = List.of("event.createAt");
 
     public void makeSchedule(ScheduleServiceForm form) {
         //이벤트 엔티티 생성 및 저장
         Long userId = form.getCreateBy();
         Event event = eventRepository.save(new Event(new Appointment(form), form));
         //주최자 스케줄 처리 -> 주최자는 자동 일정에 자동 참여
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException(NOT_EXISTED_USER));
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_USER));
         Schedule hostSchedule = new Schedule(user, event);
         hostSchedule.decideScheduleStatus(ACCEPT);
         //개인 스케줄일 경우
@@ -55,11 +52,9 @@ public class ScheduleService {
         }
         //초대된 사용자 목록
         List<User> users = userRepository.findAllById(form.getParticipantsId());
-        //User 들이 팔로우 인지 확인할 필요성 있음 (개선 버전에서 추가)
-        //스케쥴 엔티티 생성 및 저장
+        //User 들이 팔로우 인지 확인할 필요성 있음 (개선 버전에서 추가) //스케쥴 엔티티 생성 및 저장
         List<Schedule> schedules = users.stream()
-                //자기 자신이 participants 목록에 들어갈 경우 필터링
-                .filter(u -> !userId.equals(u.getId()))
+                .filter(u -> !userId.equals(u.getId())) //자기 자신이 participants 목록에 들어갈 경우 필터링
                 .map(u -> new Schedule(u, event)).collect(toList());
         schedules.add(hostSchedule);
         scheduleRepository.saveAll(schedules);
@@ -86,25 +81,25 @@ public class ScheduleService {
         return createReadAllResponse(schedules, notDuplicatedSchedules);
     }
 
-    public PageableReadResponse readAllSchedulePage(Long userId, PageRequest pageRequest, String sorting) {
-        if (!SORTING_GROUP.contains(sorting)) {
-            throw new IllegalArgumentException(BAD_REQUEST);
-        }
-        // 이베트 생성순일때는 내림차순으로 변경
-        if ("event.createAt".equals(sorting)) {
+    public PageableReadResponse readAllSchedule(Long myselfId, Long searchUserId, PageRequest pageRequest) {
+        //정렬
+        if (DESC_SORTING_GROUP.contains(fetchSortBy(pageRequest))) {
             pageRequest = pageRequest.withSort(pageRequest.getSort().descending());
         }
+        // 스케줄 리스트 구하는 작업
+        Page<ReadAllScheduleDto> schedules = scheduleRepository.readAllSchedulePage(searchUserId, pageRequest);
+        List<ReadAllResponse> responses = createReadAllResponse(schedules);
 
-        Page<ReadAllScheduleDto> schedules = scheduleRepository.readAllSchedulePage(userId, pageRequest);
+        if (matched(myselfId, searchUserId)) { // [0] 내 스케줄 전체 조회
+            return new PageableReadResponse(schedules.getTotalPages(), responses);
+        }
 
-        List<ReadAllResponse> responses = schedules.stream().map(ds -> new ReadAllResponse(
-                ds.getEventId(),
-                ds.getDate(),
-                ds.getTime(),
-                ds.getCardColor(),
-                ds.getSubject(),
-                ds.getDDay(),
-                fetchInvitee(schedules.stream(), ds))).collect(toList());
+        Optional<Friendship> friendship = friendshipRepository.readAllFollowingOf(myselfId) // [1] 팔로우 전체 스케줄 조회
+                .stream().filter(f -> f.matchFollow(searchUserId)).findFirst();
+
+        if (friendship.isEmpty()) {
+            throw new SecurityException(FORBIDDEN);
+        }
 
         return new PageableReadResponse(schedules.getTotalPages(), responses);
     }
@@ -121,11 +116,10 @@ public class ScheduleService {
         }
         // [1] 내가 만든 일정도 아니고 참가자도 아니지만 상대방을 팔로우한 경우 | [2] 팔로우 하지 않았더라도 일정에 초대 받아 수락한 경우
         List<Long> myFollows = friendshipRepository.readAllFollowingOf(myselfId).stream() // (1) 내 팔로우 목록
-                .map(f -> f.receiveFollowId())
-                .collect(toList());
+                .map(f -> f.receiveFollowId()).collect(toList());
 
         List<Schedule> schedulesOfEvent = scheduleRepository.readAllByEventId(eventId); // (2) 이벤트를 참조 중인 스케줄 가져오기
-        List<Long> participants = fetchEventParticipants(schedulesOfEvent); // (3) 일정 참여자 목록 가져오기
+        List<Long> participants = fetchEventParticipants(schedulesOfEvent); // (3) 일정 참여자 목록 가져오기 - 개선 포인트
 
         if (matched(myselfId, participants)) { // [2] 팔로우 하지 않았더라도 일정에 초대 받아 수락한 경우
             return createReadOneResponse(schedules, schedule);
@@ -199,6 +193,17 @@ public class ScheduleService {
                 fetchInvitee(inviteeOfSchedule.stream(), schedule))).collect(toList());
     }
 
+    private List<ReadAllResponse> createReadAllResponse(Page<ReadAllScheduleDto> schedules) {
+        return schedules.stream().map(schedule -> new ReadAllResponse(
+                schedule.getEventId(),
+                schedule.getDate(),
+                schedule.getTime(),
+                schedule.getCardColor(),
+                schedule.getSubject(),
+                schedule.getDDay(),
+                fetchInvitee(schedules.stream(), schedule))).collect(toList());
+    }
+
     private List<ReadAllUserDto> fetchInvitee(Stream<ReadAllScheduleDto> eventAllQueries, ReadAllScheduleDto ds) {
         return eventAllQueries
                 .filter(eq -> eq.isSameEventId(ds.getEventId()))
@@ -229,11 +234,14 @@ public class ScheduleService {
     }
 
     private List<Long> fetchEventParticipants(List<Schedule> schedulesOfEvent) {
-        List<Long> participants = schedulesOfEvent.stream()
+        return schedulesOfEvent.stream()
                 .filter(s -> s.isAccepted())
                 .filter(s -> s.getEvent().isNotDeleted())
                 .filter(s -> s.getEvent().isNotPast())
                 .map(s -> s.getUser().getId()).collect(toList());
-        return participants;
+    }
+
+    private String fetchSortBy(PageRequest pageRequest) {
+        return pageRequest.getSort().toString().split(":")[0];
     }
 }
