@@ -20,7 +20,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Event extends BaseEntity {
 
-    @Id @Column(name = "event_id")
+    @Id
+    @Column(name = "event_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -62,16 +63,15 @@ public class Event extends BaseEntity {
         this.dDay = calculateDDay();
     }
 
-    private long calculateDDay() {
+    private Long calculateDDay() {
         return ChronoUnit.DAYS.between(LocalDate.now(), appointment.getDate());
     }
 
-    public boolean isNotDeleted() {
+    public Boolean isNotDeleted() {
         return !this.isDeleted;
     }
 
-    public boolean isNotPast() {
-        return getDDay() >= 0;
+    public Boolean isNotPast() {
+        return this.dDay >= 0L;
     }
-
 }
