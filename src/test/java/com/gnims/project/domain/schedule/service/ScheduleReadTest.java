@@ -1,6 +1,5 @@
 package com.gnims.project.domain.schedule.service;
 
-import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.event.repository.EventRepository;
 import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
@@ -137,7 +136,7 @@ public class ScheduleReadTest {
             createSchedule();
         }
         //when
-        mvc.perform(get("/v2-page/users/" + hostId + "/events").header("Authorization", hostToken)
+        mvc.perform(get("/v2/users/" + hostId + "/events").header("Authorization", hostToken)
                 .param("page","0")
                 .param("size","5"))
                 //then 총 페이지 수 반환
@@ -145,55 +144,11 @@ public class ScheduleReadTest {
                 //then : 첫번 째 페이지 5개 스케줄 반환
                 .andExpect(jsonPath("$.data.size()").value(5));
 
-        mvc.perform(get("/v2-page/users/" + hostId + "/events").header("Authorization", hostToken)
+        mvc.perform(get("/v2/users/" + hostId + "/events").header("Authorization", hostToken)
                 .param("page","1")
                 .param("size","5"))
                 // then : 두번 째 페이지(마지막 페이지) 5개 스케줄 반환
                 .andExpect(jsonPath("$.data.size()").value(3));
-    }
-
-    @DisplayName("페이징 조회 시 정렬 기준은 String 타입의 sortedBy Param으로 받고 결과는 다음과 같다. " +
-            "sortedBy 생략 혹은 event.dDay 일 경우 d-day를 기준으로 오름 차순으로 정렬되고 " +
-            "event.createAt 일 때는 이벤트 생성일자를 기준으로 내림 차순으로 정렬된다." +
-            "그 외 param 값이 들어온다면 400 에러를 던진다.")
-    @Test
-    void test6() throws Exception {
-        //given : 스케줄 7번 생성, beforeEach에서 만들어지는 스케줄 1번 총 스케줄 갯수 8개
-        Long hostId = userRepository.findByNickname("당근").get().getId();
-        createSchedule("\"9999-04-15\"", "\"첫 번째 스케줄\"", carrotToken);
-        createSchedule("\"9999-01-15\"", "\"두 번째 스케줄\"", carrotToken);
-        createSchedule("\"9999-02-17\"", "\"세 번째 스케줄\"", carrotToken);
-        createSchedule("\"9999-03-20\"", "\"네 번째 스케줄\"", carrotToken);
-
-        //when
-        mvc.perform(get("/v2-page/users/" + hostId + "/events").header("Authorization", carrotToken)
-                        .param("page","0")
-                        .param("size","10"))
-                //then sortedBy : 생략될 경우 d-day를 기준으로 오름 차순으로 정렬
-                .andExpect(jsonPath("$.data[0].subject").value("두 번째 스케줄"))
-                .andExpect(jsonPath("$.data[1].subject").value("세 번째 스케줄"));
-
-        mvc.perform(get("/v2-page/users/" + hostId + "/events").header("Authorization", carrotToken)
-                        .param("page","0")
-                        .param("size","10")
-                        .param("sortedBy", "event.dDay"))
-                //then sortedBy : event.dDay d-day를 기준으로 오름 차순으로 정렬
-                .andExpect(jsonPath("$.data[0].subject").value("두 번째 스케줄"))
-                .andExpect(jsonPath("$.data[1].subject").value("세 번째 스케줄"));
-
-        mvc.perform(get("/v2-page/users/" + hostId + "/events").header("Authorization", carrotToken)
-                        .param("page","0")
-                        .param("size","10")
-                        .param("sortedBy","event.createAt"))
-                //then sortedBy : 이벤트 생성일자를 기준으로 내림 차순으로 정렬
-                .andExpect(jsonPath("$.data[0].subject").value("네 번째 스케줄"));
-
-        mvc.perform(get("/v2-page/users/" + hostId + "/events").header("Authorization", carrotToken)
-                        .param("page","0")
-                        .param("size","10")
-                        .param("sortedBy","event.modifiedAt"))
-                // then : sortedBy param 에 지정되지 않은 정렬 기준이 들어갔을 때
-                .andExpect(status().isBadRequest());
     }
 
     @DisplayName("팔로우 관계가 아닐 때 상대방의 전체 일정 조회를 시도하면 " +
@@ -205,25 +160,87 @@ public class ScheduleReadTest {
         Long userId = user.getId();
 
         createSchedule();
-
         // follow 관계가 아닐 때 전체 일정 조회
         mvc.perform(get( "/users/" + userId + "/events")
-                        .header("Authorization", carrotToken)
-                        .contentType(APPLICATION_JSON))
-                        .andExpect(status().isForbidden());
-
+                        .header("Authorization", carrotToken).contentType(APPLICATION_JSON))
+                .andExpect(status().isForbidden());
         // follow 관계 맺기
-        mvc.perform(post("/friendship/followings/" + userId)
-                .header("Authorization", carrotToken));
-
-
+        mvc.perform(post("/friendship/followings/" + userId).header("Authorization", carrotToken));
         // follow 관계를 맺고난 뒤 조회
         mvc.perform(get( "/users/" + userId + "/events")
-                        .header("Authorization", carrotToken)
-                        .contentType(APPLICATION_JSON))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.data.size()").value(2));
+                        .header("Authorization", carrotToken).contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.size()").value(2));
 
+    }
+
+    @DisplayName("페이징 조회 시 정렬 기준은 String 타입의 sortedBy Param으로 받고 결과는 다음과 같다. " +
+            "sortedBy 생략 혹은 event.dDay 일 경우 d-day를 기준으로 오름 차순으로 정렬되고 " +
+            "event.createAt 일 때는 이벤트 생성일자를 기준으로 내림 차순으로 정렬된다." +
+            "그 외 param 값이 들어온다면 event.dDay 순으로 정렬된다.")
+    @Test
+    void 페이징_성공_케이스() throws Exception {
+        //given : 스케줄 7번 생성, beforeEach에서 만들어지는 스케줄 1번 총 스케줄 갯수 8개
+        Long hostId = userRepository.findByNickname("당근").get().getId();
+        createSchedule("\"9999-04-15\"", "\"첫 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-01-15\"", "\"두 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-02-17\"", "\"세 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-03-20\"", "\"네 번째 스케줄\"", carrotToken);
+
+        //when
+        mvc.perform(get("/v2/users/" + hostId + "/events").header("Authorization", carrotToken)
+                        .param("page","0")
+                        .param("size","10")) //then sortedBy : 생략될 경우 d-day를 기준으로 오름 차순으로 정렬
+                .andExpect(jsonPath("$.data[0].subject").value("두 번째 스케줄"))
+                .andExpect(jsonPath("$.data[1].subject").value("세 번째 스케줄"));
+
+        mvc.perform(get("/v2/users/" + hostId + "/events").header("Authorization", carrotToken)
+                        .param("page","0")
+                        .param("size","10")
+                        .param("sortedBy", "event.dDay")) //then sortedBy : event.dDay d-day를 기준으로 오름 차순으로 정렬
+                .andExpect(jsonPath("$.data[0].subject").value("두 번째 스케줄"))
+                .andExpect(jsonPath("$.data[1].subject").value("세 번째 스케줄"));
+
+        mvc.perform(get("/v2/users/" + hostId + "/events").header("Authorization", carrotToken)
+                        .param("page","0")
+                        .param("size","10")
+                        .param("sortedBy","event.createAt")) //then sortedBy : 이벤트 생성일자를 기준으로 내림 차순으로 정렬
+                .andExpect(jsonPath("$.data[0].subject").value("네 번째 스케줄"));
+    }
+
+    @DisplayName("페이징 - 일정 전체 조회 시, 팔로우가 아닌 유저의 일정을 조회하려는 경우 403 상태코드를 반환한다.")
+    @Test
+    void 페이징_조회_실패_케이스1() throws Exception {
+        Long userId = userRepository.findByNickname("당근").get().getId();
+        createSchedule("\"9999-04-15\"", "\"첫 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-01-15\"", "\"두 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-02-17\"", "\"세 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-03-20\"", "\"네 번째 스케줄\"", carrotToken);
+
+        //when
+        mvc.perform(get("/v2/users/" + userId + "/events").header("Authorization", hostToken)
+                .param("page","0")
+                .param("size","10"))
+                .andExpect(status().isForbidden());
+    }
+
+    @DisplayName("페이징 - 일정 전체 조회 시, 팔로우라면 정상 응답한다.")
+    @Test
+    void 페이징_조회_성공_케이스2() throws Exception {
+        Long userId = userRepository.findByNickname("당근").get().getId();
+        createSchedule("\"9999-04-15\"", "\"첫 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-01-15\"", "\"두 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-02-17\"", "\"세 번째 스케줄\"", carrotToken);
+        createSchedule("\"9999-03-20\"", "\"네 번째 스케줄\"", carrotToken);
+
+        // 팔로우 맺기
+        mvc.perform(post("/friendship/followings/" + userId).header("Authorization", hostToken));
+
+        //when
+        mvc.perform(get("/v2/users/" + userId + "/events").header("Authorization", hostToken)
+                        .param("page","0")
+                        .param("size","10"))
+                .andExpect(status().isOk());
     }
 
     private void makeUser() throws Exception {

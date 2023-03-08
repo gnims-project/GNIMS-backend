@@ -34,15 +34,15 @@ public class ScheduleController {
     }
 
     //스케줄 전체 조회 최적화 진행중 - Paging, dto 버전 **한방쿼리**
-    @GetMapping("/v2-page/users/{user-id}/events")
-    public ResponseEntity<PageScheduleResult> readAllSchedulePage(@PathVariable("user-id") Long followId,
+    @GetMapping("/v2/users/{user-id}/events")
+    public ResponseEntity<PageScheduleResult> readAllSchedulePage(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                  @PathVariable("user-id") Long followId,
                                                                   @RequestParam Integer page,
                                                                   @RequestParam Integer size,
-                                                                  @RequestParam(defaultValue = "event.dDay")
-                                                                              String sortedBy) {
+                                                                  @RequestParam(defaultValue = "event.dDay") String sortedBy) {
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sortedBy).ascending());
-        PageableReadResponse response = scheduleService.readAllSchedulePage(followId, pageRequest, sortedBy);
+        PageableReadResponse response = scheduleService.readAllSchedule(userDetails.receiveUserId(),followId, pageRequest);
         return ok(new PageScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, response.getSize(), response.getData()));
 
     }
@@ -59,7 +59,7 @@ public class ScheduleController {
     @GetMapping("/v2/events/pending")
     public ResponseEntity<ReadScheduleResult> readPendingSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.receiveUserId();
-        List<ReadPendingResponse> responses = scheduleService.readPendingScheduleV2(userId);
+        List<ReadPendingResponse> responses = scheduleService.readPendingSchedule(userId);
         return ok(new ReadScheduleResult<>(200, READ_PENDING_SCHEDULE_MESSAGE, responses));
     }
 

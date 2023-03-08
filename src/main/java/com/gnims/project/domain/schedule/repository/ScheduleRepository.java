@@ -1,6 +1,5 @@
 package com.gnims.project.domain.schedule.repository;
 
-import com.gnims.project.domain.event.entity.Event;
 import com.gnims.project.domain.schedule.dto.ReadAllScheduleDto;
 import com.gnims.project.domain.schedule.dto.ReadOneScheduleDto;
 import com.gnims.project.domain.schedule.dto.ReadPendingDto;
@@ -86,9 +85,9 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "and e.isDeleted = false and e.dDay < 0 order by e.appointment.date desc ")
     List<ReadAllScheduleDto> readPastSchedule(@Param("userId") Long userId);
 
-    List<Schedule> findAllByEvent(Event event);
-
-    List<Schedule> findAllByEventId(Long eventId);
-
-
+    @Query(value = "select s from Schedule s " +
+            "join fetch s.user " +
+            "join fetch s.event " +
+            "where s.event.id =:eventId")
+    List<Schedule> readAllByEventId(@Param("eventId") Long eventId);
 }
