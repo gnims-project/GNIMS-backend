@@ -97,14 +97,13 @@ public class AlarmEventListener {
     }
 
     private ReadNotificationResponse toNotificationResponse(Notification notification) {
-        ReadNotificationResponse data = new ReadNotificationResponse(
+        return new ReadNotificationResponse(
                 notification.getId(),
                 notification.getCreateAt(),
                 notification.getCreateBy(),
                 notification.getMessage(),
                 notification.getIsChecked(),
                 notification.getNotificationType());
-        return data;
     }
 
 }
