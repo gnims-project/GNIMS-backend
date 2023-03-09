@@ -36,4 +36,5 @@ public class ResponseMessage {
 
     public static final String READ_ALL_NOTIFICATION_MESSAGE = "알림 전체 조회 완료";
     public static final String READ_ONE_NOTIFICATION_MESSAGE = "알림 상세 조회 완료";
+    public static final String CHECK_ALL_NOTIFICATION_MESSAGE = "알림 전체 읽음 완료";
 }

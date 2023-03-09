@@ -42,17 +42,4 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
             "where f.follow.id =:userId " +
             "and not f.status = com.gnims.project.domain.friendship.entity.FollowStatus.INACTIVE")
     List<FollowReadResponse> readAllFollowerOf(@Param("userId") Long userId, PageRequest pageRequest);
-
-    // 페이징 최적화 필요
-    @Query(value = "select f from Friendship f " +
-            "where f.follow.id =:userId " +
-            "and not f.status = com.gnims.project.domain.friendship.entity.FollowStatus.INACTIVE")
-    List<Friendship> readAllFollowerPageOf(@Param("userId") Long userId, PageRequest pageRequest);
-
-    // 페이징 최적화 필요
-    @Query(value = "select f from Friendship f " +
-            "where f.myself.id =:userId " +
-            "and not f.status = com.gnims.project.domain.friendship.entity.FollowStatus.INACTIVE")
-    List<Friendship> readAllFollowingPageOf(@Param("userId") Long userId, PageRequest pageRequest);
-
 }

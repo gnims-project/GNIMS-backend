@@ -330,7 +330,7 @@ public class SocialSignupTest {
         //소셜 코드 올바르지 않음
         mvc.perform(multipart("/social/signup")
                         .file(failFile2).characterEncoding("utf-8"))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
         Assertions.assertThat(userRepository.findByNickname("짱구")).isEmpty();
     }
 

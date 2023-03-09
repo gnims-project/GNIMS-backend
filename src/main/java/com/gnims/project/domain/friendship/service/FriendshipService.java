@@ -7,6 +7,7 @@ import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
+import com.gnims.project.exception.NotFoundInformationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.gnims.project.domain.friendship.entity.FollowStatus.*;
-import static com.gnims.project.share.message.ExceptionMessage.NOT_EXISTED_USER;
+import static com.gnims.project.share.message.ExceptionMessage.BAD_ACCESS;
 import static java.util.stream.Collectors.*;
 
 @Service
@@ -34,16 +35,6 @@ public class FriendshipService {
                 f.receiveFollowProfile(),
                 f.getStatus())).collect(toList());
     }
-
-    public List<FollowReadResponse> readFollowing(Long myselfId) {
-        List<Friendship> followings = friendshipRepository.readAllFollowingOf(myselfId);
-        return followings.stream().map(f -> new FollowReadResponse(
-                f.receiveFollowId(),
-                f.receiveFollowUsername(),
-                f.receiveFollowProfile(),
-                f.getStatus())).collect(toList());
-    }
-
 
     public List<FollowReadResponse> readFollower(Long myselfId, PageRequest pageRequest) {
         List<FollowReadResponse> followers = friendshipRepository.readAllFollowerOf(myselfId, pageRequest);
@@ -70,9 +61,9 @@ public class FriendshipService {
         // 한 번도 팔로잉을 한적이 없다면
         if (optionalFriendship.isEmpty()) {
             User user = userRepository.findById(followingId)
-                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_USER));
+                    .orElseThrow(() -> new NotFoundInformationException(BAD_ACCESS));
             User myself = userRepository.findById(myselfId)
-                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_USER));
+                    .orElseThrow(() -> new NotFoundInformationException(BAD_ACCESS));
             Friendship friendship = friendshipRepository.save(new Friendship(myself, user));
             return new FriendshipResponse(friendship.receiveFollowId(), friendship.getStatus());
         }
