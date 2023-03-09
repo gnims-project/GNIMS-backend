@@ -15,10 +15,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import static com.gnims.project.share.message.ExceptionMessage.*;
 import static com.gnims.project.share.message.ResponseMessage.*;
@@ -42,7 +39,6 @@ public class ScheduleUpdateReadTest {
     NotificationRepository notificationRepository;
     @Autowired
     EventRepository eventRepository;
-
     String hostToken = null;
     String userToken = null;
 
@@ -184,9 +180,7 @@ public class ScheduleUpdateReadTest {
             "상태 코드 400, message : {이미 삭제된 스케줄입니다.} 반환")
     @Test
     void 스케줄_수정_실패_케이스2() throws Exception {
-
         //given
-
         Event originalEvent = eventRepository.findBySubject("자바 스터디").get();
 
         mvc.perform(MockMvcRequestBuilders.delete("/events/" + originalEvent.getId())
@@ -208,7 +202,6 @@ public class ScheduleUpdateReadTest {
     @Test
     void 스케줄_수정_실패_케이스3() throws Exception {
         //given
-
         mvc.perform(put("/events/" + Integer.MAX_VALUE)
                         .header("Authorization", hostToken)
                         .contentType(APPLICATION_JSON)

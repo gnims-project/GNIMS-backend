@@ -32,19 +32,14 @@ public class ScheduleRejectTest {
 
     @Autowired
     MockMvc mvc;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     ScheduleRepository scheduleRepository;
-
     @Autowired
     NotificationRepository notificationRepository;
-
     @Autowired
     EventRepository eventRepository;
-
     String hostToken = null;
     String inviteeToken = null;
 
