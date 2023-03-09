@@ -15,14 +15,14 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.gnims.project.domain.schedule.entity.ScheduleStatus.*;
+import static com.gnims.project.share.message.ExceptionMessage.ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
@@ -121,14 +121,29 @@ public class ScheduleRejectTest {
         Assertions.assertThat(schedule.getScheduleStatus()).isEqualTo(PENDING);
     }
 
-    /**
-     * 로직 개선 필요.
-     */
     @DisplayName("초대 받지 않은 스케줄을 거절하는 경우 " +
-            "500에러 발생")
-    @Disabled("지금은 너무 바빠요...")
+            "400 에러 발생 " +
+            "메시지 {ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE} 반환 " +
+            "스케줄 상태는 여전히 PENDING")
     @Test
     void 일정_거절_실패_케이스3() throws Exception {
+        //given - 일정 조회
+        Long inviteeId = userRepository.findByNickname("당근").get().getId();
+        Long eventId = eventRepository.findBySubject("과일 정기 모임").get().getId();
+        Schedule initialSchedule = scheduleRepository.findByUserIdAndEventId(inviteeId, eventId).get();
+        //given - 일정에 초대 받지 않은 사용자 토큰 생성
+        MvcResult result = getLoginResult("{\"email\": \"suback@gmail.com\", \"password\": \"123456aA9\"}");
+        String unInviteeToken = result.getResponse().getHeader("Authorization");
+        // 스케줄 상태
+        Assertions.assertThat(initialSchedule.getScheduleStatus()).isEqualTo(PENDING);
+        //when
+        mvc.perform(post( "/events/" + eventId + "/rejection")
+                        .header("Authorization", unInviteeToken))
+                .andExpect(status().isBadRequest()) // then - 요청 시 응답 내역
+                .andExpect(jsonPath("$.message").value(ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE));
+        // then - 요청 후 스케줄 상태
+        Schedule acceptedSchedule = scheduleRepository.findByUserIdAndEventId(inviteeId, eventId).get();
+        Assertions.assertThat(acceptedSchedule.getScheduleStatus()).isEqualTo(PENDING);
 
     }
 
