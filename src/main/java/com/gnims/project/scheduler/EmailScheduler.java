@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -28,7 +26,7 @@ public class EmailScheduler {
      * DB 메일 테이블 비우기
      */
     @Scheduled(cron = "10 0 0 * * *")
-    public void deleteAuthMail() throws IOException {
+    public void deleteAuthMail() {
         LocalDate today = LocalDate.now();
         try {
             emailRepository.deleteAuthEmail(LocalDateTime.now().minusMinutes(183));
