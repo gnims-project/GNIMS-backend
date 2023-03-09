@@ -125,27 +125,26 @@ class NotificationApiTest {
 
     @DisplayName("알림 상세 조회 시 " +
             "Notification 엔티티 isChecked 필드는 False -> True 로 변경된다.")
-    @Disabled
     @Test
     void test4() throws Exception {
-        Long followId = userRepository.findByNickname("당근").get().getId();
+        User sender = userRepository.findByNickname("당근").get();
+        Long createBy = userRepository.findByNickname("딸기").get().getId();
         //given - 딸기가 당근에게 팔로우했을 때
-        mvc.perform(post("/friendship/followings/" + followId).header("Authorization", hostToken));
-
-        //알림이 생긴다.
-        Notification notification = notificationRepository.findAllByUserIdOrderByCreateAtDesc(followId).get(0);
+        Notification notification = new Notification(sender, createBy, "테스트 메시지");
+        Notification saveNotification = notificationRepository.save(notification);
 
         //알림을 확인하기 전 isChecked 필드
-        Assertions.assertThat(notification.getIsChecked()).isFalse();
-
-        //when - 알림 확인
-        mvc.perform(get("/notifications/" + notification.getId())
-                .header("Authorization", inviteeToken))
+        Assertions.assertThat(saveNotification.getIsChecked()).isFalse();
+        //알림이 생긴다.
+        mvc.perform(get("/notifications/" + saveNotification.getId())
+                        .header("Authorization", inviteeToken))
                 .andExpect(status().isOk());
 
-        Notification updateNotification = notificationRepository.findAllByUserIdOrderByCreateAtDesc(followId).get(0);
-        //알림을 확인 후 isChecked 필드
+        Notification updateNotification = notificationRepository.findAllByUserId(sender.getId()).get(0);
+        //알림을 확인후
         Assertions.assertThat(updateNotification.getIsChecked()).isTrue();
+
+
     }
 
     @DisplayName("팔로우 알림은 최초의 팔로우 관계가 맺어질 때만 발생한다. " +
@@ -184,7 +183,7 @@ class NotificationApiTest {
 
     @DisplayName("알림 모두 읽음 처리")
     @Test
-    void test7() throws Exception {
+    void test8() throws Exception {
         User user = userRepository.findByNickname("딸기").get();
         Long createBy = userRepository.findByNickname("당근").get().getId();
 

@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 public class FriendshipResponse {
 
-    private Long followId;
-    private FollowStatus status;
+    private final Long followId;
+    private final FollowStatus status;
 
     public FriendshipResponse(Long followId, FollowStatus followStatus) {
         this.followId = followId;
@@ -16,10 +16,6 @@ public class FriendshipResponse {
 
     public String receiveStatusMessage() {
         return status.getDescription();
-    }
-
-    public boolean isStatus(FollowStatus followStatus) {
-        return this.status.equals(followStatus);
     }
 
     public FriendShipServiceResponse convertServiceResponse(Long createBy, String senderName) {

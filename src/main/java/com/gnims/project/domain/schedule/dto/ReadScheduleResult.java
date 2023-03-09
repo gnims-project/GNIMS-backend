@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class ReadScheduleResult<T> {
-    private Integer status;
-    private String message;
-    private T data;
+    private final Integer status;
+    private final String message;
+    private final T data;
 
     public ReadScheduleResult(Integer status, String message, T data) {
         this.status = status;

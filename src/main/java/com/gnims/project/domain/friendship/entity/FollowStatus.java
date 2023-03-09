@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum FollowStatus {
     INIT("첫 팔로우"),ACTIVE("팔로우"), INACTIVE("팔로우 취소");
 
-    private String description;
+    private final String description;
 
     FollowStatus(String description) {
         this.description = description;
