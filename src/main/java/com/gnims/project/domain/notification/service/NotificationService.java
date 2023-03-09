@@ -46,6 +46,10 @@ public class NotificationService {
                 n.getNotificationType())).collect(toList());
     }
 
+    public void checkAll(Long userId) {
+        notificationRepository.updateAllChecked(userId);
+    }
+
     @Transactional
     public void readAndCheckNotification(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
