@@ -12,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.gnims.project.share.message.ExceptionMessage.NOT_EXISTED_NOTIFICATION;
-import static com.gnims.project.share.message.ExceptionMessage.NOT_EXISTED_USER;
+import static com.gnims.project.share.message.ExceptionMessage.*;
 import static java.util.stream.Collectors.*;
 
 @Service
@@ -51,9 +50,9 @@ public class NotificationService {
     }
 
     @Transactional
-    public void readAndCheckNotification(Long notificationId) {
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_NOTIFICATION));
+    public void readAndCheckNotification(Long userId, Long notificationId) {
+        Notification notification = notificationRepository.findByUserIdAndId(userId, notificationId)
+                .orElseThrow(() -> new IllegalArgumentException(BAD_ACCESS));
 
         notification.isRead();
     }
