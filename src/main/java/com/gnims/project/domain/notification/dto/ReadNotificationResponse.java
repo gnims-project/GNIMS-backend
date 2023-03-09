@@ -7,12 +7,12 @@ import java.time.LocalDateTime;
 
 @Getter
 public class ReadNotificationResponse {
-    private Long notificationId;
-    private LocalDateTime dateTime;
-    private Long createBy;
-    private String message;
-    private boolean isChecked;
-    private NotificationType notificationType;
+    private final Long notificationId;
+    private final LocalDateTime dateTime;
+    private final Long createBy;
+    private final String message;
+    private final boolean isChecked;
+    private final NotificationType notificationType;
 
     public ReadNotificationResponse(Long notificationId, LocalDateTime dateTime, Long createBy,
                                     String message, boolean isChecked, NotificationType notificationType) {

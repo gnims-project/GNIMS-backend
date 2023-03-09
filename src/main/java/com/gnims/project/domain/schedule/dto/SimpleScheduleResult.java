@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class SimpleScheduleResult {
-    private Integer status;
-    private String message;
+    private final Integer status;
+    private final String message;
 
     public SimpleScheduleResult(Integer status, String message) {
         this.status = status;

@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public class PageScheduleResult<T> {
-    private Integer status;
-    private String message;
-    private Integer totalPage;
-    private T data;
+    private final Integer status;
+    private final String message;
+    private final Integer totalPage;
+    private final T data;
 
     public PageScheduleResult(Integer status, String message, Integer totalPage, T data) {
         this.status = status;

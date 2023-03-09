@@ -10,21 +10,14 @@ import java.util.List;
  */
 @Getter
 public class ScheduleServiceForm {
-    private Long createBy;
-
-    private String username;
-
-    private LocalDate date;
-
-    private LocalTime time;
-
-    private String subject;
-
-    private String content;
-
-    private String cardColor;
-
-    private List<Long> participantsId;
+    private final Long createBy;
+    private final String username;
+    private final LocalDate date;
+    private final LocalTime time;
+    private final String subject;
+    private final String content;
+    private final String cardColor;
+    private final List<Long> participantsId;
 
     public ScheduleServiceForm(Long id, String username, ScheduleForm scheduleForm) {
         this.createBy = id;

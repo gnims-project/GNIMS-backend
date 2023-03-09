@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     List<Notification> findAllByUserIdOrderByCreateAtDesc(Long userId);
-
+    Optional<Notification> findByUserIdAndId(Long userId, Long notificationId);
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query("update Notification n set n.isChecked = true where n.user.id =:userId")

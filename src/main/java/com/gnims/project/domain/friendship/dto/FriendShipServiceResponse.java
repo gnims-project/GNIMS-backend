@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class FriendShipServiceResponse {
-    private Long createBy;
-    private String senderName;
-    private Long followId;
-    private FollowStatus status;
+    private final Long createBy;
+    private final String senderName;
+    private final Long followId;
+    private final FollowStatus status;
 
     public FriendShipServiceResponse(Long createBy, String senderName, FriendshipResponse response) {
         this.createBy = createBy;

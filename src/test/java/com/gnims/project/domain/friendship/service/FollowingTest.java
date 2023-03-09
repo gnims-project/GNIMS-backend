@@ -15,11 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -32,23 +28,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Transactional
 public class FollowingTest {
-
     @Autowired
     MockMvc mvc;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     FriendshipRepository friendshipRepository;
-
     @Autowired
     NotificationRepository notificationRepository;
-
     String mytoken = null;
-
-    @Autowired
-    PlatformTransactionManager transactionManager;
 
     @BeforeEach
     void beforeEach() throws Exception {
