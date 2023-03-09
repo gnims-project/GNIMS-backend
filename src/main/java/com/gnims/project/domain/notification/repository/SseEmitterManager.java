@@ -26,14 +26,8 @@ public class SseEmitterManager {
          * 타임아웃이 발생하면 브라우저에서 재연결 요청을 보내는데
          * 이때 새로운 Emitter 객체를 생성하기 때문에 기존 Emitter 를 제거해야 한다.
          */
-        sseEmitter.onCompletion(() -> {
-            this.sseEmitters.remove(userId);
-        });
-
-        sseEmitter.onTimeout(() -> {
-            sseEmitter.complete();
-        });
-
+        sseEmitter.onCompletion(() -> this.sseEmitters.remove(userId));
+        sseEmitter.onTimeout(() -> sseEmitter.complete());
         return sseEmitter;
     }
 

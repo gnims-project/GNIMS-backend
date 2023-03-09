@@ -6,11 +6,12 @@ import com.gnims.project.domain.friendship.entity.Friendship;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.schedule.dto.*;
 import com.gnims.project.domain.schedule.entity.Schedule;
+import com.gnims.project.exception.NotFoundInformationException;
+import com.gnims.project.domain.friendship.exception.NotFriendshipException;
 import com.gnims.project.domain.schedule.repository.ScheduleRepository;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.share.persistence.embedded.Appointment;
-import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -75,7 +76,7 @@ public class ScheduleService {
                 .stream().filter(f -> f.matchFollow(searchUserId)).findFirst();
 
         if (friendship.isEmpty()) {
-            throw new SecurityException(FORBIDDEN);
+            throw new NotFriendshipException(BAD_ACCESS);
         }
 
         return createReadAllResponse(schedules, notDuplicatedSchedules);
@@ -98,7 +99,7 @@ public class ScheduleService {
                 .stream().filter(f -> f.matchFollow(searchUserId)).findFirst();
 
         if (friendship.isEmpty()) {
-            throw new SecurityException(FORBIDDEN);
+            throw new NotFriendshipException(BAD_ACCESS);
         }
 
         return new PageableReadResponse(schedules.getTotalPages(), responses);
@@ -107,7 +108,7 @@ public class ScheduleService {
     public ReadOneResponse readOneSchedule(Long myselfId, Long eventId) {
         List<ReadOneScheduleDto> schedules = scheduleRepository.readOneSchedule(eventId);
         if (schedules.isEmpty()) {
-            throw new IndexOutOfBoundsException(NOT_EXISTED_SCHEDULE); // 존재하지 않은 일정을 검색할 경우
+            throw new NotFoundInformationException(BAD_ACCESS); // 존재하지 않은 일정을 검색할 경우 404 에러
         }
         ReadOneScheduleDto schedule = schedules.get(0);
 
@@ -126,7 +127,7 @@ public class ScheduleService {
         }
         myFollows.stream()// (4) 참여자 중에 내 팔로우가 있는지 검증 - [1] 내가 만든 일정도 아니고 참가자도 아니지만 상대방을 팔로우
                 .filter(f -> participants.contains(f)).findFirst()
-                .orElseThrow(() -> new SecurityException(FORBIDDEN)); // [1], [2] 에도 해당하지 않으면 접근 권한 X
+                .orElseThrow(() -> new NotFriendshipException(BAD_ACCESS)); // [1], [2] 에도 해당하지 않으면 접근 권한 X
         return createReadOneResponse(schedules, schedule);
     }
 

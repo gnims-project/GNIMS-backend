@@ -3,6 +3,7 @@ package com.gnims.project.domain.user.service;
 import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,11 @@ public class UserSignupTest {
     private String defaultImage;
 
     String invalidToken = "test";
+
+    @BeforeEach
+    void beforeEach() {
+        userRepository.deleteAll();
+    }
 
     @DisplayName("회원가입 성공(이미지 있을 때) - 상태코드 201, 성공 메세지를 반환, db에 저장")
     @Test

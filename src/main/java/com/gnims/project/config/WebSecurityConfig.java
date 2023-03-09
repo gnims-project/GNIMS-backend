@@ -27,6 +27,7 @@ public class WebSecurityConfig {
     private final JwtUtil jwtUtil;
 
     private static final String[] PERMIT_URL = {"/social/**","/users/**","/auth/**" ,"/favicon.ico","/","/slack/**"}; // cors test 용 "/cors/**"
+    private static final String[] UN_PERMIT_URL = {"/users/*/events"};
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -53,6 +54,7 @@ public class WebSecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.authorizeRequests()
+                .antMatchers(UN_PERMIT_URL).authenticated()
                 .antMatchers(PERMIT_URL).permitAll()
                 .anyRequest().authenticated()
                 // JWT 인증/인가를 사용하기 위한 설정

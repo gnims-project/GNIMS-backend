@@ -145,7 +145,7 @@ public class ScheduleDeleteTest {
                         .header("Authorization", userToken))
                 //then
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value( ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE));
+                .andExpect(jsonPath("$.message").value(ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE));
     }
 
     @DisplayName("이미 삭제된 일정을 삭제하려는 경우 " +
