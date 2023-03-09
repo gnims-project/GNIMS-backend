@@ -20,6 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.gnims.project.domain.notification.entity.NotificationType.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -178,6 +180,25 @@ class NotificationApiTest {
         //then 알림을 조회할 경우 10개가 존재해야 한다.
         long count = events.stream(ScheduleServiceForm.class).count();
         Assertions.assertThat(count).isEqualTo(10l);
+    }
+
+    @DisplayName("알림 모두 읽음 처리")
+    @Test
+    void test7() throws Exception {
+        User user = userRepository.findByNickname("딸기").get();
+        Long createBy = userRepository.findByNickname("당근").get().getId();
+
+        Notification notificationA = new Notification(user, createBy, "테스트 알림1");
+        Notification notificationB = new Notification(user, createBy, "테스트 알림2");
+
+        notificationRepository.save(notificationA);
+        notificationRepository.save(notificationB);
+
+        mvc.perform(put("/notifications").header("Authorization", hostToken));
+
+        List<Notification> notifications = notificationRepository.findAllByUserId(user.getId());
+
+        notifications.forEach(n -> Assertions.assertThat(n.getIsChecked()).isTrue());
     }
 
     private void createSchedule(Long hostId, Long inviteeId) throws Exception {

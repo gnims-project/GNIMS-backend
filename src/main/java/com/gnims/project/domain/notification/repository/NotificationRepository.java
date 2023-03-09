@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
@@ -17,4 +18,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Modifying(clearAutomatically = true)
     @Query("update Notification n set n.isChecked = true where n.user.id =:userId")
     void updateAllChecked(@Param("userId") Long userId);
+
+    List<Notification> findAllByUserId(Long userId);
 }
