@@ -43,7 +43,6 @@ public class ScheduleController {
     @GetMapping("/users/{user-id}/events")
     public ResponseEntity<ReadScheduleResult> readAllSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                               @PathVariable("user-id") Long followId) {
-
         List<ReadAllResponse> responses = scheduleService.readAllSchedule(userDetails.receiveUserId(), followId);
 
         return ok(new ReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, responses));
@@ -56,11 +55,9 @@ public class ScheduleController {
                                                                   @RequestParam Integer page,
                                                                   @RequestParam Integer size,
                                                                   @RequestParam(defaultValue = "event.dDay") String sortedBy) {
-
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sortedBy).ascending());
         PageableReadResponse response = scheduleService.readAllSchedule(userDetails.receiveUserId(),followId, pageRequest);
         return ok(new PageScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, response.getSize(), response.getData()));
-
     }
 
     //스케줄 단건 조회
@@ -91,7 +88,6 @@ public class ScheduleController {
     @PostMapping("/events/{event-id}/acceptance")
     public ResponseEntity<SimpleScheduleResult> acceptSchedule(@PathVariable("event-id") Long eventId,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
         scheduleService.acceptSchedule(userDetails.receiveUserId(), eventId);
         return ok(new SimpleScheduleResult(200, ACCEPT_SCHEDULE_MESSAGE));
     }
@@ -100,7 +96,6 @@ public class ScheduleController {
     @PostMapping("/events/{event-id}/rejection")
     public ResponseEntity<SimpleScheduleResult> rejectSchedule(@PathVariable("event-id") Long eventId,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
         scheduleService.rejectSchedule(userDetails.receiveUserId(), eventId);
         return ok(new SimpleScheduleResult(200, REJECT_SCHEDULE_MESSAGE));
     }

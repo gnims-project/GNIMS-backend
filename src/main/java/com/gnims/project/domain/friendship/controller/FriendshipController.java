@@ -32,6 +32,7 @@ public class FriendshipController {
     public ResponseEntity<FriendshipResult> readFollowing(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @RequestParam(defaultValue = "0") Integer page,
                                                           @RequestParam(defaultValue = "9999") Integer size) {
+
         Long myselfId = userDetails.receiveUserId();
         PageRequest pageRequest = PageRequest.of(page, size);
         List<FollowReadResponse> followings = friendshipService.readFollowing(myselfId, pageRequest);
@@ -55,7 +56,6 @@ public class FriendshipController {
     @PostMapping("/friendship/followings/{followings-id}")
     public ResponseEntity<FriendshipResult> createFriendShip(@PathVariable("followings-id") Long followingId,
                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
         Long myselfId = userDetails.receiveUserId();
         FriendshipResponse response = friendshipService.makeFriendship(myselfId, followingId);
         FriendShipServiceResponse serviceResponse = response.to(myselfId, userDetails.getUser().getUsername());

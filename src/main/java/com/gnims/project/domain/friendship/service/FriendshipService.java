@@ -38,7 +38,6 @@ public class FriendshipService {
 
     public List<FollowReadResponse> readFollower(Long myselfId, PageRequest pageRequest) {
         List<FollowReadResponse> followers = friendshipRepository.readAllFollowerOf(myselfId, pageRequest);
-
         return followers.stream().map(f -> new FollowReadResponse(
                         f.getFollowId(),
                         f.getUsername(),
@@ -47,17 +46,13 @@ public class FriendshipService {
     }
 
     private FollowStatus sendFollowStatus(FollowStatus status) {
-        if (status == null) {
-            return INACTIVE;
-        }
-        return status;
+        return status == null ? INACTIVE : status;
     }
 
     @Transactional
     public FriendshipResponse makeFriendship(Long myselfId, Long followingId) {
         // 팔로잉 했는지 확인
         Optional<Friendship> optionalFriendship = friendshipRepository.findAllByMyselfIdAndFollowId(myselfId, followingId);
-
         // 한 번도 팔로잉을 한적이 없다면
         if (optionalFriendship.isEmpty()) {
             User user = userRepository.findById(followingId)
@@ -67,7 +62,6 @@ public class FriendshipService {
             Friendship friendship = friendshipRepository.save(new Friendship(myself, user));
             return new FriendshipResponse(friendship.receiveFollowId(), friendship.getStatus());
         }
-
         // 한번이라도 팔로잉 관계를 맺은 적이 있다면
         Friendship friendship = optionalFriendship.get();
 
