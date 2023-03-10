@@ -5,11 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class LoginResponseDto {
-
-    private Long userId;
-    private String nickname;
-    private String email;
-    private String profileImage;
+    private final Long userId;
+    private final String nickname;
+    private final String email;
+    private final String profileImage;
 
     public LoginResponseDto(User user) {
         this.userId = user.getId();

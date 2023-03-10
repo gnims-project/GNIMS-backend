@@ -10,7 +10,7 @@ public enum SocialCode {
      * */
     EMAIL("Gnims.Email."), KAKAO("Gnims.Kakao."), NAVER("Gnims.Naver.");
 
-    private String value;
+    private final String value;
 
     SocialCode(String value) {
         this.value = value;

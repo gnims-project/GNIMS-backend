@@ -23,11 +23,10 @@ import static com.gnims.project.share.message.ExceptionMessage.TOKEN_ERROR;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-
     private static final String[] PERMIT_URL_PREFIX = {"/social","/auth"};
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         for (String prefix : PERMIT_URL_PREFIX) {
             if(request.getRequestURI().startsWith(prefix)) {
                 filterChain.doFilter(request,response);
@@ -66,5 +65,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             log.error(e.getMessage());
         }
     }
-
 }

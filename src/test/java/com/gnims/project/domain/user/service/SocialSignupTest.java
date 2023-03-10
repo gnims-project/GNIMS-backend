@@ -41,14 +41,13 @@ public class SocialSignupTest {
     String invalidToken = "test";
 
     @AfterEach
-    void afterEach() throws Exception {
+    void afterEach(){
         userRepository.deleteAll();
     }
 
     @DisplayName("카카오가입 성공(이미지 있을 때) - 상태코드 201, 성공 메세지를 반환, db에 저장")
     @Test
     void 카카오가입성공테스트1() throws Exception {
-
         MockMultipartFile kakaoFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\", \"username\": \"이땡땡\", \"email\": \"ddalgi@kakao.com\", \"socialCode\": \"KAKAO\"}".getBytes());
 
         final String fileName = "르탄이"; //파일명
@@ -89,7 +88,6 @@ public class SocialSignupTest {
     @DisplayName("네이버가입 성공(이미지 있을 때) - 상태코드 201, 성공 메세지를 반환, db에 저장")
     @Test
     void 네이버가입성공테스트1() throws Exception {
-
         MockMultipartFile naverFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"포도\", \"username\": \"김땡땡\", \"email\": \"orange@naver.com\", \"socialCode\": \"NAVER\"}".getBytes());
 
         final String fileName = "르탄이"; //파일명
@@ -130,7 +128,6 @@ public class SocialSignupTest {
     @DisplayName("카카오가입 성공(이미지 null일 때) - 상태코드 201, 성공 메세지를 반환, db에 저장")
     @Test
     void 카카오가입성공테스트2() throws Exception {
-
         MockMultipartFile kakaoFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\", \"username\": \"이땡땡\", \"email\": \"ddalgi@kakao.com\", \"socialCode\": \"KAKAO\"}".getBytes());
 
         //이미지 없을 때 - KAKAO
@@ -149,7 +146,6 @@ public class SocialSignupTest {
     @DisplayName("네이버가입 성공(이미지 null일 때) - 상태코드 201, 성공 메세지를 반환, db에 저장")
     @Test
     void 네이버가입성공테스트2() throws Exception {
-
         MockMultipartFile naverFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"포도\", \"username\": \"김땡땡\", \"email\": \"orange@naver.com\", \"socialCode\": \"NAVER\"}".getBytes());
 
         //이미지 없을 때 - NAVER
@@ -168,7 +164,6 @@ public class SocialSignupTest {
     @DisplayName("소셜가입 성공, 토큰이 같이 왓을 시 - 상태코드 201, 성공 메세지를 반환, db에 저장")
     @Test
     void 소셜가입토큰성공테스트() throws Exception {
-
         MockMultipartFile kakaoFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"포도\", \"username\": \"김땡땡\", \"email\": \"orange@kakao.com\", \"socialCode\": \"KAKAO\"}".getBytes());
 
         mvc.perform(multipart("/social/signup")
@@ -183,7 +178,6 @@ public class SocialSignupTest {
     @DisplayName("소셜가입 시 닉네임 중복 - 상태코드 400, 에러 메세지를 반환, db에 저장 실패")
     @Test
     void 회원가입실패테스트1() throws Exception {
-
         //중복 체크를 위해 db에 넣을 데이터
         MockMultipartFile successFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@kakao.com\", \"socialCode\": \"KAKAO\"}".getBytes());
 
@@ -211,7 +205,6 @@ public class SocialSignupTest {
     @DisplayName("소셜가입 시 이메일 중복 - 상태코드 400, 에러 메세지를 반환, db에 저장 실패")
     @Test
     void 회원가입실패테스트2() throws Exception {
-
         //중복 체크를 위해 db에 넣을 데이터
         MockMultipartFile successFile = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@kakao.com\", \"socialCode\": \"KAKAO\"}".getBytes());
 
@@ -234,7 +227,6 @@ public class SocialSignupTest {
     @DisplayName("소셜가입 시 닉네임 값이 null 혹은 정규식 불 일치 - 상태코드 400, 에러 메세지를 반환, db에 저장 실패")
     @Test
     void 회원가입실패테스트3() throws Exception {
-
         //닉네임 null 값
         MockMultipartFile failFile1 = new MockMultipartFile("data", "", "application/json", "{\"username\": \"신땡땡\", \"email\": \"orange@kakao.com\", \"socialCode\": \"KAKAO\"}".getBytes());
 
@@ -259,7 +251,6 @@ public class SocialSignupTest {
     @DisplayName("소셜가입 시 이메일 값이 null 혹은 정규식 불 일치 - 상태코드 400, 에러 메세지를 반환, db에 저장 실패")
     @Test
     void 회원가입실패테스트4() throws Exception {
-
         //닉네임 null 값
         MockMultipartFile failFile1 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"짱구\", \"username\": \"신땡땡\", \"socialCode\": \"KAKAO\"}".getBytes());
 
@@ -284,7 +275,6 @@ public class SocialSignupTest {
     @DisplayName("소셜가입 시 이름 값이 null 혹은 정규식 불 일치 - 상태코드 400, 에러 메세지를 반환, db에 저장 실패")
     @Test
     void 회원가입실패테스트5() throws Exception {
-
         //이름 null 값
         MockMultipartFile failFile1 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"짱구\", \"email\": \"orange@gmail.com\", \"password\": \"1234aA5678\"}".getBytes());
 
@@ -314,7 +304,6 @@ public class SocialSignupTest {
     @DisplayName("소셜가입 시 소셜 코드 값이 null 일 때는 상태코드 500, db 저장 실패/소셜 코드가 올바르지 않을 시 때는 상태코드 400, db에 저장 실패")
     @Test
     void 회원가입실패테스트6() throws Exception {
-
         //소셜 코드 null 값
         MockMultipartFile failFile1 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"짱구\", \"username\": \"신땡땡\", \"email\": \"orange@kakao.com\"}".getBytes());
 
@@ -337,7 +326,6 @@ public class SocialSignupTest {
     @DisplayName("소셜가입 시 (여러) 값이 null 혹은 정규식 불 일치 - 상태코드 400, 에러 메세지를 반환, db에 저장 실패")
     @Test
     void 회원가입실패테스트7() throws Exception {
-
         //이메일, 닉네임, 이름, 비밀번호 중 null 값
         MockMultipartFile failFile1 = new MockMultipartFile("data", "", "application/json", "{\"email\": \"orange@kakao.com\", \"socialCode\": \"KAKAO\"}".getBytes());
 
