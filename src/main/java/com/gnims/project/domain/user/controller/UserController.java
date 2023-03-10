@@ -81,6 +81,7 @@ public class UserController {
     public void authPassword(@RequestBody AuthEmailDto request) throws Exception {
 
         userService.authPassword(request);
+        return ok (new SimpleMessageResult(OK.value(), SUCCESS_POST_EMAIL_MESSAGE));
     }
 
     //이메일 인증 x 비밀번호 재설정
