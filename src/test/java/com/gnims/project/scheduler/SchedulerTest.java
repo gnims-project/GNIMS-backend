@@ -84,12 +84,6 @@ class SchedulerTest {
         Assertions.assertThat(updateSseEmittersSize).isEqualTo(0);
     }
 
-    @DisplayName("이메일 테스트 진행")
-    @Disabled("민우님 화이팅!")
-    @Test
-    void test3() {
-    }
-
     private void makeUser() throws Exception {
         MockMultipartFile file1 = new MockMultipartFile(
                 "data", "", "application/json",

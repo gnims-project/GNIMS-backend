@@ -33,7 +33,7 @@ public class AlarmEventListener {
         String message = form.getUsername() + "님께서 " + form.getSubject() + " 일정에 초대하셨습니다.";
 
         form.getParticipantsId().forEach(participant -> {
-            NotificationForm notificationForm = new NotificationForm(form.getCreateBy(), participant, message, SCHEDULE);
+            NotificationForm notificationForm = NotificationForm.of(form.getCreateBy(), participant, message, SCHEDULE);
             Notification notification = notificationService.create(notificationForm);
             //알림 보내기 - 클라이언트 측으로 보낼 정보
             process("invite", notification);
@@ -45,7 +45,7 @@ public class AlarmEventListener {
     public void processFriendShipEvent(FriendShipServiceResponse response) {
         //알림 만들기
         String message = response.getSenderName() + "님께서 팔로우하셨습니다.";
-        NotificationForm notificationForm = new NotificationForm(response.getCreateBy(), response.getFollowId(), message, FRIENDSHIP);
+        NotificationForm notificationForm = NotificationForm.of(response.getCreateBy(), response.getFollowId(), message, FRIENDSHIP);
         Notification notification = notificationService.create(notificationForm);
         //알림 보내기 - 클라이언트 측으로 보낼 정보
         process("follow", notification);

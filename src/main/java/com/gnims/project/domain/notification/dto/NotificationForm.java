@@ -10,7 +10,7 @@ public class NotificationForm {
     private final String message;
     private final NotificationType notificationType;
 
-    public NotificationForm(Long createBy, Long accepterId, String message, NotificationType notificationType) {
+    private NotificationForm(Long createBy, Long accepterId, String message, NotificationType notificationType) {
         this.createBy = createBy;
         this.accepterId = accepterId;
         this.message = message;
