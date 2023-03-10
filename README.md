@@ -55,10 +55,10 @@
 ## 프로젝트 기술 스택 ⚙️
 
 ### 🛠 백앤드
-![벡엔드 스텍](https://user-images.githubusercontent.com/87173870/224203912-cbc432b6-a438-4b1e-b0f7-b48df41d054e.png)
+![벡엔드 스텍](https://user-images.githubusercontent.com/87173870/224219417-80d4e370-5324-46e5-963e-3baa58642559.png)
 
 ### 🛠 프론트앤드
-![프론트 스텍](https://user-images.githubusercontent.com/87173870/224203946-aa91c864-2b25-47ab-aef6-41ed2961042d.png)
+![프론트 스텍](https://user-images.githubusercontent.com/87173870/224219442-3e6170b1-e6e2-41b3-a928-08d2f1a7cce1.png)
 
 ## 프로젝트 아키텍처
 
