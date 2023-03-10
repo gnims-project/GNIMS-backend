@@ -1,7 +1,7 @@
 package com.gnims.project.domain.notification.entity;
 
+import com.gnims.project.domain.notification.dto.NotificationForm;
 import com.gnims.project.domain.user.entity.User;
-import com.gnims.project.share.persistence.superclass.BaseEntity;
 import com.gnims.project.share.persistence.superclass.TimeStamped;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,15 +33,12 @@ public class Notification extends TimeStamped {
     @JoinColumn(name = "accepter_id")
     private User user;
 
-    public Notification(User user, Long createBy, String message) {
-        this.message = message;
+    public Notification(User user, NotificationForm form) {
         this.user = user;
-        this.createBy = createBy;
+        this.message = form.getMessage();
         this.isChecked = false;
-    }
-
-    public void decideNotificationType(NotificationType notificationType) {
-        this.notificationType = notificationType;
+        this.createBy = form.getCreateBy();
+        this.notificationType = form.getNotificationType();
     }
 
     public void isRead() {

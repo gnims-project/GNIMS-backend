@@ -1,6 +1,7 @@
 package com.gnims.project.domain.notification.service;
 
 import com.gnims.project.domain.friendship.dto.FriendShipServiceResponse;
+import com.gnims.project.domain.notification.dto.NotificationForm;
 import com.gnims.project.domain.notification.entity.Notification;
 import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.notification.repository.SseEmitterManager;
@@ -90,8 +91,8 @@ class NotificationApiTest {
         User user = userRepository.findByNickname("딸기").get();
         Long createBy = userRepository.findByNickname("당근").get().getId();
 
-        Notification notificationA = new Notification(user, createBy, "테스트 알림1");
-        Notification notificationB = new Notification(user, createBy, "테스트 알림2");
+        Notification notificationA = new Notification(user, NotificationForm.of(createBy, user.getId(), "테스트 알림1", SCHEDULE));
+        Notification notificationB = new Notification(user, NotificationForm.of(createBy, user.getId(), "테스트 알림2", SCHEDULE));
 
         notificationRepository.save(notificationA);
         notificationRepository.save(notificationB);
@@ -108,8 +109,8 @@ class NotificationApiTest {
         User sender = userRepository.findByNickname("당근").get();
         Long createBy = userRepository.findByNickname("딸기").get().getId();
         //given - 딸기가 당근에게 팔로우했을 때
-        Notification notification = new Notification(sender, createBy, "테스트 메시지");
-        Notification saveNotification = notificationRepository.save(notification);
+        Notification notificationA = new Notification(sender, NotificationForm.of(createBy, sender.getId(), "테스트 알림1", SCHEDULE));
+        Notification saveNotification = notificationRepository.save(notificationA);
 
         //알림을 확인하기 전 isChecked 필드
         Assertions.assertThat(saveNotification.getIsChecked()).isFalse();
@@ -131,7 +132,7 @@ class NotificationApiTest {
         User sender = userRepository.findByNickname("당근").get();
         Long createBy = userRepository.findByNickname("딸기").get().getId();
         //given - 딸기가 당근에게 팔로우했을 때
-        Notification notification = new Notification(sender, createBy, "테스트 메시지");
+        Notification notification = new Notification(sender, NotificationForm.of(createBy, sender.getId(), "테스트 알림1", SCHEDULE));
         notificationRepository.save(notification);
 
         //알림이 생긴다.
@@ -150,7 +151,7 @@ class NotificationApiTest {
         User sender = userRepository.findByNickname("당근").get();
         Long createBy = userRepository.findByNickname("딸기").get().getId();
         //given - 딸기가 당근에게 팔로우했을 때
-        Notification notification = new Notification(sender, createBy, "테스트 메시지");
+        Notification notification = new Notification(sender, NotificationForm.of(createBy, sender.getId(), "테스트 알림1", SCHEDULE));
         Notification saveNotification = notificationRepository.save(notification);
 
         mvc.perform(get("/notifications/" + saveNotification.getId())
@@ -246,8 +247,8 @@ class NotificationApiTest {
         User user = userRepository.findByNickname("딸기").get();
         Long createBy = userRepository.findByNickname("당근").get().getId();
 
-        Notification notificationA = new Notification(user, createBy, "테스트 알림1");
-        Notification notificationB = new Notification(user, createBy, "테스트 알림2");
+        Notification notificationA = new Notification(user, NotificationForm.of(createBy, user.getId(), "테스트 알림1", SCHEDULE));
+        Notification notificationB = new Notification(user, NotificationForm.of(createBy, user.getId(), "테스트 알림2", SCHEDULE));
 
         notificationRepository.save(notificationA);
         notificationRepository.save(notificationB);
@@ -265,8 +266,8 @@ class NotificationApiTest {
         User user = userRepository.findByNickname("딸기").get();
         Long createBy = userRepository.findByNickname("당근").get().getId();
 
-        Notification notificationA = new Notification(user, createBy, "테스트 알림1");
-        Notification notificationB = new Notification(user, createBy, "테스트 알림2");
+        Notification notificationA = new Notification(user, NotificationForm.of(createBy, user.getId(), "테스트 알림1", SCHEDULE));
+        Notification notificationB = new Notification(user, NotificationForm.of(createBy, user.getId(), "테스트 알림2", SCHEDULE));
 
         notificationRepository.save(notificationA);
         notificationRepository.save(notificationB);
