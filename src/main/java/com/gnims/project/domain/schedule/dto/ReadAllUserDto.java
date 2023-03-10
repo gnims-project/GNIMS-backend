@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class ReadAllUserDto {
-    private String username;
-    private String profile;
+    private final String username;
+    private final String profile;
 
     public ReadAllUserDto(String username, String profile) {
         this.username = username;

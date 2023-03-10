@@ -8,15 +8,15 @@ import java.util.List;
 
 @Getter
 public class ReadOneResponse {
-    private Long eventId;
-    private LocalDate date;
-    private LocalTime time;
-    private String cardColor;
-    private String subject;
-    private String content;
-    private Long hostId;
-    private Long dDay;
-    private List<ReadOneUserDto> invitees;
+    private final Long eventId;
+    private final LocalDate date;
+    private final LocalTime time;
+    private final String cardColor;
+    private final String subject;
+    private final String content;
+    private final Long hostId;
+    private final Long dDay;
+    private final List<ReadOneUserDto> invitees;
 
     public ReadOneResponse(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, String content, Long hostId, Long dDay, List<ReadOneUserDto> invitees) {
         this.eventId = eventId;

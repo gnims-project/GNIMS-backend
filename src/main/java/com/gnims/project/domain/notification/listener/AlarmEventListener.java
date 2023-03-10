@@ -1,6 +1,7 @@
 package com.gnims.project.domain.notification.listener;
 
 import com.gnims.project.domain.friendship.dto.FriendShipServiceResponse;
+import com.gnims.project.domain.notification.dto.NotificationForm;
 import com.gnims.project.domain.notification.dto.ReadNotificationResponse;
 import com.gnims.project.domain.notification.entity.Notification;
 import com.gnims.project.domain.notification.repository.SseEmitterManager;
@@ -9,14 +10,11 @@ import com.gnims.project.domain.schedule.dto.ScheduleServiceForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import static com.gnims.project.domain.notification.entity.NotificationType.*;
 
@@ -27,84 +25,51 @@ public class AlarmEventListener {
 
     private final NotificationService notificationService;
     private final SseEmitterManager sseEmitterManager;
-    /**
-     * 비동기 더 공부해야되요. 쓰레드 풀이란걸 통해 관리해야 된다고 하네요?
-     */
-    @Async
-    @EventListener
-    public void scheduleCreatePush(ScheduleServiceForm form) {
-        log.info("스케줄 등록 이벤트 리스너 작동");
-        List<Long> participantsIds = form.getParticipantsId();
-        sendScheduleAlarm(form, participantsIds);
-    }
 
     @Async
     @EventListener
-    public void friendshipPush(FriendShipServiceResponse response) {
-        log.info("팔로우 이벤트 리스너 작동");
-        sendFriendshipAlarm(response);
+    public void processScheduleEvent(ScheduleServiceForm form) {
+        //알림 만들기
+        String message = form.getUsername() + "님께서 " + form.getSubject() + " 일정에 초대하셨습니다.";
+
+        form.getParticipantsId().forEach(participant -> {
+            NotificationForm notificationForm = new NotificationForm(form.getCreateBy(), participant, message, SCHEDULE);
+            Notification notification = notificationService.create(notificationForm);
+            //알림 보내기 - 클라이언트 측으로 보낼 정보
+            process("invite", notification);
+        });
     }
 
-    private void sendScheduleAlarm(ScheduleServiceForm form, List<Long> participantsIds) {
-
-        for (Long participantsId : participantsIds) {
-            Map<Long, SseEmitter> sseEmitters = sseEmitterManager.getSseEmitters();
-            SseEmitter sseEmitter = sseEmitters.get(participantsId);
-            try {
-                String message = form.getUsername() + "님께서 " + form.getSubject() + " 일정에 초대하셨습니다.";
-                log.info("이벤트 리스너 메시지 : {} TO USER ID : {}", message, participantsId);
-                Notification notification = notificationService.create(form.getCreateBy(), participantsId, message, SCHEDULE);
-
-                ReadNotificationResponse notificationResponse = toNotificationResponse(notification);
-
-                sseEmitter.send(SseEmitter.event()
-                        .name("invite")
-                        .data(notificationResponse, MediaType.APPLICATION_JSON));
-
-            } catch (IOException e) {
-                log.info("IO exception");
-            } catch (NullPointerException e) {
-                log.info("현재 {} 사용자는 알람을 사용하고 있지 않습니다.", participantsId);
-            } catch (IllegalStateException e) {
-                log.info("현재 {} 사용자의 Emitter는 꺼져있습니다.", participantsId);
-            }
-        }
+    @Async
+    @EventListener
+    public void processFriendShipEvent(FriendShipServiceResponse response) {
+        //알림 만들기
+        String message = response.getSenderName() + "님께서 팔로우하셨습니다.";
+        NotificationForm notificationForm = new NotificationForm(response.getCreateBy(), response.getFollowId(), message, FRIENDSHIP);
+        Notification notification = notificationService.create(notificationForm);
+        //알림 보내기 - 클라이언트 측으로 보낼 정보
+        process("follow", notification);
     }
 
-    private void sendFriendshipAlarm(FriendShipServiceResponse response) {
-
-        Map<Long, SseEmitter> sseEmitters = sseEmitterManager.getSseEmitters();
-        SseEmitter sseEmitter = sseEmitters.get(response.getFollowId());
+    private void process(String eventType, Notification notification) {
+        SseEmitter sseEmitter = sseEmitterManager.getSseEmitters().get(notification.getUser().getId());
         try {
-            String message = response.getSenderName() + "님께서 팔로우하셨습니다.";
+            ReadNotificationResponse notificationResponse = convert(notification);
+            sseEmitterManager.send(sseEmitter, eventType, notificationResponse);
 
-            log.info("이벤트 리스너 메시지 : {} TO USER ID : {}", message, response.getFollowId());
-            Notification notification = notificationService.create(response.getCreateBy(), response.getFollowId(), message, FRIENDSHIP);
-
-            ReadNotificationResponse notificationResponse = toNotificationResponse(notification);
-
-            sseEmitter.send(SseEmitter.event()
-                    .name("follow")
-                    .data(notificationResponse, MediaType.APPLICATION_JSON));
-
-        } catch (IOException e) {
-            log.info("IO exception");
-        } catch (NullPointerException e) {
-            log.info("현재 {} 사용자는 알람을 사용하고 있지 않습니다.");
-        } catch (IllegalStateException e) {
-            log.info("현재 {} 사용자의 Emitter는 꺼져있습니다.");
+        } catch (IOException | NullPointerException | IllegalStateException exception) {
+            log.info("exception {} message {}", exception.getClass().getSimpleName(), exception.getMessage());
         }
     }
 
-    private ReadNotificationResponse toNotificationResponse(Notification notification) {
-        ReadNotificationResponse data = new ReadNotificationResponse(
+    private ReadNotificationResponse convert(Notification notification) {
+        return new ReadNotificationResponse(
                 notification.getId(),
                 notification.getCreateAt(),
                 notification.getCreateBy(),
                 notification.getMessage(),
                 notification.getIsChecked(),
                 notification.getNotificationType());
-        return data;
     }
 
 }

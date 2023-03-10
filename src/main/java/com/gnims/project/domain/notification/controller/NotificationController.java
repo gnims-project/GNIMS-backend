@@ -54,8 +54,10 @@ public class NotificationController {
     }
 
     @GetMapping("/notifications/{notification-id}")
-    public ResponseEntity<SimpleNotificationResult> readAndCheckOne(@PathVariable("notification-id") Long notificationId) {
-        notificationService.readAndCheckNotification(notificationId);
+    public ResponseEntity<SimpleNotificationResult> readAndCheckOne(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                    @PathVariable("notification-id") Long notificationId) {
+        Long userId = userDetails.receiveUserId();
+        notificationService.readAndCheckNotification(userId, notificationId);
 
         return ok(new SimpleNotificationResult(200, READ_ONE_NOTIFICATION_MESSAGE));
     }

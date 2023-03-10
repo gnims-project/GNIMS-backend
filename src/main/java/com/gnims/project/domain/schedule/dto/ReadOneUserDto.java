@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class ReadOneUserDto {
-    private String username;
+    private final String username;
 
     public ReadOneUserDto(String username) {
         this.username = username;

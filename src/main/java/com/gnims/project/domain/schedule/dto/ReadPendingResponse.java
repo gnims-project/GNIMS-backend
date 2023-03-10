@@ -12,12 +12,12 @@ import java.time.LocalTime;
 
 @Getter
 public class ReadPendingResponse {
-    private Long eventId;
-    private String hostname;
-    private LocalDate date;
-    private LocalTime time;
-    private String cardColor;
-    private String subject;
+    private final Long eventId;
+    private final String hostname;
+    private final LocalDate date;
+    private final LocalTime time;
+    private final String cardColor;
+    private final String subject;
 
     public ReadPendingResponse(Long eventId, String hostname, LocalDate date, LocalTime time, String cardColor, String subject) {
         this.eventId = eventId;

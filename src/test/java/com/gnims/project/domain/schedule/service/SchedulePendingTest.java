@@ -13,8 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -26,25 +24,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 public class SchedulePendingTest {
-
     @Autowired
     MockMvc mvc;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     ScheduleRepository scheduleRepository;
-
     @Autowired
     NotificationRepository notificationRepository;
-
     @Autowired
     EventRepository eventRepository;
-
-    @Autowired
-    PlatformTransactionManager transactionManager;
-
     String hostToken = null;
     String inviteeToken = null;
 

@@ -7,6 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import static org.springframework.http.MediaType.*;
 
 @Slf4j
 @Component
@@ -40,6 +41,12 @@ public class SseEmitterManager {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void send(SseEmitter sseEmitter, String eventType, Object message) throws IOException {
+        sseEmitter.send(SseEmitter.event()
+                .name(eventType)
+                .data(message, APPLICATION_JSON));
     }
 
     public Map<Long, SseEmitter> getSseEmitters() {

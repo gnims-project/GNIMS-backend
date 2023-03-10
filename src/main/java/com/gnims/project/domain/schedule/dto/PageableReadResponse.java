@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class PageableReadResponse<T> {
-    private Integer size;
-    private T data;
+    private final Integer size;
+    private final T data;
 
     public PageableReadResponse(Integer size, T data) {
         this.size = size;

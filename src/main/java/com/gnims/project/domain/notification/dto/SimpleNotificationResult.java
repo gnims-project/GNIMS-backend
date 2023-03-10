@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class SimpleNotificationResult {
-    private Integer status;
-    private String message;
+    private final Integer status;
+    private final String message;
 
     public SimpleNotificationResult(Integer status, String message) {
         this.status = status;
