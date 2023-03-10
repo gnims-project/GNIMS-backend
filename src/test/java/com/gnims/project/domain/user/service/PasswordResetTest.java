@@ -13,8 +13,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.gnims.project.share.message.ExceptionMessage.*;
-import static com.gnims.project.share.message.ResponseMessage.SECRET_UPDATE_SUCCESS_MESSAGE;
-import static com.gnims.project.share.message.ResponseMessage.SUCCESS_AUTH_EMAIL_MESSAGE;
+import static com.gnims.project.share.message.ResponseMessage.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -62,14 +61,15 @@ public class PasswordResetTest {
     /**
      * step.1 이메일 전송
      * */
-    @DisplayName("메일 날리기 성공 - 상태코드 200, db에 생성, 인증상태 false")
+    @DisplayName("메일 날리기 성공 - 상태코드 200, db에 생성, 성공 메세지 반환, 인증상태 false")
     @Test
     @Order(1)
     void 이메일날리기테스트() throws Exception {
         mvc.perform(post("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\"}"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(SUCCESS_POST_EMAIL_MESSAGE));
 
         //DB에 저장됫는지 테스트
         Assertions.assertThat(emailRepository.findByEmail("ddalgi@gmail.com")).isPresent();
