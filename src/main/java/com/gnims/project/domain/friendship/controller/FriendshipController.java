@@ -58,7 +58,7 @@ public class FriendshipController {
 
         Long myselfId = userDetails.receiveUserId();
         FriendshipResponse response = friendshipService.makeFriendship(myselfId, followingId);
-        FriendShipServiceResponse serviceResponse = response.convertServiceResponse(myselfId, userDetails.getUser().getUsername());
+        FriendShipServiceResponse serviceResponse = response.to(myselfId, userDetails.getUser().getUsername());
 
         if (response.getStatus().equals(INIT)) {
             applicationEventPublisher.publishEvent(serviceResponse);
@@ -66,7 +66,6 @@ public class FriendshipController {
         }
 
         return ok(new FriendshipResult<>(OK.value(), response.receiveStatusMessage(), response));
-
     }
 
     //팔로잉 수

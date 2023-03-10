@@ -16,7 +16,8 @@ public class ReadAllResponse {
     private final Long dDay;
     private final List<ReadAllUserDto> invitees;
 
-    public ReadAllResponse(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, Long dDay, List<ReadAllUserDto> invitees) {
+    public ReadAllResponse(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, Long dDay,
+                           List<ReadAllUserDto> invitees) {
         this.eventId = eventId;
         this.date = date;
         this.time = time;

@@ -4,13 +4,16 @@ import com.gnims.project.domain.schedule.dto.*;
 import com.gnims.project.domain.schedule.service.ScheduleService;
 import com.gnims.project.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 import static com.gnims.project.share.message.ResponseMessage.*;
@@ -22,8 +25,21 @@ import static org.springframework.http.ResponseEntity.*;
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    // 스케줄 등록 알람 버전
+    @PostMapping("/events")
+    public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody @Valid ScheduleForm scheduleForm,
+                                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Long userId = userDetails.receiveUserId();
+        String username = userDetails.getUser().getUsername();
+        ScheduleServiceForm serviceForm = scheduleForm.to(userId, username);
+        scheduleService.makeSchedule(serviceForm);
 
-    //스케줄 전체 조회  DTO **한방쿼리** user-id 붙인 이유는 타인의 일정도 볼 수 있어야 하기 때문에
+        applicationEventPublisher.publishEvent(serviceForm);
+        return new ResponseEntity<>(new SimpleScheduleResult(201, CREATE_SCHEDULE_MESSAGE), HttpStatus.CREATED);
+    }
+
+    //스케줄 전체 조회
     @GetMapping("/users/{user-id}/events")
     public ResponseEntity<ReadScheduleResult> readAllSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                               @PathVariable("user-id") Long followId) {
@@ -33,7 +49,7 @@ public class ScheduleController {
         return ok(new ReadScheduleResult<>(200, READ_ALL_SCHEDULE_MESSAGE, responses));
     }
 
-    //스케줄 전체 조회 최적화 진행중 - Paging, dto 버전 **한방쿼리**
+    //스케줄 전체 조회
     @GetMapping("/v2/users/{user-id}/events")
     public ResponseEntity<PageScheduleResult> readAllSchedulePage(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                   @PathVariable("user-id") Long followId,
@@ -47,7 +63,7 @@ public class ScheduleController {
 
     }
 
-    //스케줄 단건 조회 - 쿼리 최적화 DTO **한방쿼리**
+    //스케줄 단건 조회
     @GetMapping("/events/{event-id}")
     public ResponseEntity<ReadScheduleResult> readOneSchedule(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                               @PathVariable("event-id") Long eventId) {
