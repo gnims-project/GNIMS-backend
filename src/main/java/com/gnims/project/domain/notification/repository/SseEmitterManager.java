@@ -50,12 +50,6 @@ public class SseEmitterManager {
                 .data(message, APPLICATION_JSON));
     }
 
-    public void send(SseEmitter sseEmitter, NotificationType notificationType, ScheduleDecisionEventForm message) throws IOException {
-        sseEmitter.send(SseEmitter.event()
-                .name(notificationType.getEventType())
-                .data(message, APPLICATION_JSON));
-    }
-
     public Map<Long, SseEmitter> getSseEmitters() {
         return sseEmitters;
     }
