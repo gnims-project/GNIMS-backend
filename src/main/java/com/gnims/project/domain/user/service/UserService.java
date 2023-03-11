@@ -161,12 +161,12 @@ public class UserService {
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
 
         User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
-                () -> new BadCredentialsException(MISMATCH_EMAIL_OR_SECRET)
+                () -> new IllegalArgumentException(MISMATCH_EMAIL_OR_SECRET)
         );
 
         //암호화 된 비밀번호를 비교
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException(MISMATCH_EMAIL_OR_SECRET);
+            throw new IllegalArgumentException(MISMATCH_EMAIL_OR_SECRET);
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getNickname()));
