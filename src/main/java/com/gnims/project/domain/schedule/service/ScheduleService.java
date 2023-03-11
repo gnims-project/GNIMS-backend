@@ -181,12 +181,13 @@ public class ScheduleService {
         return createScheduleDecisionEventForm(updateSchedule);
     }
 
-    private static ScheduleDecisionEventForm createScheduleDecisionEventForm(Schedule updateSchedule) {
+    private ScheduleDecisionEventForm createScheduleDecisionEventForm(Schedule updateSchedule) {
         return new ScheduleDecisionEventForm(
                 updateSchedule.getUser().getId(),
                 updateSchedule.getEvent().getSubject(),
                 updateSchedule.getUser().getUsername(),
                 updateSchedule.getEvent().getCreateBy(),
+                updateSchedule.getEvent().getId(),
                 updateSchedule.getScheduleStatus());
     }
 
