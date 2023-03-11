@@ -73,25 +73,25 @@ public class UserLoginTest {
                 .andExpect(jsonPath("$.message").value(LOGIN_SUCCESS_MESSAGE));
     }
 
-    @DisplayName("로그인 시 등록된 이메일 없음 - 상태코드 401, 실패 메세지 반환")
+    @DisplayName("로그인 시 등록된 이메일 없음 - 상태코드 400, 실패 메세지 반환")
     @Test
     void 로그인실패테스트1() throws Exception {
 
         mvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi2@gmail.com\", \"password\": \"123456aA9\"}"))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(MISMATCH_EMAIL_OR_SECRET));
     }
 
-    @DisplayName("로그인 시 등록된 이메일 있음, 비밀번호 틀림 - 상태코드 401, 실패 메세지 반환")
+    @DisplayName("로그인 시 등록된 이메일 있음, 비밀번호 틀림 - 상태코드 400, 실패 메세지 반환")
     @Test
     void 로그인실패테스트2() throws Exception {
 
         mvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456a9\"}"))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(MISMATCH_EMAIL_OR_SECRET));
     }
 }
