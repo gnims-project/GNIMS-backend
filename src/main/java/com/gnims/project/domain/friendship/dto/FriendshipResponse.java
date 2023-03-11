@@ -17,7 +17,7 @@ public class FriendshipResponse {
         return status.getDescription();
     }
 
-    public FriendShipServiceResponse to(Long createBy, String senderName) {
-        return new FriendShipServiceResponse(createBy, senderName, this);
+    public FriendShipCreatedEvent to(Long createBy, String senderName) {
+        return new FriendShipCreatedEvent(createBy, senderName, this);
     }
 }

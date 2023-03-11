@@ -38,7 +38,7 @@ public class ScheduleService {
 
     private static final List<String> DESC_SORTING_GROUP = List.of("event.createAt");
 
-    public void makeSchedule(ScheduleServiceForm form) {
+    public void makeSchedule(ScheduleCreatedEvent form) {
         //이벤트 엔티티 생성 및 저장
         Long userId = form.getCreateBy();
         Event event = eventRepository.save(new Event(new Appointment(form), form));
@@ -164,7 +164,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public ScheduleDecisionEventForm acceptSchedule(Long userId, Long eventId) {
+    public ScheduleInviteRepliedEvent acceptSchedule(Long userId, Long eventId) {
         Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
                 .orElseThrow(() -> new IllegalArgumentException(ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE));
 
@@ -175,7 +175,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public ScheduleDecisionEventForm rejectSchedule(Long userId, Long eventId) {
+    public ScheduleInviteRepliedEvent rejectSchedule(Long userId, Long eventId) {
         Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
                 .orElseThrow(() -> new IllegalArgumentException(ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE));
 
@@ -184,8 +184,8 @@ public class ScheduleService {
         return createScheduleDecisionEventForm(updateSchedule);
     }
 
-    private ScheduleDecisionEventForm createScheduleDecisionEventForm(Schedule updateSchedule) {
-        return new ScheduleDecisionEventForm(
+    private ScheduleInviteRepliedEvent createScheduleDecisionEventForm(Schedule updateSchedule) {
+        return new ScheduleInviteRepliedEvent(
                 updateSchedule.getUser().getId(),
                 updateSchedule.getEvent().getSubject(),
                 updateSchedule.getUser().getUsername(),
@@ -194,7 +194,7 @@ public class ScheduleService {
                 updateSchedule.getScheduleStatus());
     }
 
-    private boolean isPersonalSchedule(ScheduleServiceForm form, Long userId) {
+    private boolean isPersonalSchedule(ScheduleCreatedEvent form, Long userId) {
         return form.getParticipantsId().isEmpty() ||
                 (form.getParticipantsId().size() == 1 && form.getParticipantsId().get(0).equals(userId));
     }

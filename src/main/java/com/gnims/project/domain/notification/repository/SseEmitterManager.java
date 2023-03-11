@@ -1,7 +1,6 @@
 package com.gnims.project.domain.notification.repository;
 
 import com.gnims.project.domain.notification.entity.NotificationType;
-import com.gnims.project.domain.schedule.dto.ScheduleDecisionEventForm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;

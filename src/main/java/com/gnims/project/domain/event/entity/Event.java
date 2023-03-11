@@ -1,6 +1,6 @@
 package com.gnims.project.domain.event.entity;
 
-import com.gnims.project.domain.schedule.dto.ScheduleServiceForm;
+import com.gnims.project.domain.schedule.dto.ScheduleCreatedEvent;
 import com.gnims.project.domain.schedule.dto.UpdateForm;
 import com.gnims.project.domain.schedule.entity.Schedule;
 import com.gnims.project.share.persistence.embedded.Appointment;
@@ -42,7 +42,7 @@ public class Event extends BaseEntity {
 
     private Long dDay;
 
-    public Event(Appointment appointment, ScheduleServiceForm form) {
+    public Event(Appointment appointment, ScheduleCreatedEvent form) {
         this.appointment = appointment;
         this.subject = form.getSubject();
         this.content = form.getContent();

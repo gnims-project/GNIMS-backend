@@ -4,13 +4,13 @@ import com.gnims.project.domain.friendship.entity.FollowStatus;
 import lombok.Getter;
 
 @Getter
-public class FriendShipServiceResponse {
+public class FriendShipCreatedEvent {
     private final Long createBy;
     private final String senderName;
     private final Long followId;
     private final FollowStatus status;
 
-    public FriendShipServiceResponse(Long createBy, String senderName, FriendshipResponse response) {
+    public FriendShipCreatedEvent(Long createBy, String senderName, FriendshipResponse response) {
         this.createBy = createBy;
         this.senderName = senderName;
         this.followId = response.getFollowId();

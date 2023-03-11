@@ -4,7 +4,7 @@ import com.gnims.project.domain.schedule.entity.ScheduleStatus;
 import lombok.Getter;
 
 @Getter
-public class ScheduleDecisionEventForm {
+public class ScheduleInviteRepliedEvent {
     private final Long senderId;
     private final String subject;
     private final String senderName;
@@ -12,7 +12,7 @@ public class ScheduleDecisionEventForm {
     private final Long eventId;
     private final ScheduleStatus scheduleStatus;
 
-    public ScheduleDecisionEventForm(Long senderId, String subject, String senderName, Long receiverId, Long eventId, ScheduleStatus scheduleStatus) {
+    public ScheduleInviteRepliedEvent(Long senderId, String subject, String senderName, Long receiverId, Long eventId, ScheduleStatus scheduleStatus) {
         this.senderId = senderId;
         this.subject = subject;
         this.senderName = senderName;

@@ -1,11 +1,11 @@
 package com.gnims.project.domain.notification.service;
 
-import com.gnims.project.domain.friendship.dto.FriendShipServiceResponse;
+import com.gnims.project.domain.friendship.dto.FriendShipCreatedEvent;
 import com.gnims.project.domain.notification.dto.NotificationForm;
 import com.gnims.project.domain.notification.entity.Notification;
 import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.notification.repository.SseEmitterManager;
-import com.gnims.project.domain.schedule.dto.ScheduleServiceForm;
+import com.gnims.project.domain.schedule.dto.ScheduleCreatedEvent;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import org.assertj.core.api.Assertions;
@@ -220,7 +220,7 @@ class NotificationApiTest {
             mvc.perform(post("/friendship/followings/" + followId).header("Authorization", hostToken));
         }
         //then 알림을 조회할 경우 1개가 존재해야 한다.
-        long count = events.stream(FriendShipServiceResponse.class).count();
+        long count = events.stream(FriendShipCreatedEvent.class).count();
         Assertions.assertThat(count).isEqualTo(1l);
     }
 
@@ -238,7 +238,7 @@ class NotificationApiTest {
             createSchedule(hostId, inviteeId);
         }
         //then 알림을 조회할 경우 10개가 존재해야 한다.
-        long count = events.stream(ScheduleServiceForm.class).count();
+        long count = events.stream(ScheduleCreatedEvent.class).count();
         Assertions.assertThat(count).isEqualTo(10l);
     }
 
