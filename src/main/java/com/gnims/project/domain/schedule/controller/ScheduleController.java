@@ -52,8 +52,8 @@ public class ScheduleController {
     @GetMapping("/v2/users/{user-id}/events")
     public ResponseEntity<PageScheduleResult> readAllSchedulePage(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                   @PathVariable("user-id") Long followId,
-                                                                  @RequestParam Integer page,
-                                                                  @RequestParam Integer size,
+                                                                  @RequestParam(defaultValue = "0") Integer page,
+                                                                  @RequestParam(defaultValue = "9999") Integer size,
                                                                   @RequestParam(defaultValue = "event.dDay") String sortedBy) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sortedBy).ascending());
         PageableReadResponse response = scheduleService.readAllSchedule(userDetails.receiveUserId(),followId, pageRequest);
@@ -88,7 +88,8 @@ public class ScheduleController {
     @PostMapping("/events/{event-id}/acceptance")
     public ResponseEntity<SimpleScheduleResult> acceptSchedule(@PathVariable("event-id") Long eventId,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        scheduleService.acceptSchedule(userDetails.receiveUserId(), eventId);
+        ScheduleDecisionEventForm eventForm = scheduleService.acceptSchedule(userDetails.receiveUserId(), eventId);
+        applicationEventPublisher.publishEvent(eventForm);
         return ok(new SimpleScheduleResult(200, ACCEPT_SCHEDULE_MESSAGE));
     }
 
@@ -96,7 +97,8 @@ public class ScheduleController {
     @PostMapping("/events/{event-id}/rejection")
     public ResponseEntity<SimpleScheduleResult> rejectSchedule(@PathVariable("event-id") Long eventId,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        scheduleService.rejectSchedule(userDetails.receiveUserId(), eventId);
+        ScheduleDecisionEventForm EventForm = scheduleService.rejectSchedule(userDetails.receiveUserId(), eventId);
+        applicationEventPublisher.publishEvent(EventForm);
         return ok(new SimpleScheduleResult(200, REJECT_SCHEDULE_MESSAGE));
     }
 }
