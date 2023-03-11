@@ -11,7 +11,6 @@ import static com.gnims.project.share.message.ExceptionMessage.NICKNAME_ERROR_ME
 
 @Getter
 public class NicknameDto {
-
     @NotBlank(message = NICKNAME_EMPTY_MESSAGE,
             groups = ValidationGroups.NotNullGroup.class)
     @Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,8}$",

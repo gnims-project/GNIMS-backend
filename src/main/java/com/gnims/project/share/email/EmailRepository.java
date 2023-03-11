@@ -1,4 +1,4 @@
-package com.gnims.project.share.gmail;
+package com.gnims.project.share.email;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

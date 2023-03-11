@@ -1,4 +1,4 @@
-package com.gnims.project.share.gmail;
+package com.gnims.project.share.email;
 
 import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.entity.User;
@@ -35,7 +35,6 @@ public class EmailService {
 
     @Transactional
     public void updatePassword(EmailPasswordDto request) {
-
         //DB에서 해당 이메일의 유저를 찾음
         User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
@@ -63,7 +62,6 @@ public class EmailService {
     }
 
     private MimeMessage createMessage(String to, String link, String email) throws Exception {
-
         MimeMessage message = emailSender.createMimeMessage();
 
         message.addRecipients(RecipientType.TO, email);//보내는 대상
@@ -91,13 +89,11 @@ public class EmailService {
     }
 
     public String createCode() {
-
         //12자리의 임의 코드 생성
         return UUID.randomUUID().toString().replace("-", "").substring(0, 12);
     }
 
     public void createEmailValidation(String to, String email) throws Exception {
-
         //인증 코드 생성
         String code = createCode();
 
@@ -128,7 +124,6 @@ public class EmailService {
 
     @Transactional
     public void checkCode(AuthCodeDto request) {
-
         //인증하는 메일의 인증 객체가 존재하지 않을 시
         EmailValidation emailValidation = emailRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException(INVALID_CODE_ERROR)

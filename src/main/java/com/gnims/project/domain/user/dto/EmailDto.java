@@ -12,7 +12,6 @@ import static com.gnims.project.share.message.ExceptionMessage.EMAIL_ERROR_MESSA
 
 @Getter
 public class EmailDto {
-
     @NotBlank(message = EMAIL_EMPTY_MESSAGE,
             groups = ValidationGroups.NotNullGroup.class)
     //더 디테일한 체크를 위해 @Email 대신 @Pattern 사용

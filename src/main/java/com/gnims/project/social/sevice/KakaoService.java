@@ -28,6 +28,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class KakaoService {
+
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
@@ -44,7 +45,6 @@ public class KakaoService {
     private String kakaoProfileUri;     //카카오 사용자 정보를 받는 uri
 
     public SocialResult kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
-
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getToken(code);
 
@@ -75,7 +75,6 @@ public class KakaoService {
 
     // 1. "인가 코드"로 "액세스 토큰" 요청
     private String getToken(String code) throws JsonProcessingException {
-
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -106,7 +105,6 @@ public class KakaoService {
 
     // 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
     private SocialProfileDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
-
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         // Header 에 카카오 서버에 넘길 액세스 토큰 담기

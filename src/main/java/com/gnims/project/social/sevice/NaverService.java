@@ -27,6 +27,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class NaverService {
+
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
@@ -34,7 +35,6 @@ public class NaverService {
     private String naverProfileUri;     //네이버 사용자 정보를 받는 uri
 
     public SocialResult naverLogin(String token, HttpServletResponse response) throws JsonProcessingException {
-
         // 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
         SocialProfileDto naverUserInfo = getNaverUserInfo(token);
 
@@ -62,7 +62,6 @@ public class NaverService {
 
     // 토큰으로 네이버 API 호출 : "액세스 토큰"으로 "네이버 사용자 정보" 가져오기
     private SocialProfileDto getNaverUserInfo(String accessToken) throws JsonProcessingException {
-
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         // Header 에 네이버 서버에 넘길 access 토큰 담기
