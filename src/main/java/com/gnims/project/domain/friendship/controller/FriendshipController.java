@@ -58,7 +58,7 @@ public class FriendshipController {
                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long myselfId = userDetails.receiveUserId();
         FriendshipResponse response = friendshipService.makeFriendship(myselfId, followingId);
-        FriendShipServiceResponse serviceResponse = response.to(myselfId, userDetails.getUser().getUsername());
+        FriendShipCreatedEvent serviceResponse = response.to(myselfId, userDetails.getUser().getUsername());
 
         if (response.getStatus().equals(INIT)) {
             applicationEventPublisher.publishEvent(serviceResponse);

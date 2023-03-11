@@ -9,7 +9,7 @@ import java.util.List;
  * id 는 스케줄을 생성한 사용자의 id를 의미합니다.
  */
 @Getter
-public class ScheduleServiceForm {
+public class ScheduleCreatedEvent {
     private final Long createBy;
     private final String username;
     private final LocalDate date;
@@ -19,7 +19,7 @@ public class ScheduleServiceForm {
     private final String cardColor;
     private final List<Long> participantsId;
 
-    public ScheduleServiceForm(Long id, String username, ScheduleForm scheduleForm) {
+    public ScheduleCreatedEvent(Long id, String username, ScheduleForm scheduleForm) {
         this.createBy = id;
         this.username = username;
         this.date = scheduleForm.getDate();

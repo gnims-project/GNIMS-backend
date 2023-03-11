@@ -1,14 +1,14 @@
 package com.gnims.project.domain.notification.listener;
 
-import com.gnims.project.domain.friendship.dto.FriendShipServiceResponse;
+import com.gnims.project.domain.friendship.dto.FriendShipCreatedEvent;
 import com.gnims.project.domain.notification.dto.NotificationForm;
 import com.gnims.project.domain.notification.dto.ReadNotificationResponse;
 import com.gnims.project.domain.notification.entity.Notification;
 import com.gnims.project.domain.notification.entity.NotificationType;
 import com.gnims.project.domain.notification.repository.SseEmitterManager;
 import com.gnims.project.domain.notification.service.NotificationService;
-import com.gnims.project.domain.schedule.dto.ScheduleServiceForm;
-import com.gnims.project.domain.schedule.dto.ScheduleDecisionEventForm;
+import com.gnims.project.domain.schedule.dto.ScheduleCreatedEvent;
+import com.gnims.project.domain.schedule.dto.ScheduleInviteRepliedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +32,7 @@ public class AlarmEventListener {
 
     @Async
     @EventListener
-    public void processScheduleEvent(ScheduleServiceForm form) {
+    public void processScheduleEvent(ScheduleCreatedEvent form) {
         //알림 만들기
         String message = form.getUsername() + "님께서 " + form.getSubject() + " 일정에 초대하셨습니다.";
 
@@ -46,7 +46,7 @@ public class AlarmEventListener {
 
     @Async
     @EventListener
-    public void processFriendShipEvent(FriendShipServiceResponse response) {
+    public void processFriendShipEvent(FriendShipCreatedEvent response) {
         //알림 만들기
         String message = response.getSenderName() + "님께서 팔로우하셨습니다.";
         NotificationForm notificationForm = NotificationForm.of(response.getCreateBy(), response.getFollowId(), message, FRIENDSHIP);
@@ -57,9 +57,9 @@ public class AlarmEventListener {
 
     @Async
     @EventListener
-    public void processScheduleSelectEvent(ScheduleDecisionEventForm response) {
+    public void processScheduleSelectEvent(ScheduleInviteRepliedEvent response) {
         //알림 만들기
-        String message = decideMessage(response);
+        String message = scheduleRepliedMessage(response);
 
         NotificationForm notificationForm = NotificationForm.of(response.getSenderId(), response.getReceiverId(), message, INVITE_RESPONSE);
         Notification notification = notificationService.create(notificationForm);
@@ -67,7 +67,7 @@ public class AlarmEventListener {
     }
 
     @Nullable
-    private static String decideMessage(ScheduleDecisionEventForm response) {
+    private static String scheduleRepliedMessage(ScheduleInviteRepliedEvent response) {
         String message = null;
         if (response.getScheduleStatus().equals(REJECT)) {
             message = response.getSenderName() + "님께서 " + response.getSubject() + " 일정을 거절하셨습니다.";
