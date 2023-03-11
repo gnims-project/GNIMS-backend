@@ -73,7 +73,7 @@ class NotificationApiTest {
     @Test
     void SSE_연결_테스트() throws Exception {
         //when - SSE 연결
-        mvc.perform(get("/connect").header("Authorization", inviteeToken));
+        mvc.perform(get("/connection").header("Authorization", inviteeToken));
         User connectUser = userRepository.findByNickname("당근").get();
         User unConnectUser = userRepository.findByNickname("딸기").get();
 

@@ -16,7 +16,8 @@ public class ReadAllScheduleDto {
     private final String username;
     private final String profile;
 
-    public ReadAllScheduleDto(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, Long dDay, String username, String profile) {
+    public ReadAllScheduleDto(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, Long dDay,
+                              String username, String profile) {
         this.eventId = eventId;
         this.date = date;
         this.time = time;

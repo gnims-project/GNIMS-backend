@@ -43,7 +43,6 @@ public class PasswordUpdateTest {
 
     @BeforeEach
     void beforeEach() throws Exception {
-
         MockMultipartFile signupFile1 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
 
         mvc.perform(multipart("/auth/signup").file(signupFile1).characterEncoding("utf-8"));
@@ -56,15 +55,13 @@ public class PasswordUpdateTest {
     }
 
     @AfterEach
-    void afterEach() throws Exception {
-
+    void afterEach(){
         userRepository.deleteAll();
     }
 
     @DisplayName("비밀번호 업데이트 성공 - 상태코드 200, 성공 메세지를 반환, db에 반영")
     @Test
     void 비밀번호업데이트성공테스트() throws Exception {
-
         mvc.perform(patch("/users/password").header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"oldPassword\": \"123456aA9\",\"newPassword\": \"1234aA5678\"}"))
@@ -77,7 +74,6 @@ public class PasswordUpdateTest {
     @DisplayName("비밀번호 업데이트 실패, old/new 비밀번호가 같음 - 상태코드 400, 실패 메세지를 반환, db에 변화 x")
     @Test
     void 비밀번호업데이트실패테스트1() throws Exception {
-
         mvc.perform(patch("/users/password").header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"oldPassword\": \"123456aA9\",\"newPassword\": \"123456aA9\"}"))
@@ -90,7 +86,6 @@ public class PasswordUpdateTest {
     @DisplayName("비밀번호 업데이트 실패, old 비밀번호 불 일치 - 상태코드 400, 실패 메세지를 반환, db에 반영 x")
     @Test
     void 비밀번호업데이트실패테스트2() throws Exception {
-
         mvc.perform(patch("/users/password").header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"oldPassword\": \"1234aA567\",\"newPassword\": \"1234aA5678\"}"))
@@ -103,7 +98,6 @@ public class PasswordUpdateTest {
     @DisplayName("비밀번호 업데이트 실패, old/new 비밀번호 null 혹은 정규식 불 일치 - 상태코드 400, 실패 메세지를 반환, db에 반영 x")
     @Test
     void 비밀번호업데이트실패테스트3() throws Exception {
-
         //비밀번호 null 값
         mvc.perform(patch("/users/password").header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)

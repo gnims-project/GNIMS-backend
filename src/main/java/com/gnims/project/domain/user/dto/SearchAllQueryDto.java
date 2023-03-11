@@ -1,15 +1,13 @@
 package com.gnims.project.domain.user.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 public class SearchAllQueryDto {
-    private Long userId;
-    private String username;
-    private String profileImage;
-    private Boolean isFollowed;
+    private final Long userId;
+    private final String username;
+    private final String profileImage;
+    private final Boolean isFollowed;
 
     public SearchAllQueryDto(Long userId, String username, String profileImage, Boolean isFollowed) {
         this.userId = userId;

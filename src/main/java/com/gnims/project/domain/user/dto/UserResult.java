@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class UserResult<T> {
-    private Integer status;
-    private String message;
-    private T data;
+    private final Integer status;
+    private final String message;
+    private final T data;
 
     public UserResult(Integer status, String message, T data) {
         this.status = status;

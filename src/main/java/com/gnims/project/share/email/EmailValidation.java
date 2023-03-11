@@ -1,4 +1,4 @@
-package com.gnims.project.share.gmail;
+package com.gnims.project.share.email;
 
 import com.gnims.project.share.persistence.superclass.TimeStamped;
 import lombok.Getter;
@@ -10,6 +10,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 public class EmailValidation extends TimeStamped {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "email_id")

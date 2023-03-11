@@ -45,7 +45,6 @@ public class UserSearchTest {
 
     @BeforeEach
     void beforeEach() throws Exception {
-
         MockMultipartFile signupFile1 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"짱구\", \"email\": \"test@naver.com\", \"password\": \"123456aA9\"}".getBytes());
         MockMultipartFile signupFile2 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"포도\",\"username\": \"유리\", \"email\": \"test1@naver.com\", \"password\": \"123456aA9\"}".getBytes());
         MockMultipartFile signupFile3 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"오렌지\",\"username\": \"철수\", \"email\": \"test2@naver.com\", \"password\": \"123456aA9\"}".getBytes());
@@ -71,8 +70,7 @@ public class UserSearchTest {
     }
 
     @AfterEach
-    void afterEach() throws Exception {
-
+    void afterEach(){
         friendshipRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -80,7 +78,6 @@ public class UserSearchTest {
     @DisplayName("유저 검색 시 유저 리스트 조회 - 상태코드 200, 유저 리스트와 성공 메세지를 반환")
     @Test
     void 검색성공테스트() throws Exception {
-
         mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
                         .param("username", "철수").param("page", "0").param("size", "5"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -91,7 +88,6 @@ public class UserSearchTest {
     @DisplayName("유저 부분 검색 시 유저 리스트 조회 - 상태코드 200, 유저 리스트와 성공 메세지를 반환")
     @Test
     void 검색성공테스트2() throws Exception {
-
         mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
                         .param("username", "이").param("page", "0").param("size", "5"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -102,7 +98,6 @@ public class UserSearchTest {
     @DisplayName("유저 검색 시 중복된 이름 조회 - 상태코드 200, 유저 리스트와 성공 메세지를 반환")
     @Test
     void 유저중복성공테스트() throws Exception {
-
         mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
                         .param("username", "유").param("page", "0").param("size", "5"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -113,7 +108,6 @@ public class UserSearchTest {
     @DisplayName("유저 검색 시 본인 이름 조회 x - 상태코드 200, 본인제외 유저 리스트와 성공 메세지를 반환")
     @Test
     void 본인제외성공테스트() throws Exception {
-
         mvc.perform(MockMvcRequestBuilders.get("/users/search").header("Authorization", token)
                         .param("username", "짱구").param("page", "0").param("size", "5"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -124,7 +118,6 @@ public class UserSearchTest {
     @DisplayName("유저 검색 시 팔로우 여부 조회 - 상태코드 200, 유저 리스트와 성공 메세지를 반환")
     @Test
     void 유저검색팔로우여부테스트() throws Exception {
-
         //닉네임 오렌지 = 철수
         String uri = "/friendship/followings/" + userRepository.findByNickname("오렌지").get().getId();
 

@@ -53,7 +53,6 @@ public class ImageUploadTest {
 
     @BeforeEach
     void beforeEach() throws Exception {
-
         MockMultipartFile signupFile1 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
 
         mvc.perform(multipart("/auth/signup").file(signupFile1).characterEncoding("utf-8"));
@@ -66,8 +65,7 @@ public class ImageUploadTest {
     }
 
     @AfterEach
-    void afterEach() throws Exception {
-
+    void afterEach() {
         userRepository.deleteAll();
     }
 
@@ -84,7 +82,6 @@ public class ImageUploadTest {
     @DisplayName("이미지 업데이트 - 상태코드 200, 성공 메세지를 반환, db에 이미지 업데이트")
     @Test
     void 일반이미지테스트() throws Exception {
-
         //업데이트 전에 기본 이미지 넣음
         mvc.perform(multipart(HttpMethod.PATCH, "/users/profile").header("Authorization", token));
 
@@ -116,7 +113,6 @@ public class ImageUploadTest {
     @DisplayName("이미지 업데이트 시 허용하지 않은 확장자 - 상태코드 400, 실패 메세지를 반환, db에 저장 실패")
     @Test
     void 업데이트실패테스트() throws Exception {
-
         //업데이트 전에 기본 이미지 넣음
         mvc.perform(multipart(HttpMethod.PATCH, "/users/profile").header("Authorization", token));
 

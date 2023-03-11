@@ -87,6 +87,7 @@ public class JwtUtil {
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
+
     // 인증 객체 생성
     public Authentication createAuthentication(String nickname) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(nickname);

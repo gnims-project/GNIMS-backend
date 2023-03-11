@@ -33,6 +33,7 @@ public class ResponseMessage {
 
     //email
     public static final String SUCCESS_AUTH_EMAIL_MESSAGE = "이메일 인증 성공";
+    public static final String SUCCESS_POST_EMAIL_MESSAGE = "이메일 발송 성공";
 
     public static final String READ_ALL_NOTIFICATION_MESSAGE = "알림 전체 조회 완료";
     public static final String READ_ONE_NOTIFICATION_MESSAGE = "알림 상세 조회 완료";

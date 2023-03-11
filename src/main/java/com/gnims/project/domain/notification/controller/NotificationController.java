@@ -29,7 +29,7 @@ public class NotificationController {
     private final SseEmitterManager sseEmitterManager;
     private final NotificationService notificationService;
 
-    @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/connection", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter connect(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         SseEmitter sseEmitter = sseEmitterManager.save(userDetails.receiveUserId());
         sseEmitterManager.sendInitMessage(sseEmitter, userDetails.getUsername());

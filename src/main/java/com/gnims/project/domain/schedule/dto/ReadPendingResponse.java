@@ -19,7 +19,8 @@ public class ReadPendingResponse {
     private final String cardColor;
     private final String subject;
 
-    public ReadPendingResponse(Long eventId, String hostname, LocalDate date, LocalTime time, String cardColor, String subject) {
+    public ReadPendingResponse(Long eventId, String hostname, LocalDate date, LocalTime time, String cardColor,
+                               String subject) {
         this.eventId = eventId;
         this.hostname = hostname;
         this.date = date;

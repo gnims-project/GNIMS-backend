@@ -23,7 +23,7 @@ public class ScheduleForm {
     @Size(max = 5, message = "공동 스케줄은 최대 5명 까지 초대 가능합니다.")
     private List<Long> participantsId;
 
-    public ScheduleServiceForm convertServiceForm(Long id, String username) {
+    public ScheduleServiceForm to(Long id, String username) {
         return new ScheduleServiceForm(id, username, this);
     }
 }

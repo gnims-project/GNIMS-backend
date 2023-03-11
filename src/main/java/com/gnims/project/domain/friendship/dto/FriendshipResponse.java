@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 public class FriendshipResponse {
-
     private final Long followId;
     private final FollowStatus status;
 
@@ -18,7 +17,7 @@ public class FriendshipResponse {
         return status.getDescription();
     }
 
-    public FriendShipServiceResponse convertServiceResponse(Long createBy, String senderName) {
+    public FriendShipServiceResponse to(Long createBy, String senderName) {
         return new FriendShipServiceResponse(createBy, senderName, this);
     }
 }

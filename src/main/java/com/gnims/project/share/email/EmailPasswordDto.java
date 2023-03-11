@@ -1,4 +1,4 @@
-package com.gnims.project.share.gmail;
+package com.gnims.project.share.email;
 
 import com.gnims.project.share.validation.ValidationGroups;
 import lombok.Getter;
@@ -12,6 +12,7 @@ import static com.gnims.project.share.message.ExceptionMessage.SECRET_ERROR_MESS
 @Getter
 public class EmailPasswordDto {
     private String email;
+
     @NotBlank(message = SECRET_EMPTY_MESSAGE,
             groups = ValidationGroups.NotNullGroup.class)
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,16}$",

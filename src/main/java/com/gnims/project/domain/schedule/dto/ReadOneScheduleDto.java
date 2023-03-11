@@ -17,7 +17,8 @@ public class ReadOneScheduleDto {
     private final Long dDay;
     private final String username;
 
-    public ReadOneScheduleDto(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject, String content, Long hostId, Long dDay, String username) {
+    public ReadOneScheduleDto(Long eventId, LocalDate date, LocalTime time, String cardColor, String subject,
+                              String content, Long hostId, Long dDay, String username) {
         this.eventId = eventId;
         this.date = date;
         this.time = time;

@@ -1,7 +1,7 @@
 package com.gnims.project.domain.user.service;
 
 import com.gnims.project.domain.user.repository.UserRepository;
-import com.gnims.project.share.gmail.EmailRepository;
+import com.gnims.project.share.email.EmailRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +13,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.gnims.project.share.message.ExceptionMessage.*;
-import static com.gnims.project.share.message.ResponseMessage.SECRET_UPDATE_SUCCESS_MESSAGE;
-import static com.gnims.project.share.message.ResponseMessage.SUCCESS_AUTH_EMAIL_MESSAGE;
+import static com.gnims.project.share.message.ResponseMessage.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -46,7 +45,6 @@ public class PasswordResetTest {
 
     @BeforeAll
     void before() throws Exception {
-
         MockMultipartFile signupFile1 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
         MockMultipartFile signupFile2 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기2\",\"username\": \"김땡땡\", \"email\": \"ddalig@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
 
@@ -55,8 +53,7 @@ public class PasswordResetTest {
     }
 
     @AfterAll
-    void after() throws Exception {
-
+    void after(){
         userRepository.deleteAll();
         emailRepository.deleteAll();
     }
@@ -64,15 +61,15 @@ public class PasswordResetTest {
     /**
      * step.1 이메일 전송
      * */
-    @DisplayName("메일 날리기 성공 - 상태코드 200, db에 생성, 인증상태 false")
+    @DisplayName("메일 날리기 성공 - 상태코드 200, db에 생성, 성공 메세지 반환, 인증상태 false")
     @Test
     @Order(1)
     void 이메일날리기테스트() throws Exception {
-
         mvc.perform(post("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\"}"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value(SUCCESS_POST_EMAIL_MESSAGE));
 
         //DB에 저장됫는지 테스트
         Assertions.assertThat(emailRepository.findByEmail("ddalgi@gmail.com")).isPresent();
@@ -85,7 +82,6 @@ public class PasswordResetTest {
     @Test
     @Order(2)
     void 이메일날리기실패테스트() throws Exception {
-
         mvc.perform(post("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalg@gmail.com\"}"))
@@ -103,7 +99,6 @@ public class PasswordResetTest {
     @Test
     @Order(5)
     void 코드인증성공테스트() throws Exception {
-
         String code = emailRepository.findByEmail("ddalgi@gmail.com").get().getCode();
 
         mvc.perform(patch("/auth/code")
@@ -120,7 +115,6 @@ public class PasswordResetTest {
     @Test
     @Order(3)
     void 코드인증실패테스트1() throws Exception {
-
         String code = emailRepository.findByEmail("ddalgi@gmail.com").get().getCode();
 
         mvc.perform(patch("/auth/code")
@@ -137,7 +131,6 @@ public class PasswordResetTest {
     @Test
     @Order(4)
     void 코드인증실패테스트2() throws Exception {
-
         mvc.perform(patch("/auth/code")
                         .contentType(APPLICATION_JSON)
                         .content("{\"code\": \"test\", \"email\": \"ddalgi@gmail.com\"}"))
@@ -156,7 +149,6 @@ public class PasswordResetTest {
     @Order(10)
     @Transactional
     void 비밀번호재설정성공테스트() throws Exception {
-
         mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}"))
@@ -171,7 +163,6 @@ public class PasswordResetTest {
     @Test
     @Order(6)
     void 비밀번호재설정실패테스트1() throws Exception {
-
         //비밀번호 null 값
         mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
@@ -194,7 +185,6 @@ public class PasswordResetTest {
     @Test
     @Order(7)
     void 비밀번호재설정실패테스트2() throws Exception {
-
         mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
                         .content("{\"email\": \"ddalig@gmail.com\", \"password\": \"123456aA9\"}"))
@@ -209,7 +199,6 @@ public class PasswordResetTest {
     @Test
     @Order(8)
     void 비밀번호재설정실패테스트3() throws Exception {
-
         //인증 실패 테스트를 위한 다른 이메일
         mvc.perform(post("/auth/password")
                 .contentType(APPLICATION_JSON)
@@ -229,7 +218,6 @@ public class PasswordResetTest {
     @Test
     @Order(9)
     void 비밀번호재설정실패테스트4() throws Exception {
-
         //DB에 없는 이메일
         mvc.perform(patch("/auth/password")
                         .contentType(APPLICATION_JSON)
