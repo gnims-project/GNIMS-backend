@@ -1,6 +1,7 @@
 package com.gnims.project.domain.notification.repository;
 
 import com.gnims.project.domain.notification.entity.NotificationType;
+import com.gnims.project.domain.schedule.dto.ScheduleDecisionEventForm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -14,7 +15,7 @@ import static org.springframework.http.MediaType.*;
 @Component
 public class SseEmitterManager {
 
-    private static final Long TIMEOUT = 10 * 60 * 1000l; // 10분
+    private static final Long TIMEOUT = 30 * 1000l; // 10분
     private final Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
     public SseEmitter save(Long userId) {
@@ -44,6 +45,12 @@ public class SseEmitterManager {
     }
 
     public void send(SseEmitter sseEmitter, NotificationType notificationType, Object message) throws IOException {
+        sseEmitter.send(SseEmitter.event()
+                .name(notificationType.getEventType())
+                .data(message, APPLICATION_JSON));
+    }
+
+    public void send(SseEmitter sseEmitter, NotificationType notificationType, ScheduleDecisionEventForm message) throws IOException {
         sseEmitter.send(SseEmitter.event()
                 .name(notificationType.getEventType())
                 .data(message, APPLICATION_JSON));

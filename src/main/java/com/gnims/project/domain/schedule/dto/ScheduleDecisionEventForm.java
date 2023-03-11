@@ -9,13 +9,15 @@ public class ScheduleDecisionEventForm {
     private final String subject;
     private final String senderName;
     private final Long receiverId;
+    private final Long eventId;
     private final ScheduleStatus scheduleStatus;
 
-    public ScheduleDecisionEventForm(Long senderId, String subject, String senderName, Long receiverId, ScheduleStatus scheduleStatus) {
+    public ScheduleDecisionEventForm(Long senderId, String subject, String senderName, Long receiverId, Long eventId, ScheduleStatus scheduleStatus) {
         this.senderId = senderId;
         this.subject = subject;
         this.senderName = senderName;
         this.receiverId = receiverId;
+        this.eventId = eventId;
         this.scheduleStatus = scheduleStatus;
     }
 }
