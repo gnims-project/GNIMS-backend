@@ -25,7 +25,6 @@ public class EventController {
     @DeleteMapping("/events/{event-id}")
     public ResponseEntity<SimpleScheduleResult> deleteSchedule(@PathVariable("event-id") Long eventId,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
         eventService.softDeleteSchedule(userDetails.receiveUserId(), eventId);
         return ok(new SimpleScheduleResult(200, DELETE_SCHEDULE_MESSAGE));
     }
@@ -35,7 +34,6 @@ public class EventController {
     public ResponseEntity<SimpleScheduleResult> updateSchedule(@PathVariable("event-id") Long eventId,
                                                                @RequestBody @Valid UpdateForm updateForm,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
         eventService.updateSchedule(userDetails.receiveUserId(), updateForm, eventId);
         return ok(new SimpleScheduleResult(200, UPDATE_SCHEDULE_MESSAGE));
     }
