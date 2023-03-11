@@ -1,5 +1,6 @@
 package com.gnims.project.domain.notification.repository;
 
+import com.gnims.project.domain.notification.entity.NotificationType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -42,9 +43,9 @@ public class SseEmitterManager {
         }
     }
 
-    public void send(SseEmitter sseEmitter, String eventType, Object message) throws IOException {
+    public void send(SseEmitter sseEmitter, NotificationType notificationType, Object message) throws IOException {
         sseEmitter.send(SseEmitter.event()
-                .name(eventType)
+                .name(notificationType.getEventType())
                 .data(message, APPLICATION_JSON));
     }
 

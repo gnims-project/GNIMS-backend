@@ -161,21 +161,33 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void acceptSchedule(Long userId, Long eventId) {
+    public ScheduleDecisionEventForm acceptSchedule(Long userId, Long eventId) {
         Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
                 .orElseThrow(() -> new IllegalArgumentException(ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE));
 
         schedule.decideScheduleStatus(ACCEPT);
-        scheduleRepository.save(schedule);
+        Schedule updateSchedule = scheduleRepository.save(schedule);
+
+        return createScheduleDecisionEventForm(updateSchedule);
     }
 
     @Transactional
-    public void rejectSchedule(Long userId, Long eventId) {
+    public ScheduleDecisionEventForm rejectSchedule(Long userId, Long eventId) {
         Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
                 .orElseThrow(() -> new IllegalArgumentException(ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE));
 
         schedule.decideScheduleStatus(REJECT);
-        scheduleRepository.save(schedule);
+        Schedule updateSchedule = scheduleRepository.save(schedule);
+        return createScheduleDecisionEventForm(updateSchedule);
+    }
+
+    private static ScheduleDecisionEventForm createScheduleDecisionEventForm(Schedule updateSchedule) {
+        return new ScheduleDecisionEventForm(
+                updateSchedule.getUser().getId(),
+                updateSchedule.getEvent().getSubject(),
+                updateSchedule.getUser().getUsername(),
+                updateSchedule.getEvent().getCreateBy(),
+                updateSchedule.getScheduleStatus());
     }
 
     private boolean isPersonalSchedule(ScheduleServiceForm form, Long userId) {

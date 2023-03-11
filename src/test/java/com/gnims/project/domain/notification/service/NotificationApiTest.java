@@ -56,6 +56,7 @@ class NotificationApiTest {
         makeUser();
 
         MvcResult result = getLoginResult("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}");
+
         hostToken = result.getResponse().getHeader("Authorization");
 
         MvcResult result2 = getLoginResult("{\"email\": \"danguen@gmail.com\", \"password\": \"123456aA9\"}");
