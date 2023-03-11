@@ -95,7 +95,7 @@ public class ScheduleService {
                 .filter(schedule -> distinctContainer.add(schedule.getEventId())).collect(toList());
 
         if (matched(myselfId, searchUserId)) { // [0] 내 스케줄 전체 조회
-            return new PageableReadResponse(schedules.getTotalPages(), notDuplicatedSchedules);
+            return new PageableReadResponse(schedules.getTotalPages(), createReadAllResponse(schedules, notDuplicatedSchedules));
         }
 
         Optional<Friendship> friendship = friendshipRepository.readAllFollowingOf(myselfId) // [1] 팔로우 전체 스케줄 조회
@@ -105,7 +105,7 @@ public class ScheduleService {
             throw new NotFriendshipException(BAD_ACCESS);
         }
 
-        return new PageableReadResponse(schedules.getTotalPages(), notDuplicatedSchedules);
+        return new PageableReadResponse(schedules.getTotalPages(), createReadAllResponse(schedules, notDuplicatedSchedules));
     }
 
     public ReadOneResponse readOneSchedule(Long myselfId, Long eventId) {
@@ -209,6 +209,18 @@ public class ScheduleService {
                 schedule.getDDay(),
                 fetchInvitee(inviteeOfSchedule.stream(), schedule))).collect(toList());
     }
+
+    private List<ReadAllResponse> createReadAllResponse(Page<ReadAllScheduleDto> inviteeOfSchedule, List<ReadAllScheduleDto> schedules) {
+        return schedules.stream().map(schedule -> new ReadAllResponse(
+                schedule.getEventId(),
+                schedule.getDate(),
+                schedule.getTime(),
+                schedule.getCardColor(),
+                schedule.getSubject(),
+                schedule.getDDay(),
+                fetchInvitee(inviteeOfSchedule.stream(), schedule))).collect(toList());
+    }
+
 
     private List<ReadAllResponse> createReadAllResponse(Page<ReadAllScheduleDto> schedules) {
         return schedules.stream().map(schedule -> new ReadAllResponse(
