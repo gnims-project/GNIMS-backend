@@ -62,9 +62,9 @@ public class AlarmEventListener {
         String message = decideMessage(response);
 
         NotificationForm notificationForm = NotificationForm.of(response.getSenderId(), response.getReceiverId(), message, INVITE_RESPONSE);
-        Notification notification = notificationService.create(notificationForm);
+        notificationService.create(notificationForm);
 
-        process(INVITE_RESPONSE, notification);
+        process(INVITE_RESPONSE, response);
     }
 
     @Nullable
@@ -85,6 +85,16 @@ public class AlarmEventListener {
         try {
             ReadNotificationResponse notificationResponse = convert(notification);
             sseEmitterManager.send(sseEmitter, notificationType, notificationResponse);
+
+        } catch (IOException | NullPointerException | IllegalStateException exception) {
+            log.info("exception {} message {}", exception.getClass().getSimpleName(), exception.getMessage());
+        }
+    }
+
+    private void process(NotificationType notificationType, ScheduleDecisionEventForm eventForm) {
+        SseEmitter sseEmitter = sseEmitterManager.getSseEmitters().get(eventForm.getReceiverId());
+        try {
+            sseEmitterManager.send(sseEmitter, notificationType, eventForm);
 
         } catch (IOException | NullPointerException | IllegalStateException exception) {
             log.info("exception {} message {}", exception.getClass().getSimpleName(), exception.getMessage());
