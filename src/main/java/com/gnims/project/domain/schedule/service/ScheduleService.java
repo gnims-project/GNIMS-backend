@@ -90,9 +90,12 @@ public class ScheduleService {
         // 스케줄 리스트 구하는 작업
         Page<ReadAllScheduleDto> schedules = scheduleRepository.readAllSchedulePage(searchUserId, pageRequest);
         List<ReadAllResponse> responses = createReadAllResponse(schedules);
+        HashSet<Long> distinctContainer = new HashSet<>(responses.size());
+        List<ReadAllScheduleDto> notDuplicatedSchedules = schedules.stream() // 중복 제거 작업
+                .filter(schedule -> distinctContainer.add(schedule.getEventId())).collect(toList());
 
         if (matched(myselfId, searchUserId)) { // [0] 내 스케줄 전체 조회
-            return new PageableReadResponse(schedules.getTotalPages(), responses);
+            return new PageableReadResponse(schedules.getTotalPages(), notDuplicatedSchedules);
         }
 
         Optional<Friendship> friendship = friendshipRepository.readAllFollowingOf(myselfId) // [1] 팔로우 전체 스케줄 조회
@@ -102,7 +105,7 @@ public class ScheduleService {
             throw new NotFriendshipException(BAD_ACCESS);
         }
 
-        return new PageableReadResponse(schedules.getTotalPages(), responses);
+        return new PageableReadResponse(schedules.getTotalPages(), notDuplicatedSchedules);
     }
 
     public ReadOneResponse readOneSchedule(Long myselfId, Long eventId) {
