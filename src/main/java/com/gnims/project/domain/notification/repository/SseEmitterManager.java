@@ -1,5 +1,6 @@
 package com.gnims.project.domain.notification.repository;
 
+import com.gnims.project.domain.notification.dto.ReadNotificationResponse;
 import com.gnims.project.domain.notification.entity.NotificationType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ import static org.springframework.http.MediaType.*;
 @Component
 public class SseEmitterManager {
 
-    private static final Long TIMEOUT = 30 * 1000l; // 10분
+    private static final Long TIMEOUT = 10 * 60 * 1000l; // 10분
     private final Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
     public SseEmitter save(Long userId) {
