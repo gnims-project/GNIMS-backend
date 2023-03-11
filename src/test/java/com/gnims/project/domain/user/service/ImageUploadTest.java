@@ -65,7 +65,7 @@ public class ImageUploadTest {
     }
 
     @AfterEach
-    void afterEach() throws Exception {
+    void afterEach() {
         userRepository.deleteAll();
     }
 

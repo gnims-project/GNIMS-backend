@@ -42,8 +42,7 @@ public class UserLoginTest {
     }
 
     @AfterEach
-    void afterEach(){
-
+    void afterEach() {
         userRepository.deleteAll();
     }
 

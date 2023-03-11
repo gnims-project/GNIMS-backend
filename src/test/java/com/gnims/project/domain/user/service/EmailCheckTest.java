@@ -37,12 +37,11 @@ public class EmailCheckTest {
     @BeforeEach
     void beforeEach() throws Exception {
         MockMultipartFile signupFile1 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
-
         mvc.perform(multipart("/auth/signup").file(signupFile1).characterEncoding("utf-8"));
     }
 
     @AfterEach
-    void afterEach() throws Exception {
+    void afterEach() {
         userRepository.deleteAll();
     }
 
