@@ -15,6 +15,10 @@ public class UserDetailsImpl implements UserDetails {
         this.nickname = nickname;
     }
 
+    public String receiveUsername() {
+        return user.getUsername();
+    }
+
     public User getUser() {
         return user;
     }
