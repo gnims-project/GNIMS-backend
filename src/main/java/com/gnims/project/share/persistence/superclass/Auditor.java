@@ -19,7 +19,7 @@ public class Auditor implements AuditorAware<Long> {
         try {
             principal = context.getAuthentication().getPrincipal();
         } catch (NullPointerException e) {
-            log.info("[알 수 없는 에러 발생 : Auditor - NullPointerException]");
+//            log.info("[알 수 없는 에러 발생 : Auditor - NullPointerException]");
             return Optional.empty();
         }
 

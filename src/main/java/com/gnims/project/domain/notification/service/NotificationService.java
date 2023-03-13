@@ -4,6 +4,7 @@ import com.gnims.project.domain.notification.dto.NotificationForm;
 import com.gnims.project.domain.notification.dto.ReadNotificationResponse;
 import com.gnims.project.domain.notification.entity.Notification;
 import com.gnims.project.domain.notification.repository.NotificationRepository;
+import com.gnims.project.domain.schedule.dto.ScheduleCreatedEvent;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,16 @@ public class NotificationService {
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXISTED_USER));
 
         return notificationRepository.save(new Notification(user, form));
+    }
+
+    public List<Notification> create(NotificationForm form, ScheduleCreatedEvent createdEvent) {
+        List<Long> participantsId = createdEvent.getParticipantsId();
+
+        List<User> users = userRepository.findAllById(participantsId);
+
+        List<Notification> notifications = users.stream().map(u -> new Notification(u, form)).collect(toList());
+
+        return notificationRepository.saveAll(notifications);
     }
 
     public List<ReadNotificationResponse> readAll(Long userId) {

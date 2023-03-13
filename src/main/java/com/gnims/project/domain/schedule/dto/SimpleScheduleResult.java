@@ -11,4 +11,8 @@ public class SimpleScheduleResult {
         this.status = status;
         this.message = message;
     }
+
+    public static SimpleScheduleResult of(Integer status, String message) {
+        return new SimpleScheduleResult(status, message);
+    }
 }
