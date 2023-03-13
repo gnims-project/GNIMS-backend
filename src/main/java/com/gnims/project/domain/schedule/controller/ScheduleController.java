@@ -30,13 +30,12 @@ public class ScheduleController {
     @PostMapping("/events")
     public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody @Valid ScheduleForm scheduleForm,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long userId = userDetails.receiveUserId();
-        String username = userDetails.getUser().getUsername();
-        ScheduleServiceForm serviceForm = scheduleForm.to(userId, username);
-        scheduleService.makeSchedule(serviceForm);
 
-        applicationEventPublisher.publishEvent(serviceForm);
-        return new ResponseEntity<>(new SimpleScheduleResult(201, CREATE_SCHEDULE_MESSAGE), HttpStatus.CREATED);
+        ScheduleCreatedEvent createdEvent = scheduleForm.to(userDetails.receiveUserId(), userDetails.receiveUsername());
+        scheduleService.makeSchedule(createdEvent);
+
+        applicationEventPublisher.publishEvent(createdEvent);
+        return new ResponseEntity<>(SimpleScheduleResult.of(201, CREATE_SCHEDULE_MESSAGE), HttpStatus.CREATED);
     }
 
     //스케줄 전체 조회
@@ -88,7 +87,7 @@ public class ScheduleController {
     @PostMapping("/events/{event-id}/acceptance")
     public ResponseEntity<SimpleScheduleResult> acceptSchedule(@PathVariable("event-id") Long eventId,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        ScheduleDecisionEventForm eventForm = scheduleService.acceptSchedule(userDetails.receiveUserId(), eventId);
+        ScheduleInviteRepliedEvent eventForm = scheduleService.acceptSchedule(userDetails.receiveUserId(), eventId);
         applicationEventPublisher.publishEvent(eventForm);
         return ok(new SimpleScheduleResult(200, ACCEPT_SCHEDULE_MESSAGE));
     }
@@ -97,7 +96,7 @@ public class ScheduleController {
     @PostMapping("/events/{event-id}/rejection")
     public ResponseEntity<SimpleScheduleResult> rejectSchedule(@PathVariable("event-id") Long eventId,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        ScheduleDecisionEventForm EventForm = scheduleService.rejectSchedule(userDetails.receiveUserId(), eventId);
+        ScheduleInviteRepliedEvent EventForm = scheduleService.rejectSchedule(userDetails.receiveUserId(), eventId);
         applicationEventPublisher.publishEvent(EventForm);
         return ok(new SimpleScheduleResult(200, REJECT_SCHEDULE_MESSAGE));
     }

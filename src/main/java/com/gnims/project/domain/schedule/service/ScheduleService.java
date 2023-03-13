@@ -38,7 +38,7 @@ public class ScheduleService {
 
     private static final List<String> DESC_SORTING_GROUP = List.of("event.createAt");
 
-    public void makeSchedule(ScheduleServiceForm form) {
+    public void makeSchedule(ScheduleCreatedEvent form) {
         //이벤트 엔티티 생성 및 저장
         Long userId = form.getCreateBy();
         Event event = eventRepository.save(new Event(new Appointment(form), form));
@@ -90,9 +90,12 @@ public class ScheduleService {
         // 스케줄 리스트 구하는 작업
         Page<ReadAllScheduleDto> schedules = scheduleRepository.readAllSchedulePage(searchUserId, pageRequest);
         List<ReadAllResponse> responses = createReadAllResponse(schedules);
+        HashSet<Long> distinctContainer = new HashSet<>(responses.size());
+        List<ReadAllScheduleDto> notDuplicatedSchedules = schedules.stream() // 중복 제거 작업
+                .filter(schedule -> distinctContainer.add(schedule.getEventId())).collect(toList());
 
         if (matched(myselfId, searchUserId)) { // [0] 내 스케줄 전체 조회
-            return new PageableReadResponse(schedules.getTotalPages(), responses);
+            return new PageableReadResponse(schedules.getTotalPages(), createReadAllResponse(schedules, notDuplicatedSchedules));
         }
 
         Optional<Friendship> friendship = friendshipRepository.readAllFollowingOf(myselfId) // [1] 팔로우 전체 스케줄 조회
@@ -102,7 +105,7 @@ public class ScheduleService {
             throw new NotFriendshipException(BAD_ACCESS);
         }
 
-        return new PageableReadResponse(schedules.getTotalPages(), responses);
+        return new PageableReadResponse(schedules.getTotalPages(), createReadAllResponse(schedules, notDuplicatedSchedules));
     }
 
     public ReadOneResponse readOneSchedule(Long myselfId, Long eventId) {
@@ -161,7 +164,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public ScheduleDecisionEventForm acceptSchedule(Long userId, Long eventId) {
+    public ScheduleInviteRepliedEvent acceptSchedule(Long userId, Long eventId) {
         Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
                 .orElseThrow(() -> new IllegalArgumentException(ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE));
 
@@ -172,7 +175,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public ScheduleDecisionEventForm rejectSchedule(Long userId, Long eventId) {
+    public ScheduleInviteRepliedEvent rejectSchedule(Long userId, Long eventId) {
         Schedule schedule = scheduleRepository.readOnePendingSchedule(userId, eventId)
                 .orElseThrow(() -> new IllegalArgumentException(ALREADY_PROCESSED_OR_NOT_EXISTED_SCHEDULE));
 
@@ -181,8 +184,8 @@ public class ScheduleService {
         return createScheduleDecisionEventForm(updateSchedule);
     }
 
-    private ScheduleDecisionEventForm createScheduleDecisionEventForm(Schedule updateSchedule) {
-        return new ScheduleDecisionEventForm(
+    private ScheduleInviteRepliedEvent createScheduleDecisionEventForm(Schedule updateSchedule) {
+        return new ScheduleInviteRepliedEvent(
                 updateSchedule.getUser().getId(),
                 updateSchedule.getEvent().getSubject(),
                 updateSchedule.getUser().getUsername(),
@@ -191,7 +194,7 @@ public class ScheduleService {
                 updateSchedule.getScheduleStatus());
     }
 
-    private boolean isPersonalSchedule(ScheduleServiceForm form, Long userId) {
+    private boolean isPersonalSchedule(ScheduleCreatedEvent form, Long userId) {
         return form.getParticipantsId().isEmpty() ||
                 (form.getParticipantsId().size() == 1 && form.getParticipantsId().get(0).equals(userId));
     }
@@ -206,6 +209,18 @@ public class ScheduleService {
                 schedule.getDDay(),
                 fetchInvitee(inviteeOfSchedule.stream(), schedule))).collect(toList());
     }
+
+    private List<ReadAllResponse> createReadAllResponse(Page<ReadAllScheduleDto> inviteeOfSchedule, List<ReadAllScheduleDto> schedules) {
+        return schedules.stream().map(schedule -> new ReadAllResponse(
+                schedule.getEventId(),
+                schedule.getDate(),
+                schedule.getTime(),
+                schedule.getCardColor(),
+                schedule.getSubject(),
+                schedule.getDDay(),
+                fetchInvitee(inviteeOfSchedule.stream(), schedule))).collect(toList());
+    }
+
 
     private List<ReadAllResponse> createReadAllResponse(Page<ReadAllScheduleDto> schedules) {
         return schedules.stream().map(schedule -> new ReadAllResponse(
