@@ -31,10 +31,7 @@ public class NotificationService {
     }
 
     public List<Notification> create(NotificationForm form, ScheduleCreatedEvent createdEvent) {
-        List<Long> participantsId = createdEvent.getParticipantsId();
-
-        List<User> users = userRepository.findAllById(participantsId);
-
+        List<User> users = userRepository.findAllById(createdEvent.getParticipantsId());
         List<Notification> notifications = users.stream().map(u -> new Notification(u, form)).collect(toList());
 
         return notificationRepository.saveAll(notifications);

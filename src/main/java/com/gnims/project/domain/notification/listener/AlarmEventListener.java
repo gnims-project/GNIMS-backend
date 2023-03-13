@@ -31,23 +31,9 @@ public class AlarmEventListener {
     private final NotificationService notificationService;
     private final SseEmitterManager sseEmitterManager;
 
-//    @Async
-//    @EventListener
-//    public void processScheduleEvent(ScheduleCreatedEvent event) {
-//        //알림 만들기
-//        String message = event.getUsername() + "님께서 " + event.getSubject() + " 일정에 초대하셨습니다.";
-//
-//        event.getParticipantsId().forEach(participant -> {
-//            NotificationForm notificationForm = NotificationForm.of(event.getCreateBy(), participant, message, SCHEDULE);
-//            Notification notification = notificationService.create(notificationForm);
-//            //알림 보내기 - 클라이언트 측으로 보낼 정보
-//            sendToSse(SCHEDULE, notification);
-//        });
-//    }
-
     @Async
     @EventListener
-    public void processScheduleEventV2(ScheduleCreatedEvent event) {
+    public void processScheduleEvent(ScheduleCreatedEvent event) {
         //알림 만들기
         String message = event.getUsername() + "님께서 " + event.getSubject() + " 일정에 초대하셨습니다.";
         NotificationForm notificationForm = NotificationForm.ofScheduleCreated(event.getCreateBy(), event.getParticipantsId(), message);
