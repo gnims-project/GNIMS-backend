@@ -4,8 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class ProfileImageDto {
-
-    private String profileImage;
+    private final String profileImage;
 
     public ProfileImageDto(String profileImage) {
         this.profileImage = profileImage;

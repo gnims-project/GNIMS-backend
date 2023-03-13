@@ -9,7 +9,7 @@ import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
 import com.gnims.project.security.jwt.JwtUtil;
-import com.gnims.project.share.gmail.EmailService;
+import com.gnims.project.share.email.EmailService;
 import com.gnims.project.social.dto.SocialSignupDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +33,7 @@ import static com.gnims.project.share.message.ResponseMessage.CHECK_NICKNAME_MES
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final JwtUtil jwtUtil;
@@ -53,10 +54,8 @@ public class UserService {
      * 이메일의 중복이 생길 수 있기 때문에
      * 중복을 차단하기 위해 사용
      * */
-
     @Transactional
     public void signup(SignupRequestDto request, MultipartFile image) throws IOException {
-
         String nickname = request.getNickname();
 
         String email = SocialCode.EMAIL.getValue() + request.getEmail();
@@ -109,7 +108,6 @@ public class UserService {
 
     @Transactional
     public void socialSignup(SocialSignupDto request, MultipartFile image) throws IOException {
-
         String email = request.getSocialCode().getValue() + request.getEmail();
 
         //이메일 / 닉네임 중복체크
@@ -142,7 +140,6 @@ public class UserService {
     }
 
     public SimpleMessageResult checkNickname(NicknameDto request) {
-
         if (userRepository.findByNickname(request.getNickname()).isPresent()) {
             return new SimpleMessageResult(400, DUPLICATE_NICKNAME);
         }
@@ -150,7 +147,6 @@ public class UserService {
     }
 
     public SimpleMessageResult checkEmail(EmailDto request) {
-
         //이메일 중복 체크는 일반 회원가입에서만 사용 됨
         if (userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).isPresent()) {
             return new SimpleMessageResult(400, ALREADY_REGISTERED_EMAIL);
@@ -159,7 +155,6 @@ public class UserService {
     }
 
     public LoginResponseDto login(LoginRequestDto request, HttpServletResponse response) {
-
         User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException(MISMATCH_EMAIL_OR_SECRET)
         );
@@ -176,7 +171,6 @@ public class UserService {
 
     @Transactional
     public ProfileImageDto updateProfile(MultipartFile image, User user) throws IOException {
-
         if(image == null) {
             userRepository.findById(user.getId()).orElseThrow(
                     () -> new IllegalArgumentException(NOT_EXISTED_USER)
@@ -194,13 +188,11 @@ public class UserService {
     }
 
     public List<SearchAllQueryDto> search(String username, User user, PageRequest pageRequest) {
-
         return userRepository.userSearch("%" + username + "%",user.getId(), pageRequest);
     }
 
     @Transactional
     public void authPassword(AuthEmailDto request) throws Exception {
-
         User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
         );
@@ -210,7 +202,6 @@ public class UserService {
 
     @Transactional
     public void updatePassword(PasswordDto request, User user) {
-
         if(request.getOldPassword().equals(request.getNewPassword())) {
             throw new IllegalArgumentException(THE_SAME_SECRET_AS_BEFORE);
         }

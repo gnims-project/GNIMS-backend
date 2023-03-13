@@ -10,6 +10,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private final User user;
     private final String nickname;
+
     public UserDetailsImpl(User user, String nickname) {
         this.user = user;
         this.nickname = nickname;

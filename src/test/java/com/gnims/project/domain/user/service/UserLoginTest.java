@@ -37,22 +37,18 @@ public class UserLoginTest {
 
     @BeforeEach
     void beforeEach() throws Exception {
-
         MockMultipartFile signupFile1 = new MockMultipartFile("data", "", "application/json", "{\"nickname\" : \"딸기\",\"username\": \"이땡땡\", \"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}".getBytes());
-
         mvc.perform(multipart("/auth/signup").file(signupFile1).characterEncoding("utf-8"));
     }
 
     @AfterEach
-    void afterEach() throws Exception {
-
+    void afterEach() {
         userRepository.deleteAll();
     }
 
     @DisplayName("로그인 성공 - 상태코드 200, 헤더에 토큰 반환")
     @Test
     void 로그인성공테스트() throws Exception {
-
         mvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}"))
@@ -64,7 +60,6 @@ public class UserLoginTest {
     @DisplayName("로그인 성공, 토큰이 같이 왓을 시 - 상태코드 200, 헤더에 토큰 반환")
     @Test
     void 로그인성공테스트2() throws Exception {
-
         mvc.perform(post("/auth/login").header("Authorization", invalidToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456aA9\"}"))
@@ -76,7 +71,6 @@ public class UserLoginTest {
     @DisplayName("로그인 시 등록된 이메일 없음 - 상태코드 400, 실패 메세지 반환")
     @Test
     void 로그인실패테스트1() throws Exception {
-
         mvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi2@gmail.com\", \"password\": \"123456aA9\"}"))
@@ -87,7 +81,6 @@ public class UserLoginTest {
     @DisplayName("로그인 시 등록된 이메일 있음, 비밀번호 틀림 - 상태코드 400, 실패 메세지 반환")
     @Test
     void 로그인실패테스트2() throws Exception {
-
         mvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"ddalgi@gmail.com\", \"password\": \"123456a9\"}"))
