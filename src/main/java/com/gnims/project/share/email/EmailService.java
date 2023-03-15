@@ -1,8 +1,10 @@
 package com.gnims.project.share.email;
 
+import com.gnims.project.domain.user.dto.AuthEmailDto;
 import com.gnims.project.domain.user.entity.SocialCode;
 import com.gnims.project.domain.user.entity.User;
 import com.gnims.project.domain.user.repository.UserRepository;
+import com.gnims.project.exception.dto.AuthenticationCodeValidityException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +36,16 @@ public class EmailService {
     private String hostEmail;   //이메일을 날리는 주체의 이메일
 
     @Transactional
-    public void updatePassword(EmailPasswordDto request) {
+    public void authPassword(AuthEmailDto request) throws Exception {
+        User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
+                () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
+        );
+
+        createEmailValidation(user.getNickname(), request.getEmail());
+    }
+
+    @Transactional
+    public void updatePassword(EmailPasswordDto request) throws AuthenticationCodeValidityException {
         //DB에서 해당 이메일의 유저를 찾음
         User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
@@ -52,7 +63,8 @@ public class EmailService {
 
         //인증 후 3 시간 이상 지날 시 인증 실패, 인증 메일 삭제
         if (emailValidation.getModifiedAt().isBefore(LocalDateTime.now().minusHours(3))) {
-            throw new IllegalArgumentException(INVALID_CODE_ERROR);
+            emailRepository.delete(emailValidation);
+            throw new AuthenticationCodeValidityException(INVALID_CODE_ERROR);
         }
 
         //암호화 후 저장
