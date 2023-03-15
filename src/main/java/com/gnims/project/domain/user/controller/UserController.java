@@ -71,13 +71,6 @@ public class UserController {
         return ok (new UserResult<>(OK.value(), LOGIN_SUCCESS_MESSAGE, result));
     }
 
-    //이메일 인증을 날릴 api
-    @PostMapping("/auth/password")
-    public ResponseEntity<SimpleMessageResult> authPassword(@RequestBody AuthEmailDto request) throws Exception {
-        userService.authPassword(request);
-        return ok (new SimpleMessageResult(OK.value(), SUCCESS_POST_EMAIL_MESSAGE));
-    }
-
     //이메일 인증 x 비밀번호 재설정
     @PatchMapping("/users/password")
     public ResponseEntity<SimpleMessageResult> updatePassword(@Validated(ValidationSequence.class)
