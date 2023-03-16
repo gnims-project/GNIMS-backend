@@ -37,7 +37,7 @@ public class AlarmEventListener {
         //알림 만들기
         String message = event.getUsername() + "님께서 " + event.getSubject() + " 일정에 초대하셨습니다.";
         NotificationForm notificationForm = NotificationForm.ofScheduleCreated(event.getCreateBy(), event.getParticipantsId(), message);
-        List<Notification> notifications = notificationService.create(notificationForm, event);
+        List<Notification> notifications = notificationService.createV2(notificationForm);
         //알림 보내기 - 클라이언트 측으로 보낼 정보
         sendToSse(SCHEDULE, notifications);
     }
@@ -48,7 +48,7 @@ public class AlarmEventListener {
         //알림 만들기
         String message = response.getSenderName() + "님께서 팔로우하셨습니다.";
         NotificationForm notificationForm = NotificationForm.ofFriendShipCreated(response.getCreateBy(), response.getFollowId(), message);
-        Notification notification = notificationService.create(notificationForm);
+        List<Notification> notification = notificationService.createV2(notificationForm);
         //알림 보내기 - 클라이언트 측으로 보낼 정보
         sendToSse(FRIENDSHIP, notification);
     }
@@ -60,7 +60,7 @@ public class AlarmEventListener {
         String message = scheduleRepliedMessage(response);
 
         NotificationForm notificationForm = NotificationForm.of(response.getSenderId(), response.getReceiverId(), message, INVITE_RESPONSE);
-        Notification notification = notificationService.create(notificationForm);
+        List<Notification> notification = notificationService.createV2(notificationForm);
         sendToSse(INVITE_RESPONSE, notification);
     }
 
@@ -77,16 +77,16 @@ public class AlarmEventListener {
         return message;
     }
 
-    private void sendToSse(NotificationType notificationType, Notification notification) {
-        SseEmitter sseEmitter = sseEmitterManager.getSseEmitters().get(notification.getUser().getId());
-        try {
-            ReadNotificationResponse notificationResponse = convert(notification);
-            sseEmitterManager.send(sseEmitter, notificationType, notificationResponse);
-
-        } catch (IOException | NullPointerException | IllegalStateException exception) {
-            log.info("exception {} message {}", exception.getClass().getSimpleName(), exception.getMessage());
-        }
-    }
+//    private void sendToSse(NotificationType notificationType, Notification notification) {
+//        SseEmitter sseEmitter = sseEmitterManager.getSseEmitters().get(notification.getUser().getId());
+//        try {
+//            ReadNotificationResponse notificationResponse = convert(notification);
+//            sseEmitterManager.send(sseEmitter, notificationType, notificationResponse);
+//
+//        } catch (IOException | NullPointerException | IllegalStateException exception) {
+//            log.info("exception {} message {}", exception.getClass().getSimpleName(), exception.getMessage());
+//        }
+//    }
 
     private void sendToSse(NotificationType notificationType, List<Notification> notifications) {
         notifications.forEach(notification -> {
