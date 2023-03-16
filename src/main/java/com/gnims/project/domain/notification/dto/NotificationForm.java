@@ -2,11 +2,14 @@ package com.gnims.project.domain.notification.dto;
 
 import com.gnims.project.domain.notification.entity.NotificationType;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.gnims.project.domain.notification.entity.NotificationType.*;
 
+@Slf4j
 @Getter
 public class NotificationForm<T> {
     private final Long createBy;
@@ -34,6 +37,21 @@ public class NotificationForm<T> {
     }
 
     public Long getAccepterId() {
+
         return (Long) accepterId;
+    }
+
+    public List<Long> convertAccepterType() {
+        log.info("타입 체크={}", accepterId.getClass());
+        if (isList()) {
+            log.info("형변환 진행합니다.");
+            return (List<Long>) this.accepterId;
+        }
+        log.info("빈 리스트를 반환합니다.");
+        return Collections.emptyList();
+    }
+
+    private boolean isList() {
+        return this.accepterId instanceof List;
     }
 }

@@ -37,6 +37,15 @@ public class NotificationService {
         return notificationRepository.saveAll(notifications);
     }
 
+    public List<Notification> createV2(NotificationForm form) {
+        List<Long> receivers = form.convertAccepterType();
+
+        List<User> users = userRepository.findAllById(receivers);
+        List<Notification> notifications = users.stream().map(u -> new Notification(u, form)).collect(toList());
+
+        return notificationRepository.saveAll(notifications);
+    }
+
     public List<ReadNotificationResponse> readAll(Long userId) {
         List<Notification> notifications = notificationRepository.findAllByUserIdOrderByCreateAtDesc(userId);
 
