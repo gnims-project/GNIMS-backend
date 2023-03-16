@@ -1,6 +1,7 @@
 package com.gnims.project.domain.notification.listener;
 
 import com.gnims.project.domain.friendship.dto.FriendShipCreatedEvent;
+import com.gnims.project.domain.notification.dto.NotificationAllForm;
 import com.gnims.project.domain.notification.dto.NotificationForm;
 import com.gnims.project.domain.notification.dto.ReadNotificationResponse;
 import com.gnims.project.domain.notification.entity.Notification;
@@ -36,31 +37,32 @@ public class AlarmEventListener {
     public void processScheduleEvent(ScheduleCreatedEvent event) {
         //알림 만들기
         String message = event.getUsername() + "님께서 " + event.getSubject() + " 일정에 초대하셨습니다.";
-        NotificationForm notificationForm = NotificationForm.ofScheduleCreated(event.getCreateBy(), event.getParticipantsId(), message);
-        List<Notification> notifications = notificationService.createV2(notificationForm);
+        NotificationAllForm notificationForm = NotificationAllForm.of(event.getCreateBy(), event.getParticipantsId(), message, SCHEDULE);
+
+        List<Notification> notifications = notificationService.createAll(notificationForm);
         //알림 보내기 - 클라이언트 측으로 보낼 정보
         sendToSse(SCHEDULE, notifications);
     }
 
     @Async
     @EventListener
-    public void processFriendShipEvent(FriendShipCreatedEvent response) {
+    public void processFriendShipEvent(FriendShipCreatedEvent event) {
         //알림 만들기
-        String message = response.getSenderName() + "님께서 팔로우하셨습니다.";
-        NotificationForm notificationForm = NotificationForm.ofFriendShipCreated(response.getCreateBy(), response.getFollowId(), message);
-        List<Notification> notification = notificationService.createV2(notificationForm);
+        String message = event.getSenderName() + "님께서 팔로우하셨습니다.";
+        NotificationForm notificationForm = NotificationForm.of(event.getCreateBy(), event.getFollowId(), message, FRIENDSHIP);
+        Notification notification = notificationService.create(notificationForm);
         //알림 보내기 - 클라이언트 측으로 보낼 정보
         sendToSse(FRIENDSHIP, notification);
     }
 
     @Async
     @EventListener
-    public void processScheduleSelectEvent(ScheduleInviteRepliedEvent response) {
+    public void processScheduleSelectEvent(ScheduleInviteRepliedEvent event) {
         //알림 만들기
-        String message = scheduleRepliedMessage(response);
+        String message = scheduleRepliedMessage(event);
 
-        NotificationForm notificationForm = NotificationForm.of(response.getSenderId(), response.getReceiverId(), message, INVITE_RESPONSE);
-        List<Notification> notification = notificationService.createV2(notificationForm);
+        NotificationForm notificationForm = NotificationForm.of(event.getSenderId(), event.getReceiverId(), message, INVITE_RESPONSE);
+        Notification notification = notificationService.create(notificationForm);
         sendToSse(INVITE_RESPONSE, notification);
     }
 
@@ -77,16 +79,16 @@ public class AlarmEventListener {
         return message;
     }
 
-//    private void sendToSse(NotificationType notificationType, Notification notification) {
-//        SseEmitter sseEmitter = sseEmitterManager.getSseEmitters().get(notification.getUser().getId());
-//        try {
-//            ReadNotificationResponse notificationResponse = convert(notification);
-//            sseEmitterManager.send(sseEmitter, notificationType, notificationResponse);
-//
-//        } catch (IOException | NullPointerException | IllegalStateException exception) {
-//            log.info("exception {} message {}", exception.getClass().getSimpleName(), exception.getMessage());
-//        }
-//    }
+    private void sendToSse(NotificationType notificationType, Notification notification) {
+        SseEmitter sseEmitter = sseEmitterManager.getSseEmitters().get(notification.getUser().getId());
+        try {
+            ReadNotificationResponse notificationResponse = convert(notification);
+            sseEmitterManager.send(sseEmitter, notificationType, notificationResponse);
+
+        } catch (IOException | NullPointerException | IllegalStateException exception) {
+            log.info("exception {} message {}", exception.getClass().getSimpleName(), exception.getMessage());
+        }
+    }
 
     private void sendToSse(NotificationType notificationType, List<Notification> notifications) {
         notifications.forEach(notification -> {
