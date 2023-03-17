@@ -14,7 +14,6 @@ import com.gnims.project.social.dto.SocialSignupDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -189,15 +188,6 @@ public class UserService {
 
     public List<SearchAllQueryDto> search(String username, User user, PageRequest pageRequest) {
         return userRepository.userSearch("%" + username + "%",user.getId(), pageRequest);
-    }
-
-    @Transactional
-    public void authPassword(AuthEmailDto request) throws Exception {
-        User user = userRepository.findByEmail(SocialCode.EMAIL.getValue() + request.getEmail()).orElseThrow(
-                () -> new IllegalArgumentException(NON_EXISTED_EMAIL)
-        );
-
-        emailService.createEmailValidation(user.getNickname(), request.getEmail());
     }
 
     @Transactional

@@ -24,6 +24,9 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
+import static com.gnims.project.share.message.ResponseMessage.MEMBER_MESSAGE;
+import static com.gnims.project.share.message.ResponseMessage.NON_MEMBER_MESSAGE;
+
 @Service
 @RequiredArgsConstructor
 public class NaverService {
@@ -45,7 +48,7 @@ public class NaverService {
         // DB 에 없을 경우 non-member 리턴
         if (optionalNaverUser.isEmpty()) {
             return new SocialResult(HttpStatus.OK.value(),
-                    "non-member",
+                    NON_MEMBER_MESSAGE,
                     new SocialEmailDto(naverUserInfo.getEmail()));
         }
 
@@ -56,7 +59,7 @@ public class NaverService {
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(naverUser.getNickname()));
 
         return new SocialResult(HttpStatus.OK.value(),
-                "member",
+                MEMBER_MESSAGE,
                 new LoginResponseDto(naverUser));
     }
 

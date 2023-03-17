@@ -14,6 +14,10 @@ public class ResponseMessage {
     public static final String CHECK_NICKNAME_MESSAGE = "사용 가능한 닉네임 입니다.";
     public static final String CHECK_EMAIL_MESSAGE = "사용 가능한 이메일 입니다.";
 
+    //social
+    public static final String NON_MEMBER_MESSAGE = "non-member";
+    public static final String MEMBER_MESSAGE = "member";
+
     //friendshipController
     public static final String READ_FOLLOWINGS_MESSAGE = "팔로잉 조회 완료";
     public static final String READ_FOLLOWERS_MESSAGE = "팔로워 조회 완료";
