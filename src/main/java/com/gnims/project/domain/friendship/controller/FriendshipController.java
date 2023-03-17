@@ -21,7 +21,6 @@ import static org.springframework.http.ResponseEntity.*;
 
 @RestController
 @RequiredArgsConstructor
-@Transactional
 public class FriendshipController {
 
     private final FriendshipService friendshipService;

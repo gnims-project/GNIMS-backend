@@ -23,7 +23,6 @@ import static org.springframework.http.ResponseEntity.*;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@Transactional
 public class NotificationController {
 
     private final SseEmitterManager sseEmitterManager;

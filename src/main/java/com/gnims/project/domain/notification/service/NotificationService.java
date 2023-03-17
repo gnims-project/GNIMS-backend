@@ -20,7 +20,7 @@ import static java.util.stream.Collectors.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NotificationService<T> {
+public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
