@@ -31,9 +31,8 @@ public class FriendshipController {
     public ResponseEntity<FriendshipResult> readFollowing(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @RequestParam(defaultValue = "0") Integer page,
                                                           @RequestParam(defaultValue = "9999") Integer size) {
-        Long myselfId = userDetails.receiveUserId();
         PageRequest pageRequest = PageRequest.of(page, size);
-        List<FollowReadResponse> followings = friendshipService.readFollowing(myselfId, pageRequest);
+        List<FollowReadResponse> followings = friendshipService.readFollowing(userDetails.receiveUserId(), pageRequest);
 
         return ok(new FriendshipResult(200, READ_FOLLOWINGS_MESSAGE, followings));
     }
@@ -42,9 +41,8 @@ public class FriendshipController {
     public ResponseEntity<FriendshipResult> readFollowingV2(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @RequestParam(defaultValue = "0") Integer page,
                                                           @RequestParam(defaultValue = "9999") Integer size) {
-        Long myselfId = userDetails.receiveUserId();
         PageRequest pageRequest = PageRequest.of(page, size);
-        List<FollowReadResponse> followings = friendshipService.readFollowing(myselfId, pageRequest);
+        List<FollowReadResponse> followings = friendshipService.readFollowing(userDetails.receiveUserId(), pageRequest);
         FollowIntegratedResponse response = FollowIntegratedResponse.of(followings, followings.size());
 
         return ok(new FriendshipResult(200, READ_FOLLOWINGS_MESSAGE, response));
@@ -56,9 +54,8 @@ public class FriendshipController {
     public ResponseEntity<FriendshipResult> readFollower(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                          @RequestParam(defaultValue = "0") Integer page,
                                                          @RequestParam(defaultValue = "9999") Integer size) {
-        Long myselfId = userDetails.receiveUserId();
         PageRequest pageRequest = PageRequest.of(page, size);
-        List<FollowReadResponse> followers = friendshipService.readFollower(myselfId, pageRequest);
+        List<FollowReadResponse> followers = friendshipService.readFollower(userDetails.receiveUserId(), pageRequest);
 
         return ok(new FriendshipResult(200, READ_FOLLOWERS_MESSAGE, followers));
     }
@@ -67,9 +64,8 @@ public class FriendshipController {
     public ResponseEntity<FriendshipResult> readFollowerV2(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                          @RequestParam(defaultValue = "0") Integer page,
                                                          @RequestParam(defaultValue = "9999") Integer size) {
-        Long myselfId = userDetails.receiveUserId();
         PageRequest pageRequest = PageRequest.of(page, size);
-        List<FollowReadResponse> followers = friendshipService.readFollower(myselfId, pageRequest);
+        List<FollowReadResponse> followers = friendshipService.readFollower(userDetails.receiveUserId(), pageRequest);
         FollowIntegratedResponse response = FollowIntegratedResponse.of(followers, followers.size());
 
         return ok(new FriendshipResult(200, READ_FOLLOWERS_MESSAGE, response));
@@ -78,9 +74,8 @@ public class FriendshipController {
     @PostMapping("/friendship/followings/{followings-id}")
     public ResponseEntity<FriendshipResult> createFriendShip(@PathVariable("followings-id") Long followingId,
                                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long myselfId = userDetails.receiveUserId();
-        FriendshipResponse response = friendshipService.makeFriendship(myselfId, followingId);
-        FriendShipCreatedEvent serviceResponse = response.to(myselfId, userDetails.getUser().getUsername());
+        FriendshipResponse response = friendshipService.makeFriendship(userDetails.receiveUserId(), followingId);
+        FriendShipCreatedEvent serviceResponse = response.to(userDetails.receiveUserId(), userDetails.getUsername());
 
         if (response.getStatus().equals(INIT)) {
             applicationEventPublisher.publishEvent(serviceResponse);
@@ -93,8 +88,7 @@ public class FriendshipController {
     //팔로잉 수
     @GetMapping("/friendship/followings/counting")
     public ResponseEntity<FriendshipResult> countFollowing(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long myselfId = userDetails.receiveUserId();
-        Integer count = friendshipService.countFollowing(myselfId);
+        Integer count = friendshipService.countFollowing(userDetails.receiveUserId());
 
         return ok(new FriendshipResult(OK.value(), COUNT_FOLLOWINGS_MESSAGE, count));
     }
@@ -102,8 +96,7 @@ public class FriendshipController {
     //팔로워 수
     @GetMapping("/friendship/followers/counting")
     public ResponseEntity<FriendshipResult> countFollower(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long myselfId = userDetails.receiveUserId();
-        Integer count = friendshipService.countFollower(myselfId);
+        Integer count = friendshipService.countFollower(userDetails.receiveUserId());
 
         return ok(new FriendshipResult(OK.value(), COUNT_FOLLOWERS_MESSAGE, count));
     }
