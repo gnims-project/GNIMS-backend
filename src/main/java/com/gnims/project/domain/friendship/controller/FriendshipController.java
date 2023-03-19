@@ -31,13 +31,25 @@ public class FriendshipController {
     public ResponseEntity<FriendshipResult> readFollowing(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @RequestParam(defaultValue = "0") Integer page,
                                                           @RequestParam(defaultValue = "9999") Integer size) {
-
         Long myselfId = userDetails.receiveUserId();
         PageRequest pageRequest = PageRequest.of(page, size);
         List<FollowReadResponse> followings = friendshipService.readFollowing(myselfId, pageRequest);
 
         return ok(new FriendshipResult(200, READ_FOLLOWINGS_MESSAGE, followings));
     }
+    //개선 버전 팔로잉 및 팔로잉 수 함께 조회
+    @GetMapping("/v2/friendship/followings")
+    public ResponseEntity<FriendshipResult> readFollowingV2(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                          @RequestParam(defaultValue = "0") Integer page,
+                                                          @RequestParam(defaultValue = "9999") Integer size) {
+        Long myselfId = userDetails.receiveUserId();
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<FollowReadResponse> followings = friendshipService.readFollowing(myselfId, pageRequest);
+        FollowIntegratedResponse response = FollowIntegratedResponse.of(followings, followings.size());
+
+        return ok(new FriendshipResult(200, READ_FOLLOWINGS_MESSAGE, response));
+    }
+
 
     //팔로워 조회(나를 등록한 친구)
     @GetMapping("/friendship/followers")
@@ -50,7 +62,18 @@ public class FriendshipController {
 
         return ok(new FriendshipResult(200, READ_FOLLOWERS_MESSAGE, followers));
     }
+    //개선 버전 팔로워 및 팔로워 수 함께 조회
+    @GetMapping("/v2/friendship/followers")
+    public ResponseEntity<FriendshipResult> readFollowerV2(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                         @RequestParam(defaultValue = "0") Integer page,
+                                                         @RequestParam(defaultValue = "9999") Integer size) {
+        Long myselfId = userDetails.receiveUserId();
+        PageRequest pageRequest = PageRequest.of(page, size);
+        List<FollowReadResponse> followers = friendshipService.readFollower(myselfId, pageRequest);
+        FollowIntegratedResponse response = FollowIntegratedResponse.of(followers, followers.size());
 
+        return ok(new FriendshipResult(200, READ_FOLLOWERS_MESSAGE, response));
+    }
     // 팔로잉 하기/취소
     @PostMapping("/friendship/followings/{followings-id}")
     public ResponseEntity<FriendshipResult> createFriendShip(@PathVariable("followings-id") Long followingId,
@@ -61,10 +84,10 @@ public class FriendshipController {
 
         if (response.getStatus().equals(INIT)) {
             applicationEventPublisher.publishEvent(serviceResponse);
-            return new ResponseEntity<>(new FriendshipResult<>(CREATED.value(), response.receiveStatusMessage(), response), CREATED);
+            return new ResponseEntity<>(new FriendshipResult(CREATED.value(), response.receiveStatusMessage(), response), CREATED);
         }
 
-        return ok(new FriendshipResult<>(OK.value(), response.receiveStatusMessage(), response));
+        return ok(new FriendshipResult(OK.value(), response.receiveStatusMessage(), response));
     }
 
     //팔로잉 수
