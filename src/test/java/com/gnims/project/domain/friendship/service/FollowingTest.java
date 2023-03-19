@@ -17,6 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.gnims.project.domain.friendship.entity.FollowStatus.INACTIVE;
+import static com.gnims.project.domain.friendship.entity.FollowStatus.INIT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -143,6 +145,28 @@ public class FollowingTest {
         mvc.perform(get("/friendship/followings/counting").header("Authorization", mytoken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").value(2));
+    }
+    @DisplayName("팔로잉/팔로잉 수 통합 조회 시 " +
+            "상태 코드 200 " +
+            "팔로잉 ID 이름, 프로필, 팔로우 상태 반환" +
+            "총 팔로잉 수 반환")
+    @Test
+    void 팔로잉_및_팔로잉_수_통합_조회() throws Exception {
+        Long subackId = userRepository.findByNickname("수박").get().getId();
+        Long danguenId = userRepository.findByNickname("당근").get().getId();
+
+        mvc.perform(post("/friendship/followings/" + subackId).header("Authorization", mytoken));
+        mvc.perform(post("/friendship/followings/" + danguenId).header("Authorization", mytoken));
+
+
+        mvc.perform(get("/v2/friendship/followings").header("Authorization", mytoken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.count").value(2))
+                .andExpect(jsonPath("$..follow[0].followId").value(subackId.intValue()))
+                .andExpect(jsonPath("$..follow[0].username").value("박땡땡"))
+                .andExpect(jsonPath("$..follow[0].profile")
+                        .value("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"))
+                .andExpect(jsonPath("$..follow[0].followStatus").value(INIT.toString()));
     }
 
     private void makeUser() throws Exception {
