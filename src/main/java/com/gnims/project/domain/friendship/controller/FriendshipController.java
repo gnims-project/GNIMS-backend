@@ -77,6 +77,7 @@ public class FriendshipController {
         FriendshipResponse response = friendshipService.makeFriendship(userDetails.receiveUserId(), followingId);
         FriendShipCreatedEvent serviceResponse = response.to(userDetails.receiveUserId(), userDetails.getUsername());
 
+
         if (response.getStatus().equals(INIT)) {
             applicationEventPublisher.publishEvent(serviceResponse);
             return new ResponseEntity<>(new FriendshipResult(CREATED.value(), response.receiveStatusMessage(), response), CREATED);

@@ -29,7 +29,6 @@ public class ScheduleController {
     @PostMapping("/events")
     public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody @Valid ScheduleForm scheduleForm,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
         ScheduleCreatedEvent createdEvent = scheduleForm.to(userDetails.receiveUserId(), userDetails.receiveUsername());
         scheduleService.makeSchedule(createdEvent);
 
