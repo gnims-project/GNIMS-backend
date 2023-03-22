@@ -21,7 +21,6 @@ import static org.springframework.http.ResponseEntity.*;
 
 @RestController
 @RequiredArgsConstructor
-@Transactional
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
@@ -30,13 +29,11 @@ public class ScheduleController {
     @PostMapping("/events")
     public ResponseEntity<SimpleScheduleResult> createSchedule(@RequestBody @Valid ScheduleForm scheduleForm,
                                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Long userId = userDetails.receiveUserId();
-        String username = userDetails.getUser().getUsername();
-        ScheduleCreatedEvent serviceForm = scheduleForm.to(userId, username);
-        scheduleService.makeSchedule(serviceForm);
+        ScheduleCreatedEvent createdEvent = scheduleForm.to(userDetails.receiveUserId(), userDetails.receiveUsername());
+        scheduleService.makeSchedule(createdEvent);
 
-        applicationEventPublisher.publishEvent(serviceForm);
-        return new ResponseEntity<>(new SimpleScheduleResult(201, CREATE_SCHEDULE_MESSAGE), HttpStatus.CREATED);
+        applicationEventPublisher.publishEvent(createdEvent);
+        return new ResponseEntity<>(SimpleScheduleResult.of(201, CREATE_SCHEDULE_MESSAGE), HttpStatus.CREATED);
     }
 
     //스케줄 전체 조회

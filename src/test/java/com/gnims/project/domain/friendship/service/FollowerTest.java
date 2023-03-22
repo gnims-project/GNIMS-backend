@@ -1,5 +1,6 @@
 package com.gnims.project.domain.friendship.service;
 
+import com.gnims.project.domain.friendship.entity.FollowStatus;
 import com.gnims.project.domain.friendship.repository.FriendshipRepository;
 import com.gnims.project.domain.notification.repository.NotificationRepository;
 import com.gnims.project.domain.user.entity.User;
@@ -19,7 +20,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.gnims.project.domain.friendship.entity.FollowStatus.INACTIVE;
+import static com.gnims.project.domain.friendship.entity.FollowStatus.INIT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -90,7 +94,7 @@ public class FollowerTest {
 
                 //then
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression,"박땡땡").exists());
+                .andExpect(jsonPath(expression,"박땡땡").exists());
     }
 
     @DisplayName("여러명이 나를 팔로우해도 - 상태코드 200, 내 팔로워 목록에 {상대방 이름} 반환")
@@ -121,7 +125,7 @@ public class FollowerTest {
                         .header("Authorization", myToken))
                 //then
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath(expression,"박땡땡", "김땡땡").exists());
+                .andExpect(jsonPath(expression,"박땡땡", "김땡땡").exists());
     }
 
     @DisplayName("팔로워 수 조회 성공 시 " +
@@ -145,6 +149,30 @@ public class FollowerTest {
         mvc.perform(get("/friendship/followers/counting").header("Authorization", myToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").value(2));
+    }
+
+    @DisplayName("팔로워/팔로워 수 통합 조회 시 " +
+            "상태 코드 200 " +
+            "팔로워 ID 이름, 프로필, 팔로우 상태 반환" +
+            "총 팔로워 수 반환")
+    @Test
+    void 팔로워_및_팔로워_수_통합_조회() throws Exception {
+        User myself = userRepository.findByNickname("딸기").get();
+        Long myselfId = myself.getId();
+
+        mvc.perform(post("/friendship/followings/" + myselfId).header("Authorization", user1Token));
+        mvc.perform(post("/friendship/followings/" + myselfId).header("Authorization", user2Token));
+
+        Long subackId = userRepository.findByNickname("수박").get().getId();
+
+        mvc.perform(get("/v2/friendship/followers").header("Authorization", myToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.count").value(2))
+                .andExpect(jsonPath("$..follow[0].followId").value(subackId.intValue()))
+                .andExpect(jsonPath("$..follow[0].username").value("박땡땡"))
+                .andExpect(jsonPath("$..follow[0].profile")
+                        .value("https://gnims99.s3.ap-northeast-2.amazonaws.com/ProfilImg.png"))
+                .andExpect(jsonPath("$..follow[0].followStatus").value(INACTIVE.toString()));
     }
 
     private void makeUser() throws Exception {
