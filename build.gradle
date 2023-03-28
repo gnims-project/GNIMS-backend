@@ -55,6 +55,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    //prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
 
     //@Valid 등의 유효성 검사에 사용
     implementation 'org.springframework.boot:spring-boot-starter-validation'
