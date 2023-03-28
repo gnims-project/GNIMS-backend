@@ -63,6 +63,7 @@ public class AlarmEventListener {
 
         NotificationForm notificationForm = NotificationForm.of(event.getSenderId(), event.getReceiverId(), message, INVITE_RESPONSE);
         Notification notification = notificationService.create(notificationForm);
+        //알림 보내기 - 클라이언트 측으로 보낼 정보
         sendToSse(INVITE_RESPONSE, notification);
     }
 
@@ -90,6 +91,7 @@ public class AlarmEventListener {
         }
     }
 
+
     private void sendToSse(NotificationType notificationType, List<Notification> notifications) {
         notifications.forEach(notification -> {
             SseEmitter sseEmitter = sseEmitterManager.getSseEmitters().get(notification.getUser().getId());
@@ -102,7 +104,6 @@ public class AlarmEventListener {
             }
         });
     }
-
 
     private ReadNotificationResponse convert(Notification notification) {
         return new ReadNotificationResponse(
