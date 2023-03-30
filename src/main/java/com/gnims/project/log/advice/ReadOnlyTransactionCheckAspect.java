@@ -13,15 +13,16 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class ReadOnlyTransactionCheckAspect {
 
     @Around("execution(* com.gnims.project.domain..*Service.read*(..))")
-    public void checkReadOnly(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object checkReadOnly(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().getName();
-        joinPoint.proceed();
+        Object result = joinPoint.proceed();
 
         if (TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
             log.info("[{} Method is readOnly]", methodName);
-            return;
+            return result;
         }
 
         log.info("[{} Method is Not readOnly]", methodName);
+        return result;
     }
 }
