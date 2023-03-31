@@ -27,6 +27,7 @@ public class FriendshipService {
     private final FriendshipRepository friendshipRepository;
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public List<FollowReadResponse> readFollowing(Long myselfId, PageRequest pageRequest) {
         List<Friendship> followings = friendshipRepository.readAllFollowingOf(myselfId, pageRequest);
         return followings.stream().map(f -> new FollowReadResponse(
@@ -36,6 +37,7 @@ public class FriendshipService {
                 f.getStatus())).collect(toList());
     }
 
+    @Transactional(readOnly = true)
     public List<FollowReadResponse> readFollower(Long myselfId, PageRequest pageRequest) {
         List<FollowReadResponse> followers = friendshipRepository.readAllFollowerOf(myselfId, pageRequest);
         return followers.stream().map(f -> new FollowReadResponse(
@@ -74,10 +76,12 @@ public class FriendshipService {
         return new FriendshipResponse(friendship.receiveFollowId(), friendship.getStatus());
     }
 
+    @Transactional(readOnly = true)
     public Integer countFollowing(Long myselfId) {
         return friendshipRepository.countAllByMyselfIdAndStatusNot(myselfId, INACTIVE);
     }
 
+    @Transactional(readOnly = true)
     public Integer countFollower(Long myselfId) {
         return friendshipRepository.countAllByFollowIdAndStatusNot(myselfId, INACTIVE);
     }

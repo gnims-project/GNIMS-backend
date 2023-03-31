@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
@@ -61,6 +62,7 @@ public class ScheduleService {
         scheduleRepository.saveAll(schedules);
     }
 
+    @Transactional(readOnly = true)
     public List<ReadAllResponse> readAllSchedule(Long myselfId, Long searchUserId) {
         // 스케줄 리스트 구하는 작업
         List<ReadAllScheduleDto> schedules = scheduleRepository.readAllSchedule(searchUserId);
@@ -82,6 +84,7 @@ public class ScheduleService {
         return createReadAllResponse(schedules, notDuplicatedSchedules);
     }
 
+    @Transactional(readOnly = true)
     public PageableReadResponse readAllSchedule(Long myselfId, Long searchUserId, PageRequest pageRequest) {
         //정렬
         if (DESC_SORTING_GROUP.contains(fetchSortBy(pageRequest))) {
@@ -108,6 +111,7 @@ public class ScheduleService {
         return new PageableReadResponse(schedules.getTotalPages(), createReadAllResponse(schedules, notDuplicatedSchedules));
     }
 
+    @Transactional(readOnly = true)
     public ReadOneResponse readOneSchedule(Long myselfId, Long eventId) {
         List<ReadOneScheduleDto> schedules = scheduleRepository.readOneSchedule(eventId);
         if (schedules.isEmpty()) {
@@ -134,6 +138,7 @@ public class ScheduleService {
         return createReadOneResponse(schedules, schedule);
     }
 
+    @Transactional(readOnly = true)
     public List<ReadPendingResponse> readPendingSchedule(Long userId) {
         List<ReadPendingDto> schedules = scheduleRepository.readAllPendingSchedule(userId);
 
@@ -146,6 +151,7 @@ public class ScheduleService {
                 s.getSubject())).collect(toList());
     }
 
+    @Transactional(readOnly = true)
     public List<ReadAllResponse> readPastSchedule(Long userId) {
         List<ReadAllScheduleDto> schedules = scheduleRepository.readPastSchedule(userId);
 
