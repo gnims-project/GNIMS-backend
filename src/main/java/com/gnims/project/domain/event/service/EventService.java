@@ -14,7 +14,6 @@ import static com.gnims.project.share.message.ExceptionMessage.ALREADY_PROCESSED
 @Service
 @RequiredArgsConstructor
 public class EventService {
-
     private final EventRepository eventRepository;
 
     @Transactional
@@ -23,9 +22,7 @@ public class EventService {
                 .orElseThrow(() -> new SecurityException(ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE));
 
         checkIsDeleted(event);
-
         event.removeEvent();
-        eventRepository.save(event);
     }
 
     @Transactional
@@ -34,12 +31,10 @@ public class EventService {
                 () -> new SecurityException(ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE));
 
         checkIsDeleted(event);
-
         event.updateEvent(updateForm);
-        eventRepository.save(event);
     }
 
-    private static void checkIsDeleted(Event event) {
+    public void checkIsDeleted(Event event) {
         if (event.getIsDeleted().equals(true)) {
             throw new IllegalArgumentException(ALREADY_DELETED_EVENT);
         }
