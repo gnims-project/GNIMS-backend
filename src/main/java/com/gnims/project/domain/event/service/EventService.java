@@ -20,8 +20,6 @@ public class EventService {
     public void softDeleteSchedule(Long userId, Long eventId) {
         Event event = eventRepository.findByCreateByAndId(userId, eventId)
                 .orElseThrow(() -> new SecurityException(ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE));
-
-        checkIsDeleted(event);
         event.removeEvent();
     }
 
@@ -29,14 +27,6 @@ public class EventService {
     public void updateSchedule(Long userId, UpdateForm updateForm, Long eventId) {
         Event event = eventRepository.findByCreateByAndId(userId, eventId).orElseThrow(
                 () -> new SecurityException(ALREADY_PROCESSED_OR_NO_AUTHORITY_SCHEDULE));
-
-        checkIsDeleted(event);
         event.updateEvent(updateForm);
-    }
-
-    public void checkIsDeleted(Event event) {
-        if (event.getIsDeleted().equals(true)) {
-            throw new IllegalArgumentException(ALREADY_DELETED_EVENT);
-        }
     }
 }
