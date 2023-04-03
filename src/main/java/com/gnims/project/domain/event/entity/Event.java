@@ -15,6 +15,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.gnims.project.share.message.ExceptionMessage.ALREADY_DELETED_EVENT;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -52,15 +54,23 @@ public class Event extends BaseEntity {
     }
 
     public void removeEvent() {
+        isAlreadyRemoved();
         this.isDeleted = true;
     }
 
     public void updateEvent(UpdateForm form) {
+        isAlreadyRemoved();
         this.cardColor = form.getCardColor();
         this.subject = form.getSubject();
         this.content = form.getContent();
         this.appointment = new Appointment(form);
         this.dDay = calculateDDay();
+    }
+
+    private void isAlreadyRemoved() {
+        if (isDeleted) {
+            throw new IllegalArgumentException(ALREADY_DELETED_EVENT);
+        }
     }
 
     private Long calculateDDay() {
